@@ -21,11 +21,17 @@
  */
 
 
-export interface View { 
-    id?: string | null;
-    name?: string | null;
-    description?: string | null;
-    status?: string | null;
-    canManage?: boolean | null;
-}
+export type EventStatus = 'Creating' | 'Active' | 'Paused' | 'Ended' | 'Expired' | 'Planning' | 'Applying' | 'Failed' | 'Ending';
+
+export const EventStatus = {
+    Creating: 'Creating' as EventStatus,
+    Active: 'Active' as EventStatus,
+    Paused: 'Paused' as EventStatus,
+    Ended: 'Ended' as EventStatus,
+    Expired: 'Expired' as EventStatus,
+    Planning: 'Planning' as EventStatus,
+    Applying: 'Applying' as EventStatus,
+    Failed: 'Failed' as EventStatus,
+    Ending: 'Ending' as EventStatus
+};
 

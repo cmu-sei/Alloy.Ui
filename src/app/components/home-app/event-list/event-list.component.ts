@@ -11,8 +11,8 @@ DM20-0181
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { EventTemplateService } from '../../../generated/alloy.api/api/event-template.service';
-import { EventTemplate } from '../../../generated/alloy.api/model/event-template';
+import { EventTemplateService } from 'src/app/generated/alloy.api/api/eventTemplate.service';
+import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { Router } from '@angular/router';
 import { ComnAuthQuery, Theme } from '@crucible/common';
 import { Observable } from 'rxjs';
@@ -36,9 +36,7 @@ export class EventListComponent implements OnInit {
     private eventTemplateService: EventTemplateService,
     private router: Router,
     private authQuery: ComnAuthQuery
-
   ) {
-
     this.theme$ = this.authQuery.userTheme$;
 
     this.eventsDataSource = new MatTableDataSource<EventTemplate>(
@@ -79,6 +77,6 @@ export class EventListComponent implements OnInit {
   }
 
   openEvent(id: string) {
-    this.router.navigate(['/eventlist/' + id]);
+    this.router.navigate(['/events/' + id]);
   }
 }

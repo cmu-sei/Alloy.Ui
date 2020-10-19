@@ -158,7 +158,7 @@ DM20-0181
               <mat-cell *matCellDef="let element">
                 <div class="small-font">{{ element.status }}</div>
                 <div
-                  *ngIf="element.status === Event.StatusEnum.Failed"
+                  *ngIf="element.status === EventStatus.Failed"
                   class="small-font"
                 >
                   &nbsp;{{ element.internalStatus }}

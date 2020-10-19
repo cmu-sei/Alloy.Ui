@@ -21,11 +21,14 @@
  */
 
 
-export interface View { 
-    id?: string | null;
-    name?: string | null;
-    description?: string | null;
-    status?: string | null;
-    canManage?: boolean | null;
+export interface ProblemDetails { 
+  [key: string]: object | any;
+
+
+    type?: string | null;
+    title?: string | null;
+    status?: number | null;
+    detail?: string | null;
+    instance?: string | null;
 }
 

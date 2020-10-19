@@ -21,11 +21,16 @@
  */
 
 
-export interface View { 
+export interface VmCredential { 
     id?: string | null;
-    name?: string | null;
+    scenarioTemplateId?: string | null;
+    scenarioId?: string | null;
+    username?: string | null;
+    password?: string | null;
     description?: string | null;
-    status?: string | null;
-    canManage?: boolean | null;
+    dateCreated?: Date | null;
+    dateModified?: Date | null;
+    createdBy?: string | null;
+    modifiedBy?: string | null;
 }
 

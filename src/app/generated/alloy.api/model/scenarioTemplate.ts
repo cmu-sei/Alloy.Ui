@@ -19,13 +19,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { VmCredential } from './vmCredential';
 
 
-export interface View { 
+export interface ScenarioTemplate { 
     id?: string | null;
     name?: string | null;
     description?: string | null;
-    status?: string | null;
-    canManage?: boolean | null;
+    durationHours?: number | null;
+    defaultVmCredentialId?: string | null;
+    vmCredentials?: Array<VmCredential> | null;
+    dateCreated?: Date | null;
+    dateModified?: Date | null;
+    createdBy?: string | null;
+    modifiedBy?: string | null;
 }
 

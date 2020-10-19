@@ -26,6 +26,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import {
   Event,
   EventService,
+  EventStatus,
   PlayerService,
   View,
 } from '../../../../generated/alloy.api';
@@ -56,7 +57,7 @@ export class EventEditComponent implements OnInit {
   public runIdFormControl: FormControl;
   public scenarioIdFormControl: FormControl;
 
-  public eventStates = Object.values(Event.StatusEnum);
+  public eventStates = Object.values(EventStatus);
   public matcher = new UserErrorStateMatcher();
   public views: View[];
   public selectedViewId: any;

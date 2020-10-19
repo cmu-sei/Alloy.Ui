@@ -16,14 +16,14 @@ import { AdminAppComponent } from './components/admin-app/admin-app.component';
 import { HomeAppComponent } from './components/home-app/home-app.component';
 
 export const ROUTES: Routes = [
-  { path: '', redirectTo: '/eventlist', pathMatch: 'full' },
+  { path: '', redirectTo: '/events', pathMatch: 'full' },
   {
-    path: 'eventlist',
+    path: 'events',
     component: HomeAppComponent,
     canActivate: [ComnAuthGuardService],
   },
   {
-    path: 'eventlist/:id',
+    path: 'events/:id',
     component: HomeAppComponent,
     canActivate: [ComnAuthGuardService],
   },

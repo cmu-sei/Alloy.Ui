@@ -16,8 +16,9 @@ import { shareReplay, take, takeUntil, tap } from 'rxjs/operators';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
 import { EventsService } from 'src/app/services/events/events.service';
-import { Event } from '../../../generated/alloy.api/model/event';
-import { EventTemplate } from '../../../generated/alloy.api/model/event-template';
+import { Event } from 'src/app/generated/alloy.api/model/event';
+import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
+import { EventStatus } from 'src/app/generated/alloy.api';
 
 @Component({
   selector: 'app-event-info',
@@ -59,6 +60,10 @@ export class EventInfoComponent implements OnInit, OnDestroy {
   private failedEvent: Event;
   private isNewLaunch = false;
 
+  get EventStatus() {
+    return EventStatus;
+  }
+
   constructor(
     private settingsService: ComnSettingsService,
     private dialogService: DialogService,
@@ -66,7 +71,6 @@ export class EventInfoComponent implements OnInit, OnDestroy {
     public eventsService: EventsService,
     private authQuery: ComnAuthQuery
   ) {
-
     this.theme$ = this.authQuery.userTheme$;
 
     this.impsDataSource = new MatTableDataSource<Event>(new Array<Event>());
@@ -122,7 +126,7 @@ export class EventInfoComponent implements OnInit, OnDestroy {
       this.currentEvent = undefined;
       this.remainingTime = '';
     } else {
-      const actives = imps.find((s) => s.status === Event.StatusEnum.Active);
+      const actives = imps.find((s) => s.status === EventStatus.Active);
       if (actives !== undefined) {
         // Active Lab exit now
         status = 'EventActive';
@@ -134,10 +138,10 @@ export class EventInfoComponent implements OnInit, OnDestroy {
         // No active Events, now check if anything is in progress
         const inProgress = imps.find(
           (s) =>
-            s.status === Event.StatusEnum.Creating ||
-            s.status === Event.StatusEnum.Planning ||
-            s.status === Event.StatusEnum.Applying ||
-            s.status === Event.StatusEnum.Ending
+            s.status === EventStatus.Creating ||
+            s.status === EventStatus.Planning ||
+            s.status === EventStatus.Applying ||
+            s.status === EventStatus.Ending
         );
         if (inProgress !== undefined) {
           status = 'EventLaunchInProgress';
@@ -255,8 +259,7 @@ export class EventInfoComponent implements OnInit, OnDestroy {
   processFailureStatus(imp: Event) {
     if (imp) {
       if (
-        (imp.status === Event.StatusEnum.Failed ||
-          imp.lastLaunchInternalStatus) &&
+        (imp.status === EventStatus.Failed || imp.lastLaunchInternalStatus) &&
         !this.failedEvent
       ) {
         // Failed event and endEvent not sent yet

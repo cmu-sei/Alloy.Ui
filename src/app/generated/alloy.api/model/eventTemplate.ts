@@ -21,11 +21,19 @@
  */
 
 
-export interface View { 
-    id?: string | null;
+export interface EventTemplate { 
+    id?: string;
+    viewId?: string | null;
+    directoryId?: string | null;
+    scenarioTemplateId?: string | null;
     name?: string | null;
     description?: string | null;
-    status?: string | null;
-    canManage?: boolean | null;
+    durationHours?: number;
+    useDynamicHost?: boolean;
+    isPublished?: boolean;
+    dateCreated?: Date;
+    dateModified?: Date | null;
+    createdBy?: string;
+    modifiedBy?: string | null;
 }
 

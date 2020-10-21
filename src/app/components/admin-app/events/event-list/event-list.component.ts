@@ -26,7 +26,7 @@ import {
 import { Event, EventService } from 'src/app/generated/alloy.api';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventEditComponent } from '../event-edit/event-edit.component';
-import { ComnSettingsService } from '@crucible/common';
+import { ComnSettingsService } from '@cmusei/crucible-common';
 
 export interface Action {
   Value: string;

@@ -11,7 +11,7 @@ DM20-0181
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { ComnAuthService, ComnSettingsService } from '@crucible/common';
+import { ComnAuthService, ComnSettingsService } from '@cmusei/crucible-common';
 import { take } from 'rxjs/operators';
 import { EventService } from 'src/app/generated/alloy.api';
 import { LoggedInUserService } from '../../services/logged-in-user/logged-in-user.service';

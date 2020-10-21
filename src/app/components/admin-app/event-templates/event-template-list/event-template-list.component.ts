@@ -22,7 +22,7 @@ import {
 } from 'src/app/generated/alloy.api';
 import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
-import { ComnSettingsService } from '@crucible/common';
+import { ComnSettingsService } from '@cmusei/crucible-common';
 
 @Component({
   selector: 'app-event-template-list',

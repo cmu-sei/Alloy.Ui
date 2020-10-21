@@ -14,7 +14,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { EventTemplateService } from 'src/app/generated/alloy.api/api/eventTemplate.service';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { Router } from '@angular/router';
-import { ComnAuthQuery, Theme } from '@crucible/common';
+import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
 import { Observable } from 'rxjs';
 
 @Component({

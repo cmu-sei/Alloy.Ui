@@ -25,6 +25,7 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=builder /ng-app/dist/alloy /usr/share/nginx/html
+COPY --from=builder /ng-app/nginx-basehref.sh /docker-entrypoint.d/90-basehref.sh
 
 # Build Angular app in production mode and store artifacts in dist folder
 RUN rm -f ./src/assets/config/settings.env.json

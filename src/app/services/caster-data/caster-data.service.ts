@@ -14,7 +14,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 export class CasterDataService {
   private _apiDirectories: Directory[];
-  private _directories: Directory[];
+  private _directories: Directory[] = [];
   private _directoryMask: Observable<string>;
   readonly directories = new BehaviorSubject<Directory[]>(this._directories);
   readonly directoryList: Observable<Directory[]>;

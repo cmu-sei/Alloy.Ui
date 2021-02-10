@@ -13,7 +13,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 })
 
 export class SteamfitterDataService {
-  private _scenarioTemplates: ScenarioTemplate[];
+  private _scenarioTemplates: ScenarioTemplate[] = [];
   private _scenarioTemplateMask: Observable<string>;
   readonly scenarioTemplates = new BehaviorSubject<ScenarioTemplate[]>(this._scenarioTemplates);
   readonly scenarioTemplateList: Observable<ScenarioTemplate[]>;

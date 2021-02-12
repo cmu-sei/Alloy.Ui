@@ -21,12 +21,6 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v2
-      
-    - name: Debug Info
-      run: |
-        echo github.event_name != 'pull_request'
-        echo ${{ github.event_name }}
-        echo $("${{ github.event_name }}"  != "pull_request")
 
     - name: Prepare
       id: prep
@@ -43,6 +37,13 @@ jobs:
         elif [[ $GITHUB_REF == refs/heads/* ]]; then
           VERSION=$(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')
           TAGS="${DOCKER_IMAGE}:${VERSION}"
+        fi
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          echo ::set-output name=push::false
+          echo "event is pull_request, not pushing image"
+        else        
+          echo ::set-output name=push::true
+          echo "event is not pull_request, pushing image"
         fi
         echo ::set-output name=version::${VERSION}
         echo ::set-output name=tags::${TAGS}
@@ -63,7 +64,7 @@ jobs:
       with:
         context: .
         file: ./dockerfile
-        push: github.event_name != 'pull_request'
+        push: ${{ steps.prep.outputs.push }}
         pull: true
         tags: ${{ steps.prep.outputs.tags }}
         labels: |

@@ -21,6 +21,12 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v2
+      
+    - name: Debug Info
+      run: |
+        echo github.event_name != 'pull_request'
+        echo ${{ github.event_name }}
+        echo ${{ github.event_name }}  != 'pull_request'
 
     - name: Prepare
       id: prep
@@ -57,7 +63,7 @@ jobs:
       with:
         context: .
         file: ./dockerfile
-        push: ${{ github.event_name }} != 'pull_request'
+        push: github.event_name != 'pull_request'
         pull: true
         tags: ${{ steps.prep.outputs.tags }}
         labels: |

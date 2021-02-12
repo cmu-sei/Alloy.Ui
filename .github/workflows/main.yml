@@ -26,7 +26,7 @@ jobs:
       run: |
         echo github.event_name != 'pull_request'
         echo ${{ github.event_name }}
-        echo ${{ github.event_name }}  != 'pull_request'
+        echo $("${{ github.event_name }}"  != "pull_request")
 
     - name: Prepare
       id: prep

@@ -214,7 +214,7 @@ export class AdminEventListComponent implements OnInit {
             dialogRef.close();
             this.refreshEvents();
             if (!!newEvent) {
-              this.executeEventAction('edit', newEvent.id);
+              this.executeEventAction('edit', event.id);
             }
           });
         });

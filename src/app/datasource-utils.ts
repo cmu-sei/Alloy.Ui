@@ -3,14 +3,10 @@
 
 
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
+import { Observable, of, combineLatest, concat, defer } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
-import { combineLatest } from 'rxjs/observable/combineLatest';
-import { concat } from 'rxjs/observable/concat';
-import { map } from 'rxjs/operators';
-import { defer } from 'rxjs/observable/defer';
 
 export class SimpleDataSource<T> extends DataSource<T> {
   constructor(private rows$: Observable<T[]>) {super(); }

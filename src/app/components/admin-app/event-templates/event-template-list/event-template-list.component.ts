@@ -4,9 +4,8 @@
 import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
-import { Observable } from 'rxjs/Observable';
 import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { Observable, Subject } from 'rxjs';
 import {
   Directory,
   EventTemplate,

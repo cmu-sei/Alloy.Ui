@@ -4,10 +4,9 @@ import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ComnAuthService, ComnSettingsService, Theme, ComnAuthQuery } from '@cmusei/crucible-common';
-import { Subject } from 'rxjs/Subject';
+import { Observable, Subject } from 'rxjs';
 import { LoggedInUserService } from '../../services/logged-in-user/logged-in-user.service';
 import { TopbarView } from './../shared/top-bar/topbar.models';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-admin-app',

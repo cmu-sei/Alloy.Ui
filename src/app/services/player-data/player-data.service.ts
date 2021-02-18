@@ -13,7 +13,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 })
 
 export class PlayerDataService {
-  private _views: View[];
+  private _views: View[] = [];
   private _viewMask: Observable<string>;
   readonly views = new BehaviorSubject<View[]>(this._views);
   readonly viewList: Observable<View[]>;

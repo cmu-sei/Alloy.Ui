@@ -6,10 +6,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
 import { map } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+import { Subject, Observable, of } from 'rxjs';
 import {
   fromMatPaginator,
   fromMatSort,
@@ -214,7 +212,7 @@ export class AdminEventListComponent implements OnInit {
             dialogRef.close();
             this.refreshEvents();
             if (!!newEvent) {
-              this.executeEventAction('edit', newEvent.id);
+              this.executeEventAction('edit', event.id);
             }
           });
         });

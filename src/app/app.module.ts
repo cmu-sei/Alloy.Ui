@@ -139,7 +139,7 @@ export class AngularMaterialModule {}
     ReactiveFormsModule,
     SwaggerCodegenApiModule,
     ClipboardModule,
-    environment.production ? [] : AkitaNgDevtools,
+    environment.production ? [] : AkitaNgDevtools.forRoot(),
     AkitaNgRouterStoreModule,
     ComnSettingsModule.forRoot(),
     ComnAuthModule.forRoot(),

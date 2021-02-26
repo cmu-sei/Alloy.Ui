@@ -35,7 +35,7 @@
     "@cmusei/crucible-common": "0.1.0",
     "@datorama/akita": "^6.0.0",
     "@datorama/akita-ng-router-store": "^6.0.0",
-    "@openapitools/openapi-generator-cli": "^2.1.25",
+    "@openapitools/openapi-generator-cli": "^2.1.26",
     "core-js": "^3.9.0",
     "oidc-client": "~1.11.5",
     "rxjs": "~6.6.6",

@@ -18,25 +18,19 @@ RUN $(npm bin)/ng build --prod
 
 ### Stage 2: Setup ###
 
-FROM nginx
+FROM nginxinc/nginx-unprivileged:stable-alpine
 
-COPY default.conf /etc/nginx/conf.d/default.conf
-
+USER root
 RUN rm -rf /usr/share/nginx/html/*
-
-RUN chown -R nginx:nginx /usr/share/nginx/html      && \
-    chown -R nginx:nginx /var/cache/nginx           && \
-    chown -R nginx:nginx /var/log/nginx             && \
-    chown -R nginx:nginx /etc/nginx/conf.d          && \
-    sed -i '/user  nginx;/d' /etc/nginx/nginx.conf  && \
-    sed -i 's,/var/run/nginx.pid,/tmp/nginx.pid,' /etc/nginx/nginx.conf
-
 USER nginx
 
+COPY default.conf /etc/nginx/conf.d/default.conf
+COPY nginx-basehref.sh /docker-entrypoint.d/90-basehref.sh
 COPY --from=builder /ng-app/dist/alloy /usr/share/nginx/html
-COPY --from=builder /ng-app/nginx-basehref.sh /docker-entrypoint.d/90-basehref.sh
 
 # Build Angular app in production mode and store artifacts in dist folder
 RUN rm -f ./src/assets/config/settings.env.json
+
+EXPOSE 8080
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

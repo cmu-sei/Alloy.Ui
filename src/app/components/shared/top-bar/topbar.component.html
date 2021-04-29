@@ -9,26 +9,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 >
   <mat-toolbar-row>
     <span class="margin-auto">
-      <button
-        *ngIf="sidenav && sidenav?.opened"
-        (click)="sidenavToggleFn()"
-        color="primary"
-        mat-icon-button
-        matTooltip="Close Sidebar"
-      >
-        <mat-icon svgIcon="ic_chevron_left" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
-      </button>
-      <button
-        *ngIf="sidenav && !sidenav?.opened"
-        (click)="sidenavToggleFn()"
-        color="primary"
-        mat-icon-button
-        matTooltip="Open Sidebar"
-      >
-        <mat-icon svgIcon="ic_chevron_right" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
-      </button>
+      <a [routerLink]="['/']">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <mat-icon
+            class="alloy-icon"
+            svgIcon="ic_crucible_alloy"
+          ></mat-icon>        
+          <span class="view-text">{{ title }}</span>
+        </div>
+      </a>
     </span>
-    <span class="view-text">{{ title }}</span>
     <ng-container *ngIf="teams && team && teams.length > 0">
       <div class="team-text">Team:</div>
       <b class="team-text">{{ team.name }}</b>

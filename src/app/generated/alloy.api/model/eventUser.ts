@@ -9,15 +9,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { Workspace } from './workspace';
 
 
-export interface Directory { 
-    id?: string | null;
-    name?: string | null;
-    projectId?: string | null;
-    parentId?: string | null;
-    files?: Array<any> | null;
-    workspaces?: Array<Workspace> | null;
+export interface EventUser { 
+    id?: string;
+    userId?: string;
+    eventId?: string;
+    dateCreated?: Date;
+    dateModified?: Date | null;
+    createdBy?: string;
+    modifiedBy?: string | null;
 }
 

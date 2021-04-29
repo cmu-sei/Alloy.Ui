@@ -9,15 +9,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { Workspace } from './workspace';
 
 
-export interface Directory { 
-    id?: string | null;
-    name?: string | null;
-    projectId?: string | null;
-    parentId?: string | null;
-    files?: Array<any> | null;
-    workspaces?: Array<Workspace> | null;
-}
+export type HealthStatus = 'Unhealthy' | 'Degraded' | 'Healthy';
+
+export const HealthStatus = {
+    Unhealthy: 'Unhealthy' as HealthStatus,
+    Degraded: 'Degraded' as HealthStatus,
+    Healthy: 'Healthy' as HealthStatus
+};
 

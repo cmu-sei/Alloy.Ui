@@ -1,9 +1,9 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 import { Injectable } from '@angular/core';
-import { EventService, Event } from 'src/app/generated/alloy.api';
-import { Observable, BehaviorSubject, combineLatest, Subject } from 'rxjs';
-import { take, switchMap, tap } from 'rxjs/operators';
+import { combineLatest, Observable, Subject } from 'rxjs';
+import { switchMap, take, tap } from 'rxjs/operators';
+import { Event, EventService } from 'src/app/generated/alloy.api';
 import { EventTemplatesService } from '../event-templates/event-templates.service';
 
 @Injectable({
@@ -66,4 +66,6 @@ export class EventsService {
       )
       .subscribe();
   }
+  inviteEvent(id: string) {}
+  enrollEvent(code: string) {}
 }

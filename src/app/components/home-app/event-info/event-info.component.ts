@@ -167,7 +167,6 @@ export class EventInfoComponent implements OnInit, OnDestroy {
   }
 
   rejoinEvent() {
-    console.log('Opening ' + this.currentEvent.name + ' inside Player!!!');
     window.location.href =
       this.settingsService.settings.PlayerUIAddress +
       '/view/' +

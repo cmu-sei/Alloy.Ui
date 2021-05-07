@@ -2,23 +2,22 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
-import { EventInfoComponent } from './event-info.component';
+import { EventTemplateInfoComponent } from './event-template-info.component';
 
 describe('EventInfoComponent', () => {
-  let component: EventInfoComponent;
-  let fixture: ComponentFixture<EventInfoComponent>;
+  let component: EventTemplateInfoComponent;
+  let fixture: ComponentFixture<EventTemplateInfoComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [EventInfoComponent],
+        declarations: [EventTemplateInfoComponent],
       }).compileComponents();
     })
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EventInfoComponent);
+    fixture = TestBed.createComponent(EventTemplateInfoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

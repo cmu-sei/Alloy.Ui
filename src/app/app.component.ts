@@ -5,9 +5,14 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { Component, HostBinding, OnDestroy } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
+import {
+  ComnAuthQuery,
+  ComnSettingsService,
+  Theme,
+} from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TopbarView } from './components/shared/top-bar/topbar.models';
 
 @Component({
   selector: 'app-root',
@@ -18,12 +23,29 @@ export class AppComponent implements OnDestroy {
   @HostBinding('class') componentCssClass: string;
   theme$: Observable<Theme> = this.authQuery.userTheme$;
   unsubscribe$: Subject<null> = new Subject<null>();
+
+  titleText: string;
+  topBarColor = '#719F94';
+  topBarTextColor = '#FFFFFF';
+  TopbarView = TopbarView;
+
   constructor(
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer,
     private overlayContainer: OverlayContainer,
-    private authQuery: ComnAuthQuery
+    private authQuery: ComnAuthQuery,
+    private settingsService: ComnSettingsService
   ) {
+    this.topBarColor = this.settingsService.settings.AppTopBarHexColor
+      ? this.settingsService.settings.AppTopBarHexColor
+      : this.topBarColor;
+    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
+      ? this.settingsService.settings.AppTopBarHexTextColor
+      : this.topBarTextColor;
+
+    // Set the page title from configuration file
+    this.titleText = this.settingsService.settings.AppTopBarText;
+
     iconRegistry.addSvgIcon(
       'ic_apps_white_24px',
       sanitizer.bypassSecurityTrustResourceUrl(
@@ -120,6 +142,16 @@ export class AppComponent implements OnDestroy {
         this.componentCssClass = theme;
         classList.add(theme);
         classList.remove(Theme.LIGHT);
+    }
+  }
+
+  isIframe(): boolean {
+    if (window.location !== window.parent.location) {
+      // The page is in an iframe
+      return true;
+    } else {
+      // The page is not in an iframe
+      return false;
     }
   }
 

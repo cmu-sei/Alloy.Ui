@@ -2,22 +2,22 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { Injectable } from '@angular/core';
-import {
-  EventTemplateService,
-  EventTemplate,
-  Event,
-  EventService,
-} from 'src/app/generated/alloy.api';
-import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
 import {
   map,
   shareReplay,
-  take,
-  mergeMap,
-  tap,
   switchMap,
+  take,
+  takeUntil,
+  tap,
 } from 'rxjs/operators';
+import {
+  EventTemplate,
+  EventTemplateService,
+} from 'src/app/generated/alloy.api';
+import { EventTemplatesStore } from 'src/app/state/event-templates/event-templates.store';
+import { LoggedInUserService } from '../logged-in-user/logged-in-user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,12 +27,29 @@ export class EventTemplatesService {
   public searchControl$ = new FormControl();
   public selectedEventTemplateId: string | undefined = undefined;
   public fullEventTemplateList$ = new BehaviorSubject<EventTemplate[]>([]);
-
   public currentEventTemplate$: Observable<EventTemplate>;
   private searchTerm$ = new BehaviorSubject<string>('');
   private currentEventTemplateId$ = new BehaviorSubject<string>('');
+  private unsubscribe$ = new Subject<null>();
 
-  constructor(private eventTemplateService: EventTemplateService) {
+  constructor(
+    private eventTemplateService: EventTemplateService,
+    private templateStore: EventTemplatesStore,
+    private loggedInUser: LoggedInUserService
+  ) {
+    this.eventTemplateService
+      .getEventTemplates()
+      .pipe(
+        tap((templates) => {
+          this.templateStore.set(templates);
+        }),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
+
+    this.searchControl$.valueChanges.subscribe((searchString) => {
+      this.searchTerm$.next(searchString.trim().toLowerCase());
+    });
     this.updatelist();
 
     this.searchControl$.valueChanges.subscribe((searchString) => {
@@ -54,12 +71,17 @@ export class EventTemplatesService {
       }),
       shareReplay(1)
     );
-
     this.currentEventTemplate$ = this.currentEventTemplateId$.pipe(
       switchMap((id) => {
         return this.eventTemplateService.getEventTemplate(id).pipe(take(1));
       })
     );
+  }
+
+  loadTemplates() {
+    return this.eventTemplateService
+      .getEventTemplates()
+      .pipe(tap((templates) => this.templateStore.set(templates)));
   }
 
   addNew(eventTemplate: EventTemplate) {
@@ -89,15 +111,24 @@ export class EventTemplatesService {
         this.updatelist();
       });
   }
-
-  getEventTemplate(id: string) {
-    this.currentEventTemplateId$.next(id);
+  stateCreate(template: EventTemplate) {
+    this.templateStore.upsert(template.id, template);
   }
-
+  stateUpdate(event: EventTemplate) {
+    this.templateStore.update(event.id, event);
+  }
+  stateDelete(event: EventTemplate) {
+    this.templateStore.remove(event.id);
+  }
   private updatelist() {
     this.eventTemplateService
       .getEventTemplates()
       .pipe(take(1))
       .subscribe((defs) => this.fullEventTemplateList$.next(defs));
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next(null);
+    this.unsubscribe$.complete();
   }
 }

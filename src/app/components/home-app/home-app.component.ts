@@ -33,8 +33,12 @@ export class HomeAppComponent implements OnInit {
 
   ngOnInit() {
     // Set the topbar color from config file
-    this.topBarColor = this.settingsService.settings.AppTopBarHexColor ? this.settingsService.settings.AppTopBarHexColor : this.topBarColor;
-    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor ? this.settingsService.settings.AppTopBarHexTextColor : this.topBarTextColor;
+    this.topBarColor = this.settingsService.settings.AppTopBarHexColor
+      ? this.settingsService.settings.AppTopBarHexColor
+      : this.topBarColor;
+    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
+      ? this.settingsService.settings.AppTopBarHexTextColor
+      : this.topBarTextColor;
 
     // Set the page title from configuration file
     this.titleText = this.settingsService.settings.AppTopBarText;

@@ -9,12 +9,13 @@ describe('AdminEventListComponent', () => {
   let component: AdminEventListComponent;
   let fixture: ComponentFixture<AdminEventListComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ AdminEventListComponent ]
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [AdminEventListComponent],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AdminEventListComponent);

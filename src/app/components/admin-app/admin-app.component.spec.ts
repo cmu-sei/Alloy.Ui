@@ -9,12 +9,13 @@ describe('AdminAppComponent', () => {
   let component: AdminAppComponent;
   let fixture: ComponentFixture<AdminAppComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ AdminAppComponent ]
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [AdminAppComponent],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AdminAppComponent);
@@ -26,4 +27,3 @@ describe('AdminAppComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-

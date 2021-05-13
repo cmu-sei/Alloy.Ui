@@ -53,8 +53,12 @@ export class EventTemplateListComponent implements OnDestroy {
       });
     this.isLoading = false;
     // Set the topbar color from config file
-    this.topBarColor = this.settingsService.settings.AppTopBarHexColor ? this.settingsService.settings.AppTopBarHexColor : this.topBarColor;
-    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor ? this.settingsService.settings.AppTopBarHexTextColor : this.topBarTextColor;
+    this.topBarColor = this.settingsService.settings.AppTopBarHexColor
+      ? this.settingsService.settings.AppTopBarHexColor
+      : this.topBarColor;
+    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
+      ? this.settingsService.settings.AppTopBarHexTextColor
+      : this.topBarTextColor;
   }
 
   ngOnDestroy() {

@@ -18,10 +18,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-list-item>
         <a class="nolink" [routerLink]="['/']">
           <div fxLayout="row" fxLayoutAlign="start center">
-            <mat-icon
-              class="alloy-icon"
-              svgIcon="ic_crucible_alloy"
-            ></mat-icon>
+            <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy"></mat-icon>
             <h3 class="icon-text">Administration</h3>
           </div>
         </a>
@@ -36,7 +33,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <mat-icon
             class="icon-35px"
             svgIcon="clipboard_outline"
-            [ngStyle]="{'color': topBarColor}"
+            [ngStyle]="{ color: topBarColor }"
           ></mat-icon>
         </div>
 
@@ -59,7 +56,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <mat-icon
             class="icon-35px"
             svgIcon="clipboard_play_outline"
-            [ngStyle]="{'color': topBarColor}"
+            [ngStyle]="{ color: topBarColor }"
           ></mat-icon>
         </div>
 
@@ -68,14 +65,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         </div>
 
         <div>
-          <button
-            mat-icon-button
-            (click)="adminGotoEvents()"
-          >
-            <mat-icon
-              svgIcon="ic_chevron_right"
-              class="icon-color"
-            ></mat-icon>
+          <button mat-icon-button (click)="adminGotoEvents()">
+            <mat-icon svgIcon="ic_chevron_right" class="icon-color"></mat-icon>
           </button>
         </div>
       </mat-list-item>

@@ -13,7 +13,8 @@
   min-height: 48px;
 }
 
-.mat-row, .mat-header-row {
+.mat-row,
+.mat-header-row {
   display: flex;
   border-bottom-width: 1px;
   border-bottom-style: solid;
@@ -22,7 +23,8 @@
   box-sizing: border-box;
 }
 
-.mat-cell, .mat-header-cell {
+.mat-cell,
+.mat-header-cell {
   flex: 1;
   overflow: hidden;
   word-wrap: break-word;
@@ -71,7 +73,7 @@
 .spinner {
   display: flex;
   justify-content: center;
-  align-items: center
+  align-items: center;
 }
 
 .status-selection {

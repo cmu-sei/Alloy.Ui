@@ -9,12 +9,13 @@ describe('EventTemplateListComponent', () => {
   let component: EventTemplateListComponent;
   let fixture: ComponentFixture<EventTemplateListComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ EventTemplateListComponent ]
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [EventTemplateListComponent],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(EventTemplateListComponent);

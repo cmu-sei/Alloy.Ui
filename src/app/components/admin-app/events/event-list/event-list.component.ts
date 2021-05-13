@@ -73,8 +73,12 @@ export class AdminEventListComponent implements OnInit {
     private settingsService: ComnSettingsService
   ) {
     // Set the topbar color from config file
-    this.topBarColor = this.settingsService.settings.AppTopBarHexColor ? this.settingsService.settings.AppTopBarHexColor : this.topBarColor;
-    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor ? this.settingsService.settings.AppTopBarHexTextColor : this.topBarTextColor;
+    this.topBarColor = this.settingsService.settings.AppTopBarHexColor
+      ? this.settingsService.settings.AppTopBarHexColor
+      : this.topBarColor;
+    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
+      ? this.settingsService.settings.AppTopBarHexTextColor
+      : this.topBarTextColor;
   }
 
   /**

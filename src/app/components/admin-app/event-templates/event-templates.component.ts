@@ -20,8 +20,8 @@ export class EventTemplatesComponent {
   public isLinear = false;
   public eventTemplates$ = new Observable<EventTemplate[] | void>();
   public viewList = this.playerDataService.viewList;
-  public scenarioTemplateList = this.steamfitterDataService
-    .scenarioTemplateList;
+  public scenarioTemplateList =
+    this.steamfitterDataService.scenarioTemplateList;
   public directoryList = this.casterDataService.directoryList;
 
   constructor(

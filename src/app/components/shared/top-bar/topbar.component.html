@@ -16,7 +16,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         mat-icon-button
         matTooltip="Close Sidebar"
       >
-        <mat-icon svgIcon="ic_chevron_left" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
+        <mat-icon
+          svgIcon="ic_chevron_left"
+          [style.color]="topbarTextColor ? topbarTextColor : null"
+        ></mat-icon>
       </button>
       <button
         *ngIf="sidenav && !sidenav?.opened"
@@ -25,14 +28,17 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         mat-icon-button
         matTooltip="Open Sidebar"
       >
-        <mat-icon svgIcon="ic_chevron_right" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
+        <mat-icon
+          svgIcon="ic_chevron_right"
+          [style.color]="topbarTextColor ? topbarTextColor : null"
+        ></mat-icon>
       </button>
     </span>
-      <a [routerLink]="['/']">
-        <div fxLayout="row" fxLayoutAlign="start center">       
-          <span class="view-text">{{ title }}</span>
-        </div>
-      </a>
+    <a [routerLink]="['/']">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <span class="view-text">{{ title }}</span>
+      </div>
+    </a>
     <ng-container *ngIf="teams && team && teams.length > 0">
       <div class="team-text">Team:</div>
       <b class="team-text">{{ team.name }}</b>

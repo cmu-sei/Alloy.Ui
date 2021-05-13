@@ -2,11 +2,11 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 .event-info-container {
-    display: inline-block;
-    flex-direction: column;
-    min-width: 900px;
-    margin-top: 40px;
-    width: 900px;
+  display: inline-block;
+  flex-direction: column;
+  min-width: 900px;
+  margin-top: 40px;
+  width: 900px;
 }
 
 .sp-icon {
@@ -14,8 +14,8 @@
 }
 
 .duration-label {
-    margin-top: 5px;
-    font-size: small;
+  margin-top: 5px;
+  font-size: small;
 }
 
 .duration-label-warn {
@@ -72,6 +72,6 @@
 }
 
 .alloy-icon {
-  transform: scale(2); 
+  transform: scale(2);
   width: 60px;
 }

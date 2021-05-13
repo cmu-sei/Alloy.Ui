@@ -9,12 +9,13 @@ describe('EventEditComponent', () => {
   let component: EventEditComponent;
   let fixture: ComponentFixture<EventEditComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ EventEditComponent ]
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [EventEditComponent],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(EventEditComponent);

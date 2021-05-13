@@ -6,22 +6,20 @@ import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { Injectable } from '@angular/core';
 import { ConfirmDialogComponent } from '../../components/shared/confirm-dialog/confirm-dialog.component';
 
-
 @Injectable()
 export class DialogService {
+  constructor(private dialog: MatDialog) {}
 
-    constructor(private dialog: MatDialog) { }
+  public confirm(
+    title: string,
+    message: string,
+    data?: any
+  ): Observable<boolean> {
+    let dialogRef: MatDialogRef<ConfirmDialogComponent>;
+    dialogRef = this.dialog.open(ConfirmDialogComponent, { data: data || {} });
+    dialogRef.componentInstance.title = title;
+    dialogRef.componentInstance.message = message;
 
-    public confirm(title: string, message: string, data?: any): Observable<boolean> {
-
-        let dialogRef: MatDialogRef<ConfirmDialogComponent>;
-        dialogRef = this.dialog.open(ConfirmDialogComponent, {data: data || {} });
-        dialogRef.componentInstance.title = title;
-        dialogRef.componentInstance.message = message;
-
-        return dialogRef.afterClosed();
-    }
-
+    return dialogRef.afterClosed();
+  }
 }
-
-

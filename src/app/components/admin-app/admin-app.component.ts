@@ -3,7 +3,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { ComnAuthService, ComnSettingsService, Theme, ComnAuthQuery } from '@cmusei/crucible-common';
+import {
+  ComnAuthService,
+  ComnSettingsService,
+  Theme,
+  ComnAuthQuery,
+} from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
 import { LoggedInUserService } from '../../services/logged-in-user/logged-in-user.service';
 import { TopbarView } from './../shared/top-bar/topbar.models';
@@ -28,7 +33,6 @@ export class AdminAppComponent implements OnInit {
   shouldUpdateEvents: Subject<boolean> = new Subject();
   TopbarView = TopbarView;
   theme$: Observable<Theme>;
-
 
   constructor(
     private router: Router,

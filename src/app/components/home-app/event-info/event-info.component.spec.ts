@@ -9,12 +9,13 @@ describe('EventInfoComponent', () => {
   let component: EventInfoComponent;
   let fixture: ComponentFixture<EventInfoComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ EventInfoComponent ]
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [EventInfoComponent],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(EventInfoComponent);

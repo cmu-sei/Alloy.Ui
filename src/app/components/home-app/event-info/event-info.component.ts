@@ -3,7 +3,11 @@
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { ComnSettingsService, Theme, ComnAuthQuery } from '@cmusei/crucible-common';
+import {
+  ComnSettingsService,
+  Theme,
+  ComnAuthQuery,
+} from '@cmusei/crucible-common';
 import { interval, Observable, Subject } from 'rxjs';
 import { shareReplay, take, takeUntil, tap } from 'rxjs/operators';
 import { DialogService } from 'src/app/services/dialog/dialog.service';

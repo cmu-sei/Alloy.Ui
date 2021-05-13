@@ -7,10 +7,9 @@ import { take, switchMap, tap } from 'rxjs/operators';
 import { EventTemplatesService } from '../event-templates/event-templates.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EventsService {
-
   public currentEvents$: Observable<Event[]>;
 
   private currentEventTemplateId: string;
@@ -20,14 +19,16 @@ export class EventsService {
     public eventTemplatesService: EventTemplatesService,
     public eventService: EventService
   ) {
-
-    this.currentEvents$ = combineLatest(this.eventTemplatesService.currentEventTemplate$, this.updateTick$).pipe(
+    this.currentEvents$ = combineLatest(
+      this.eventTemplatesService.currentEventTemplate$,
+      this.updateTick$
+    ).pipe(
       switchMap(([def]) => {
         if (def) {
           this.currentEventTemplateId = def.id;
           return this.eventService.getMyEventTemplateEvents(def.id);
         }
-      }),
+      })
     );
   }
 
@@ -37,23 +38,32 @@ export class EventsService {
   }
 
   launchEvent() {
-    this.eventService.createEventFromEventTemplate(this.currentEventTemplateId).pipe(
-      take(1),
-      tap(() => this.updateEvents())
-    ).subscribe();
+    this.eventService
+      .createEventFromEventTemplate(this.currentEventTemplateId)
+      .pipe(
+        take(1),
+        tap(() => this.updateEvents())
+      )
+      .subscribe();
   }
 
   endEvent(id: string) {
-    this.eventService.endEvent(id).pipe(
-      take(1),
-      tap(() => this.updateEvents())
-    ).subscribe();
+    this.eventService
+      .endEvent(id)
+      .pipe(
+        take(1),
+        tap(() => this.updateEvents())
+      )
+      .subscribe();
   }
 
   redeployEvent(id: string) {
-    this.eventService.redeployEvent(id).pipe(
-      take(1),
-      tap(() => this.updateEvents())
-    ).subscribe();
+    this.eventService
+      .redeployEvent(id)
+      .pipe(
+        take(1),
+        tap(() => this.updateEvents())
+      )
+      .subscribe();
   }
 }

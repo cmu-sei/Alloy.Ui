@@ -245,7 +245,8 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
           this.eventTemplate.durationHours !==
             this.durationHoursFormControl.value
         ) {
-          this.eventTemplate.durationHours = this.durationHoursFormControl.value;
+          this.eventTemplate.durationHours =
+            this.durationHoursFormControl.value;
           shouldUpdate = true;
         }
         break;
@@ -262,7 +263,8 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
           this.eventTemplate.useDynamicHost !==
           this.useDynamicHostFormControl.value
         ) {
-          this.eventTemplate.useDynamicHost = this.useDynamicHostFormControl.value;
+          this.eventTemplate.useDynamicHost =
+            this.useDynamicHostFormControl.value;
           shouldUpdate = true;
         }
         break;

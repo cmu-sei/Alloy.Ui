@@ -9,12 +9,13 @@ describe('HomeAppComponent', () => {
   let component: HomeAppComponent;
   let fixture: ComponentFixture<HomeAppComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ HomeAppComponent ]
+  beforeEach(
+    waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [HomeAppComponent],
+      }).compileComponents();
     })
-    .compileComponents();
-  }));
+  );
 
   beforeEach(() => {
     fixture = TestBed.createComponent(HomeAppComponent);
@@ -26,4 +27,3 @@ describe('HomeAppComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-

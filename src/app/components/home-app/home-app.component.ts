@@ -1,13 +1,13 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { ComnAuthService, ComnSettingsService } from '@cmusei/crucible-common';
-import { take } from 'rxjs/operators';
-import { EventService } from 'src/app/generated/alloy.api';
-import { LoggedInUserService } from '../../services/logged-in-user/logged-in-user.service';
+import { ComnSettingsService } from '@cmusei/crucible-common';
+import { RouterQuery } from '@datorama/akita-ng-router-store';
+import { combineLatest, Subject } from 'rxjs';
+import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { EventsService } from 'src/app/services/events/events.service';
 import { TopbarView } from '../shared/top-bar/topbar.models';
 
 @Component({
@@ -15,67 +15,60 @@ import { TopbarView } from '../shared/top-bar/topbar.models';
   templateUrl: './home-app.component.html',
   styleUrls: ['./home-app.component.scss'],
 })
-export class HomeAppComponent implements OnInit {
+export class HomeAppComponent implements OnInit, OnDestroy {
   username: string;
-  titleText: string;
+
   isSuperUser: Boolean;
-  topBarColor = '#719F94';
-  topBarTextColor = '#FFFFFF';
-  eventTemplateId = '';
+  eventTemplateId;
+  viewId = '';
   TopbarView = TopbarView;
+  unsubscribe$: Subject<null> = new Subject<null>();
 
   constructor(
-    private route: ActivatedRoute,
     private settingsService: ComnSettingsService,
     private titleService: Title,
-    private eventService: EventService
+    private eventsService: EventsService,
+    private routerQuery: RouterQuery
   ) {}
 
   ngOnInit() {
     // Set the topbar color from config file
-    this.topBarColor = this.settingsService.settings.AppTopBarHexColor
-      ? this.settingsService.settings.AppTopBarHexColor
-      : this.topBarColor;
-    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
-      ? this.settingsService.settings.AppTopBarHexTextColor
-      : this.topBarTextColor;
-
-    // Set the page title from configuration file
-    this.titleText = this.settingsService.settings.AppTopBarText;
-
     this.titleService.setTitle(this.settingsService.settings.AppTitle);
     this.username = '';
 
     // Get the event GUID from the URL that the user is entering the web page on
-    this.route.params.subscribe((params) => {
-      this.eventTemplateId = params['id'];
+    this.routerQuery
+      .selectParams('viewId')
+      .pipe(
+        filter((viewId) => viewId),
+        switchMap((viewId) => {
+          return combineLatest([
+            this.eventsService.getViewEvents(viewId),
+            this.eventsService.getUserEvents(),
+          ]).pipe(
+            map(([viewEvents, myEvents]) => [
+              viewId,
+              // Set so only unique events are sent.
+              new Set([...viewEvents, ...myEvents]),
+            ])
+          );
+        }),
+        tap(([viewId, events]) => {
+          // Convert set to array.
+          events = [...events];
 
-      if (!this.eventTemplateId) {
-        // If there is no eventTemplateId, then check to see if a ViewId for player is present
-        const viewId = params['viewId'];
-        if (viewId) {
-          console.log('ViewId:  ', viewId);
-          this.eventService
-            .getMyViewEvents(viewId)
-            .pipe(take(1))
-            .subscribe((imp) => {
-              const index = imp.findIndex((i) => i.viewId === viewId);
-              if (index > -1) {
-                this.eventTemplateId = imp[0].eventTemplateId;
-              }
-            });
-        }
-      }
-    });
+          const event = events.find((e) => e.viewId === viewId);
+          if (event) {
+            window.location.href = `${window.location.origin}/templates/${event.eventTemplateId}`;
+          }
+        }),
+
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
   }
-
-  isIframe(): boolean {
-    if (window.location !== window.parent.location) {
-      // The page is in an iframe
-      return true;
-    } else {
-      // The page is not in an iframe
-      return false;
-    }
+  ngOnDestroy() {
+    this.unsubscribe$.next(null);
+    this.unsubscribe$.complete();
   }
 }

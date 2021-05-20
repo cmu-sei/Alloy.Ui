@@ -48,7 +48,7 @@ import {
 import { AkitaNgRouterStoreModule } from '@datorama/akita-ng-router-store';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { ClipboardModule } from 'ngx-clipboard';
-import { environment } from '../environments/environment.prod';
+import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdminAppComponent } from './components/admin-app/admin-app.component';
@@ -58,8 +58,9 @@ import { EventTemplatesComponent } from './components/admin-app/event-templates/
 import { EventEditComponent } from './components/admin-app/events/event-edit/event-edit.component';
 import { AdminEventListComponent } from './components/admin-app/events/event-list/event-list.component';
 import { EventsComponent } from './components/admin-app/events/events.component';
-import { EventInfoComponent } from './components/home-app/event-info/event-info.component';
+import { EnlistComponent } from './components/home-app/enlist/enlist.component';
 import { EventListComponent } from './components/home-app/event-list/event-list.component';
+import { EventTemplateInfoComponent } from './components/home-app/event-template-info/event-template-info.component';
 import { HomeAppComponent } from './components/home-app/home-app.component';
 import { ConfirmDialogComponent } from './components/shared/confirm-dialog/confirm-dialog.component';
 import { TopbarComponent } from './components/shared/top-bar/topbar.component';
@@ -67,6 +68,7 @@ import { BASE_PATH } from './generated/alloy.api';
 import { ApiModule as SwaggerCodegenApiModule } from './generated/alloy.api/api.module';
 import { DialogService } from './services/dialog/dialog.service';
 import { LoggedInUserService } from './services/logged-in-user/logged-in-user.service';
+import { SignalRService } from './shared/signalr/signalr.service';
 
 const settings: ComnSettingsConfig = {
   url: 'assets/config/settings.json',
@@ -118,7 +120,7 @@ export class AngularMaterialModule {}
     AdminAppComponent,
     HomeAppComponent,
     EventListComponent,
-    EventInfoComponent,
+    EventTemplateInfoComponent,
     EventTemplatesComponent,
     EventTemplateListComponent,
     EventTemplateEditComponent,
@@ -127,6 +129,7 @@ export class AngularMaterialModule {}
     EventEditComponent,
     ConfirmDialogComponent,
     TopbarComponent,
+    EnlistComponent,
   ],
   imports: [
     HttpClientModule,
@@ -146,6 +149,7 @@ export class AngularMaterialModule {}
   ],
   providers: [
     LoggedInUserService,
+    SignalRService,
     {
       provide: BASE_PATH,
       useFactory: getBasePath,

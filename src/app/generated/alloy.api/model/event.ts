@@ -1,5 +1,7 @@
-// Copyright 2021 Carnegie Mellon University. All Rights Reserved.
-// Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
+/*
+Copyright 2021 Carnegie Mellon University. All Rights Reserved. 
+ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
+*/
 
 /**
  * Alloy API
@@ -12,6 +14,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EventUser } from './eventUser';
 import { InternalEventStatus } from './internalEventStatus';
 import { EventStatus } from './eventStatus';
 
@@ -27,6 +30,8 @@ export interface Event {
     scenarioId?: string | null;
     name?: string | null;
     description?: string | null;
+    shareCode?: string | null;
+    eventUsers?: Array<EventUser> | null;
     status?: EventStatus;
     internalStatus?: InternalEventStatus;
     failureCount?: number;

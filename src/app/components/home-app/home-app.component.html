@@ -9,27 +9,5 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   fxLayoutAlign="center stretch"
   fxFlexFill
 >
-  <app-topbar
-    *ngIf="!isIframe()"
-    [title]="titleText"
-    [topbarView]="TopbarView.ALLOY_HOME"
-    [topbarColor]="topBarColor"
-    [topbarTextColor]="topBarTextColor"
-  >
-  </app-topbar>
-  <div
-    *ngIf="eventTemplateId === undefined"
-    class="background"
-    fxFlex="1 0 93vh"
-  >
-    <app-event-list></app-event-list>
-  </div>
-
-  <div
-    *ngIf="eventTemplateId !== undefined"
-    class="background"
-    fxFlex="1 0 93vh"
-  >
-    <app-event-info [eventTemplateId]="eventTemplateId"></app-event-info>
-  </div>
+  <app-event-list></app-event-list>
 </div>

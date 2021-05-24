@@ -13,7 +13,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "aot": true,
             "outputPath": "dist/alloy",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -22,7 +21,13 @@
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles/styles.scss"],
             "scripts": [],
-            "preserveSymlinks": true
+            "preserveSymlinks": true,
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -36,7 +41,6 @@
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,

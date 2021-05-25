@@ -13,9 +13,8 @@ describe('EnlistComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EnlistComponent ]
-    })
-    .compileComponents();
+      declarations: [EnlistComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

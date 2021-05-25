@@ -3,15 +3,14 @@
 
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
 import {
-  map,
-  shareReplay,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  Subject,
+  ReplaySubject,
+} from 'rxjs';
+import { map, share, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import {
   EventTemplate,
   EventTemplateService,
@@ -69,7 +68,9 @@ export class EventTemplatesService {
           );
         }
       }),
-      shareReplay(1)
+      share({
+        connector: () => new ReplaySubject(1),
+      })
     );
     this.currentEventTemplate$ = this.currentEventTemplateId$.pipe(
       switchMap((id) => {

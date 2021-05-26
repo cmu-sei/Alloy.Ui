@@ -10,11 +10,11 @@ import {
 } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of, Subject, ReplaySubject } from 'rxjs';
 import {
   filter,
   map,
-  shareReplay,
+  share,
   switchMap,
   take,
   takeUntil,
@@ -125,7 +125,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       switchMap((id) => {
         return this.templatesQuery.selectEntity(id ? id : this.eventTemplateId);
       }),
-      shareReplay(),
+      share({
+        connector: () => new ReplaySubject(),
+      }),
       takeUntil(this.unsubscribe$)
     );
 
@@ -136,7 +138,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           .pipe(map((events) => events));
       }),
       tap((events) => (this.impsDataSource.data = events)),
-      shareReplay(),
+      share({
+        connector: () => new ReplaySubject(),
+      }),
       takeUntil(this.unsubscribe$)
     );
 
@@ -156,7 +160,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           return ownerEvent;
         }
       }),
-      shareReplay(),
+      share({
+        connector: () => new ReplaySubject(),
+      }),
       takeUntil(this.unsubscribe$)
     );
 
@@ -169,7 +175,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         );
       }),
       filter((events) => events.length >= 1),
-      shareReplay(),
+      share({
+        connector: () => new ReplaySubject(),
+      }),
       takeUntil(this.unsubscribe$)
     );
   }

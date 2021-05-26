@@ -149,7 +149,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       map(([events, user]) => {
         if (events.length >= 1) {
           const ownerEvent = events.find(
-            (e) => e.userId == user.profile.sub && this.isEventActive(e.status)
+            (e) => e.userId === user.profile.sub && this.isEventActive(e.status)
           );
 
           if (ownerEvent) {
@@ -175,6 +175,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         );
       }),
       filter((events) => events.length >= 1),
+      map((events) => events.filter((e) => this.isEventActive(e.status))),
+      tap((events) => {
+        events.forEach((e) => {
+          this.signalRService.startConnection().then(() => {
+            this.signalRService.joinEvent(e.id);
+          });
+        });
+      }),
       share({
         connector: () => new ReplaySubject(),
       }),

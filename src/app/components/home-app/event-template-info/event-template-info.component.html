@@ -50,21 +50,23 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <div fxLayout="column" fxLayoutAlign="space-between center">
             <div fxLayout="row" fxLayoutAlign="center center">
               <ng-container *ngIf="userEvents$ | async as userEvents">
-                <button
-                  mat-raised-button
-                  [matMenuTriggerFor]="join"
-                  class="event-button"
-                >
-                  Join
-                  <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
-                </button>
-                <mat-menu #join="matMenu" [overlapTrigger]="false">
-                  <ng-container *ngFor="let element of userEvents">
-                    <button mat-menu-item (click)="rejoinEvent(element)">
-                      Invited By: {{ element.username }}
-                    </button>
-                  </ng-container>
-                </mat-menu>
+                <div *ngIf="userEvents.length > 0">
+                  <button
+                    mat-raised-button
+                    [matMenuTriggerFor]="join"
+                    class="event-button"
+                  >
+                    Join
+                    <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+                  </button>
+                  <mat-menu #join="matMenu" [overlapTrigger]="false">
+                    <ng-container *ngFor="let element of userEvents">
+                      <button mat-menu-item (click)="rejoinEvent(element)">
+                        Invited By: {{ element.username }}
+                      </button>
+                    </ng-container>
+                  </mat-menu>
+                </div>
               </ng-container>
               <button
                 *ngIf="!isIframe()"
@@ -99,21 +101,25 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
               <div fxLayout="column" fxLayoutAlign="space-between center">
                 <div fxLayout="row">
                   <ng-container *ngIf="userEvents$ | async as userEvents">
-                    <button
-                      mat-raised-button
-                      [matMenuTriggerFor]="join"
-                      class="event-button"
-                    >
-                      Join
-                      <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
-                    </button>
-                    <mat-menu #join="matMenu" [overlapTrigger]="false">
-                      <ng-container *ngFor="let element of userEvents">
-                        <button mat-menu-item (click)="rejoinEvent(element)">
-                          Invited By: {{ element.username }}
-                        </button>
-                      </ng-container>
-                    </mat-menu>
+                    <div *ngIf="userEvents.length > 0">
+                      <button
+                        mat-raised-button
+                        [matMenuTriggerFor]="join"
+                        class="event-button"
+                      >
+                        Join
+                        <mat-icon
+                          svgIcon="ic_expand_more_black_24px"
+                        ></mat-icon>
+                      </button>
+                      <mat-menu #join="matMenu" [overlapTrigger]="false">
+                        <ng-container *ngFor="let element of userEvents">
+                          <button mat-menu-item (click)="rejoinEvent(element)">
+                            Invited By: {{ element.username }}
+                          </button>
+                        </ng-container>
+                      </mat-menu>
+                    </div>
                   </ng-container>
                   <button
                     *ngIf="!isIframe()"

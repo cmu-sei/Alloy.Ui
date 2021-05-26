@@ -43,6 +43,7 @@ export class EventsService implements OnDestroy {
   }
   stateUpdate(event: AlloyEvent) {
     this.eventsStore.update(event.id, event);
+    this.userEventsStore.update(event.id, event);
   }
   stateDelete(event: AlloyEvent) {
     this.eventsStore.remove(event.id);

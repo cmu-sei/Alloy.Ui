@@ -136,14 +136,14 @@ export class AdminEventListComponent implements OnInit {
       events.forEach((event) => {
         event.launchDate = !event.launchDate
           ? null
-          : new Date(event.launchDate + 'Z');
-        event.endDate = !event.endDate ? null : new Date(event.endDate + 'Z');
+          : new Date(event.launchDate);
+        event.endDate = !event.endDate ? null : new Date(event.endDate);
         event.expirationDate = !event.expirationDate
           ? null
-          : new Date(event.expirationDate + 'Z');
+          : new Date(event.expirationDate);
         event.statusDate = !event.statusDate
           ? null
-          : new Date(event.statusDate + 'Z');
+          : new Date(event.statusDate);
         switch (event.status) {
           case 'Failed': {
             this.failedEvents.push(event);
@@ -207,8 +207,8 @@ export class AdminEventListComponent implements OnInit {
         this.eventService.getEvent(eventGuid).subscribe((event) => {
           const dialogRef = this.dialog.open(EventEditComponent);
           dialogRef.afterOpened().subscribe((r) => {
-            event.launchDate = new Date(event.launchDate + 'Z');
-            event.endDate = new Date(event.endDate + 'Z');
+            event.launchDate = new Date(event.launchDate);
+            event.endDate = new Date(event.endDate);
             dialogRef.componentInstance.event = event;
           });
 

@@ -10,11 +10,20 @@ import {
 } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
-import { Observable, of, Subject, ReplaySubject } from 'rxjs';
+import {
+  combineLatest,
+  interval,
+  Observable,
+  of,
+  ReplaySubject,
+  Subject,
+} from 'rxjs';
 import {
   filter,
   map,
   share,
+  skip,
+  startWith,
   switchMap,
   take,
   takeUntil,
@@ -71,6 +80,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   private failedEvent: AlloyEvent;
   public inviteHidden: boolean = true;
   public isOwner: boolean = false;
+  public viewId: string;
+  public expirationDate: Date;
   private unsubscribe$: Subject<null> = new Subject<null>();
 
   constructor(
@@ -107,6 +118,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(([id, viewId]) => {
           if (viewId) {
+            this.viewId = viewId;
             return this.eventsService.getViewEvents(viewId);
           } else if (id) {
             return this.eventsService.loadEvents(id);
@@ -148,16 +160,37 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       withLatestFrom(this.authQuery.user$),
       map(([events, user]) => {
         if (events.length >= 1) {
-          const ownerEvent = events.find(
-            (e) => e.userId === user.profile.sub && this.isEventActive(e.status)
-          );
+          let currentEvent: AlloyEvent = null;
 
-          if (ownerEvent) {
-            this.signalRService.startConnection().then(() => {
-              this.signalRService.joinEvent(ownerEvent.id);
-            });
+          if (this.viewId != null) {
+            currentEvent = events.find(
+              (e) => e.viewId === this.viewId && this.isEventActive(e.status)
+            );
+          } else {
+            currentEvent = events.find(
+              (e) =>
+                e.userId === user.profile.sub && this.isEventActive(e.status)
+            );
           }
-          return ownerEvent;
+
+          if (currentEvent != null) {
+            this.isOwner = currentEvent.userId === user.profile.sub;
+
+            if (this.isOwner) {
+              this.signalRService.startConnection().then(() => {
+                this.signalRService.joinEvent(currentEvent.id);
+              });
+            }
+
+            this.expirationDate = currentEvent.expirationDate;
+            this.remainingTime = this.calculateRemainingTime(
+              currentEvent.expirationDate
+            );
+          }
+
+          return currentEvent;
+        } else {
+          return null;
         }
       }),
       share({
@@ -188,6 +221,37 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.unsubscribe$)
     );
+
+    combineLatest([
+      this.currentEvent$.pipe(startWith(null)),
+      this.userEvents$.pipe(startWith(null)),
+    ])
+      .pipe(
+        skip(1),
+        tap(([currentEvent, userEvents]) => {
+          if (
+            this.isIframe() &&
+            (userEvents == null || userEvents.length === 0) &&
+            (currentEvent == null || !this.isEventActive(currentEvent.status))
+          ) {
+            window.top.location.href = window.location.href;
+          }
+        }),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
+
+    interval(10000)
+      .pipe(
+        tap(
+          () =>
+            (this.remainingTime = this.calculateRemainingTime(
+              this.expirationDate
+            ))
+        ),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -240,64 +304,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     return ALLOY_CURRENT_EVENT_STATUS.LAUNCH;
   }
 
-  /*
-  determineEventStatus(events: AlloyEvent[]): string {
-    this.impsDataSource.data = events.sort((d1, d2) => {
-      return +new Date(d2.dateCreated) - +new Date(d1.dateCreated);
-    });
-
-    this.isLoading = false;
-
-    // There are 3 states that an event can be in
-    // EventReadyToLaunch
-    // EventLaunchInProgress
-    // EventActive
-    let status = '';
-    if (events.length === 0) {
-      // No events found
-      status = 'EventReadyToLaunch';
-      this.currentEvent = undefined;
-      this.remainingTime = '';
-    } else {
-      const actives = events.find((s) => s.status === EventStatus.Active);
-      if (actives !== undefined) {
-        // Active Lab exit now
-        status = 'EventActive';
-        this.currentEvent = actives;
-        this.remainingTime = this.calculateRemainingTime(
-          new Date(this.currentEvent.expirationDate)
-        );
-      } else {
-        // No active Events, now check if anything is in progress
-        const inProgress = events.find(
-          (s) =>
-            s.status === EventStatus.Creating ||
-            s.status === EventStatus.Planning ||
-            s.status === EventStatus.Applying ||
-            s.status === EventStatus.Ending
-        );
-        if (inProgress !== undefined) {
-          status = 'EventLaunchInProgress';
-          this.currentEvent = inProgress;
-          this.remainingTime = '';
-        } else {
-          // At this point, the event is not active and not in progress
-          // therefore is must be ready to be launched
-          status = 'EventReadyToLaunch';
-          this.currentEvent = undefined;
-          this.remainingTime = '';
-          if (this.isIframe()) {
-            // At this point the app is shown within Player therefore the parent must moved to Alloy event page.
-            window.top.location.href = window.location.href;
-          }
-        }
-      }
-      this.processFailureStatus(events[0]);
-    }
-
-    return status;
-  }
-  */
   launchEvent(id: string) {
     this.failedEvent = undefined;
     this.failureMessage = '';
@@ -315,7 +321,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   }
 
   rejoinEvent(event: AlloyEvent) {
-    console.log('Opening ' + event.name + ' inside Player!!!');
     window.top.location.href =
       this.settingsService.settings.PlayerUIAddress + '/view/' + event.viewId;
   }
@@ -327,7 +332,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .pipe(take(1))
         .subscribe((result) => {
           if (result['confirm']) {
-            console.log('Ending ' + event.name);
             this.eventsService.endEvent(event.id);
           }
         });
@@ -344,7 +348,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .pipe(take(1))
         .subscribe((result) => {
           if (result['confirm']) {
-            console.log('Redeploying ' + event.name);
             this.redeploying = true;
             this.eventsService.redeployEvent(event.id);
           }
@@ -374,15 +377,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   calculateRemainingTime(expirationDate: Date): string {
     let timeLeft = '';
 
-    if (expirationDate !== undefined) {
+    if (expirationDate != null) {
       const now = new Date();
-      // Note:  A C# date time is different and when parsing againt the timezone must be added.
-      const exp = new Date(
-        Date.parse(expirationDate.toLocaleString()).valueOf() -
-          now.getTimezoneOffset() * 60 * 1000
-      );
-      let diffInMs: number =
-        exp.valueOf() - Date.parse(now.toISOString()).valueOf();
+      const exp = new Date(expirationDate);
+
+      let diffInMs: number = exp.valueOf() - now.valueOf();
       if (diffInMs < 0) {
         diffInMs = 0; // Force to zero.  Do not display a negative time.
       }
@@ -398,6 +397,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
       this.timeRunningLow = diffInMs < this.ONE_HOUR;
     }
+
     return timeLeft;
   }
 

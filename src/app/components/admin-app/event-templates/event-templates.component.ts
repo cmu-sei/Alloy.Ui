@@ -9,6 +9,7 @@ import { EventTemplate } from 'src/app/generated/alloy.api';
 import { CasterDataService } from 'src/app/services/caster-data/caster-data.service';
 import { PlayerDataService } from 'src/app/services/player-data/player-data.service';
 import { SteamfitterDataService } from 'src/app/services/steamfitter-data/steamfitter-data.service';
+import { EventTemplatesQuery } from 'src/app/state/event-templates/event-templates.query';
 
 @Component({
   selector: 'app-event-templates',
@@ -18,7 +19,7 @@ import { SteamfitterDataService } from 'src/app/services/steamfitter-data/steamf
 export class EventTemplatesComponent {
   public matcher = new UserErrorStateMatcher();
   public isLinear = false;
-  public eventTemplates$ = new Observable<EventTemplate[] | void>();
+  public eventTemplates$ = this.eventTemplatesQuery.selectAll();
   public viewList = this.playerDataService.viewList;
   public scenarioTemplateList =
     this.steamfitterDataService.scenarioTemplateList;
@@ -28,7 +29,7 @@ export class EventTemplatesComponent {
     private playerDataService: PlayerDataService,
     private steamfitterDataService: SteamfitterDataService,
     private casterDataService: CasterDataService,
-    public zone: NgZone
+    private eventTemplatesQuery: EventTemplatesQuery
   ) {
     playerDataService.getViewsFromApi();
     steamfitterDataService.getScenarioTemplatesFromApi();

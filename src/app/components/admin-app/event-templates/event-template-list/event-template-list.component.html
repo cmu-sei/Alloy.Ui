@@ -20,8 +20,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <mat-form-field class="search-field">
       <input
         matInput
+        [formControl]="filterControl"
         type="text"
-        [formControl]="searchControl"
         placeholder="Search"
       />
     </mat-form-field>
@@ -36,10 +36,19 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       </button>
     </div>
   </div>
-  <div class="add-new-button">
+  <div>
     <button mat-stroked-button (click)="addNewEventTemplate()">
       Add New Event Template
     </button>
+  </div>
+  <div>
+    <mat-paginator
+      #paginator
+      [length]="dataSource.data.length"
+      [pageIndex]="0"
+      [pageSize]="20"
+      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"
+    ></mat-paginator>
   </div>
 </div>
 
@@ -48,53 +57,105 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </mat-progress-spinner>
 </mat-card>
 
-<mat-accordion *ngIf="!isLoading" displayMode="flat" multi class="mat-table">
-  <section
-    matSort
-    class="mat-elevation-z2 mat-header-row"
-    (matSortChange)="sortData($event)"
-  >
-    <span class="mat-header-cell" mat-sort-header="name">Name</span>
-    <span class="mat-header-cell">Description</span>
-    <span class="mat-header-cell">Duration</span>
-    <span class="mat-header-cell" mat-sort-header="dateCreated">Created</span>
-  </section>
-
-  <mat-expansion-panel
-    *ngFor="let item of eventTemplates"
-    [expanded]="item.id === eventTemplatesService.selectedEventTemplateId"
-  >
-    <mat-expansion-panel-header class="mat-row" (click)="togglePanel(item)">
-      <span class="mat-cell">
+<table
+  mat-table
+  [dataSource]="dataSource"
+  multiTemplateDataRows
+  matSort
+  matSortActive="dateCreated"
+  matSortDirection="desc"
+  class="mat-elevation-z8"
+  [trackBy]="trackById"
+>
+  <!-- Name Column -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+    <td mat-cell *matCellDef="let element">
+      <span>
         <button
           mat-icon-button
           ngxClipboard
-          [cbContent]="item.id"
+          [cbContent]="element.id"
           (click)="$event.stopPropagation()"
-          title="Copy:  {{ item.id }}"
+          title="Copy:  {{ element.id }}"
           class="copy-button"
         >
           <mat-icon class="icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
-        {{ item.name }}
+        {{ element.name }}
       </span>
-      <span class="mat-cell detail-cell" title="{{ item.description }}">{{
-        item.description && item.description.length > 80
-          ? item.description.slice(0, 80) + ' ...'
-          : item.description
-      }}</span>
-      <span class="mat-cell detail-cell">{{ item.durationHours }}</span>
-      <span class="mat-cell detail-cell">{{
-        item.dateCreated | date: 'yyyy-MM-dd'
-      }}</span>
-    </mat-expansion-panel-header>
-    <app-event-template-edit
-      [eventTemplate]="item"
-      [viewList]="viewList"
-      [directoryList]="directoryList"
-      [scenarioTemplateList]="scenarioTemplateList"
-      (closePanel)="togglePanel(item.id)"
+    </td>
+  </ng-container>
+
+  <!-- Description Column -->
+  <ng-container matColumnDef="description">
+    <th mat-header-cell *matHeaderCellDef>Description</th>
+    <td mat-cell *matCellDef="let element">
+      <span title="{{ element.description }}">
+        {{
+          element.description && element.description.length > 80
+            ? element.description.slice(0, 80) + ' ...'
+            : element.description
+        }}</span
+      >
+    </td>
+  </ng-container>
+
+  <!-- Duration Column -->
+  <ng-container matColumnDef="durationHours">
+    <th mat-header-cell *matHeaderCellDef>Duration</th>
+    <td mat-cell *matCellDef="let element">
+      <span> {{ element.durationHours }}</span>
+    </td>
+  </ng-container>
+
+  <!-- Created Column -->
+  <ng-container matColumnDef="dateCreated">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+    <td mat-cell *matCellDef="let element">
+      <span>{{ element.dateCreated | date: 'yyyy-MM-dd' }}</span>
+    </td>
+  </ng-container>
+
+  <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+  <ng-container matColumnDef="expandedDetail">
+    <td
+      mat-cell
+      *matCellDef="let element"
+      [attr.colspan]="displayedColumns.length"
     >
-    </app-event-template-edit>
-  </mat-expansion-panel>
-</mat-accordion>
+      <div *ngIf="element.id === expandedElementId">
+        <!--
+          @expand animation should be on outer element, but it causes a bug when sorting.
+          this workaround causes leave animation to not run. might be fixed in a future version
+          -->
+        <div [@expand]>
+          <app-event-template-edit
+            [eventTemplate]="element"
+            [viewList]="viewList"
+            [directoryList]="directoryList"
+            [scenarioTemplateList]="scenarioTemplateList"
+            (closePanel)="this.expandedElementId = null"
+          >
+          </app-event-template-edit>
+        </div>
+      </div>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr
+    mat-row
+    *matRowDef="let element; columns: displayedColumns"
+    class="example-element-row"
+    [class.example-expanded-row]="expandedElementId === element.id"
+    (click)="
+      expandedElementId = expandedElementId === element.id ? null : element.id
+    "
+  ></tr>
+  <tr
+    mat-row
+    *matRowDef="let row; columns: ['expandedDetail']"
+    class="example-detail-row"
+  ></tr>
+</table>

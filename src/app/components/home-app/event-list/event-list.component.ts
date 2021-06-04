@@ -49,7 +49,7 @@ export class EventListComponent implements OnInit, OnDestroy {
     'description',
     'durationHours',
   ];
-  public templates$: Observable<EventTemplate[]>;
+
   public filterString: string;
   public isLoading$: Observable<Boolean>;
   private unsubscribe$: Subject<null> = new Subject<null>();
@@ -74,10 +74,7 @@ export class EventListComponent implements OnInit, OnDestroy {
     this.filterString = '';
 
     // Initial datasource
-    this.templates$ = this.templateService
-      .loadTemplates()
-      .pipe(takeUntil(this.unsubscribe$));
-    this.templates$.subscribe();
+    this.templateService.loadTemplates();
 
     combineQueries([
       this.TemplatesQuery.selectLoading(),

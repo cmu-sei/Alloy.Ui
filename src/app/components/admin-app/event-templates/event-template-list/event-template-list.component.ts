@@ -1,10 +1,22 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { PageEvent } from '@angular/material/paginator';
-import { takeUntil } from 'rxjs/operators';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  take,
+  takeUntil,
+} from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import {
   Directory,
@@ -15,24 +27,49 @@ import {
 import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
+import { MatTableDataSource } from '@angular/material/table';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-event-template-list',
   templateUrl: './event-template-list.component.html',
   styleUrls: ['./event-template-list.component.scss'],
+  animations: [
+    trigger('expand', [
+      transition(':enter', [
+        style({ height: 0, opacity: 0 }),
+        animate('0.3s ease-out', style({ height: '*', opacity: 1 })),
+      ]),
+      transition(':leave', [
+        style({ height: '*', opacity: 1 }),
+        animate('0.3s ease-in', style({ height: 0, opacity: 0 })),
+      ]),
+    ]),
+  ],
 })
-export class EventTemplateListComponent implements OnDestroy {
-  @ViewChild(EventTemplateEditComponent, { static: true })
-  eventTemplateEditComponent: EventTemplateEditComponent;
+export class EventTemplateListComponent
+  implements OnDestroy, AfterViewInit, OnInit
+{
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
   @Input() scenarioTemplateList: Observable<ScenarioTemplate[]>;
-  displayedColumns: string[] = ['name', 'description', 'durationHours'];
+  @Input() set eventTemplates(value: EventTemplate[]) {
+    this.dataSource.data = value;
+  }
+
+  @ViewChild(EventTemplateEditComponent, { static: true })
+  eventTemplateEditComponent: EventTemplateEditComponent;
+
+  displayedColumns: string[] = [
+    'name',
+    'description',
+    'durationHours',
+    'dateCreated',
+  ];
   editEventTemplateText = 'Edit Event Template';
-  searchControl: FormControl = this.eventTemplatesService.searchControl$;
-  eventTemplates: EventTemplate[] = [];
   isLoading = true;
-  sortValue = { active: 'dateCreated', direction: 'desc' };
+
   // MatPaginator Output
   defaultPageSize = 10;
   pageEvent: PageEvent;
@@ -40,17 +77,19 @@ export class EventTemplateListComponent implements OnDestroy {
   private unsubscribe$ = new Subject();
   topBarColor = '#719F94';
   topBarTextColor = '#FFFFFF';
+  dataSource = new MatTableDataSource<EventTemplate>();
+  expandedElementId = null;
+  filterControl = new FormControl();
+
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     public eventTemplatesService: EventTemplatesService,
     private settingsService: ComnSettingsService
   ) {
-    this.eventTemplatesService.eventTemplateList$
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((defs) => {
-        this.eventTemplates = defs;
-        this.sortData(this.sortValue);
-      });
+    this.eventTemplatesService.loadTemplates();
+
     this.isLoading = false;
     // Set the topbar color from config file
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
@@ -61,33 +100,28 @@ export class EventTemplateListComponent implements OnDestroy {
       : this.topBarTextColor;
   }
 
+  ngOnInit() {
+    this.filterControl.valueChanges
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe((filter) => this.onFilterChanged(filter));
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   ngOnDestroy() {
     this.unsubscribe$.next(null);
     this.unsubscribe$.complete();
   }
 
   clearFilter() {
-    this.searchControl.setValue('');
-  }
-
-  sortData(value: any) {
-    this.sortValue = value;
-    const sortOrder = value.direction === 'desc' ? -1 : 1;
-    if (value.active === 'dateCreated') {
-      this.eventTemplates.sort((a, b) => {
-        if (a.dateCreated < b.dateCreated) {
-          return -1 * sortOrder;
-        } else if (a.dateCreated > b.dateCreated) {
-          return 1 * sortOrder;
-        } else {
-          return 0;
-        }
-      });
-    } else {
-      this.eventTemplates.sort(
-        (a, b) => a.name.localeCompare(b.name) * sortOrder
-      );
-    }
+    this.applyFilter('');
   }
 
   addNewEventTemplate() {
@@ -95,16 +129,26 @@ export class EventTemplateListComponent implements OnDestroy {
       name: 'New Event Template',
       description: 'Add description',
     };
-    this.eventTemplatesService.addNew(eventTemplate);
+
+    this.eventTemplatesService
+      .addNew(eventTemplate)
+      .pipe(take(1))
+      .subscribe((x) => (this.expandedElementId = x.id));
   }
 
-  togglePanel(eventTemplate: EventTemplate) {
-    if (
-      this.eventTemplatesService.selectedEventTemplateId === eventTemplate.id
-    ) {
-      this.eventTemplatesService.selectedEventTemplateId = undefined;
-    } else {
-      this.eventTemplatesService.selectedEventTemplateId = eventTemplate.id;
+  trackById(item: EventTemplate): string {
+    return item.id;
+  }
+
+  onFilterChanged(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
     }
+  }
+
+  applyFilter(filterValue: string) {
+    this.filterControl.setValue(filterValue);
   }
 }

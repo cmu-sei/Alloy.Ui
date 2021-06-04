@@ -2,134 +2,63 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { Injectable } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import {
-  BehaviorSubject,
-  combineLatest,
-  Observable,
-  Subject,
-  ReplaySubject,
-} from 'rxjs';
-import { map, share, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { take, tap } from 'rxjs/operators';
 import {
   EventTemplate,
   EventTemplateService,
 } from 'src/app/generated/alloy.api';
 import { EventTemplatesStore } from 'src/app/state/event-templates/event-templates.store';
-import { LoggedInUserService } from '../logged-in-user/logged-in-user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EventTemplatesService {
-  public eventTemplateList$: Observable<EventTemplate[]>;
-  public searchControl$ = new FormControl();
-  public selectedEventTemplateId: string | undefined = undefined;
-  public fullEventTemplateList$ = new BehaviorSubject<EventTemplate[]>([]);
-  public currentEventTemplate$: Observable<EventTemplate>;
-  private searchTerm$ = new BehaviorSubject<string>('');
-  private currentEventTemplateId$ = new BehaviorSubject<string>('');
-  private unsubscribe$ = new Subject<null>();
-
   constructor(
     private eventTemplateService: EventTemplateService,
-    private templateStore: EventTemplatesStore,
-    private loggedInUser: LoggedInUserService
-  ) {
-    this.eventTemplateService
-      .getEventTemplates()
-      .pipe(
-        tap((templates) => {
-          this.templateStore.set(templates);
-        }),
-        takeUntil(this.unsubscribe$)
-      )
-      .subscribe();
-
-    this.searchControl$.valueChanges.subscribe((searchString) => {
-      this.searchTerm$.next(searchString.trim().toLowerCase());
-    });
-    this.updatelist();
-
-    this.searchControl$.valueChanges.subscribe((searchString) => {
-      this.searchTerm$.next(searchString.trim().toLowerCase());
-    });
-
-    this.eventTemplateList$ = combineLatest([
-      this.fullEventTemplateList$,
-      this.searchTerm$,
-    ]).pipe(
-      map(([defs, srcTerm]) => {
-        if (srcTerm === '') {
-          return defs;
-        } else {
-          return defs.filter((d) =>
-            d.name.toLowerCase().includes(srcTerm.toLowerCase())
-          );
-        }
-      }),
-      share({
-        connector: () => new ReplaySubject(1),
-      })
-    );
-    this.currentEventTemplate$ = this.currentEventTemplateId$.pipe(
-      switchMap((id) => {
-        return this.eventTemplateService.getEventTemplate(id).pipe(take(1));
-      })
-    );
-  }
+    private templateStore: EventTemplatesStore
+  ) {}
 
   loadTemplates() {
     return this.eventTemplateService
       .getEventTemplates()
-      .pipe(tap((templates) => this.templateStore.set(templates)));
+      .pipe(tap((templates) => this.templateStore.set(templates)))
+      .subscribe();
   }
 
-  addNew(eventTemplate: EventTemplate) {
-    this.eventTemplateService
-      .createEventTemplate(eventTemplate)
-      .pipe(take(1))
-      .subscribe((def) => {
-        this.selectedEventTemplateId = def.id;
-        this.updatelist();
-      });
+  addNew(eventTemplate: EventTemplate): Observable<EventTemplate> {
+    return this.eventTemplateService.createEventTemplate(eventTemplate).pipe(
+      tap((x) => this.stateCreate(x)),
+      take(1)
+    );
   }
 
   update(eventTemplate: EventTemplate) {
     this.eventTemplateService
       .updateEventTemplate(eventTemplate.id, eventTemplate)
       .pipe(take(1))
-      .subscribe(() => {
-        this.updatelist();
+      .subscribe((x) => {
+        this.stateUpdate(x);
       });
   }
 
-  delete(eventTemplate: string) {
+  delete(eventTemplateId: string) {
     this.eventTemplateService
-      .deleteEventTemplate(eventTemplate)
+      .deleteEventTemplate(eventTemplateId)
       .pipe(take(1))
       .subscribe(() => {
-        this.updatelist();
+        this.stateDelete(eventTemplateId);
       });
   }
+
   stateCreate(template: EventTemplate) {
     this.templateStore.upsert(template.id, template);
   }
-  stateUpdate(event: EventTemplate) {
-    this.templateStore.update(event.id, event);
-  }
-  stateDelete(event: EventTemplate) {
-    this.templateStore.remove(event.id);
-  }
-  private updatelist() {
-    this.eventTemplateService
-      .getEventTemplates()
-      .pipe(take(1))
-      .subscribe((defs) => this.fullEventTemplateList$.next(defs));
+  stateUpdate(template: EventTemplate) {
+    this.templateStore.update(template.id, template);
   }
 
-  ngOnDestroy(): void {
-    this.unsubscribe$.next(null);
-    this.unsubscribe$.complete();
+  stateDelete(templateId: string) {
+    this.templateStore.remove(templateId);
   }
 }

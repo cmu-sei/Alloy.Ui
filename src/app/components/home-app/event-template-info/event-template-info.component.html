@@ -130,79 +130,83 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                   >
                     Open Event
                   </button>
-                  <button
-                    class="event-button-end"
-                    mat-raised-button
-                    color="warn"
-                    (click)="endEvent(alloyEvent)"
-                  >
-                    End Event
-                  </button>
-                  <div
-                    style="display: inline-block"
-                    [matTooltip]="
-                      eventTemplate.isPublished
-                        ? 'Create An Invite Link'
-                        : 'Event Template Must Be Published To Invite Users.'
-                    "
-                  >
+                  <ng-container *ngIf="isOwner">
                     <button
-                      mat-raised-button
-                      [matMenuTriggerFor]="invite"
-                      [disabled]="eventTemplate.isPublished ? false : true"
                       class="event-button-end"
+                      mat-raised-button
+                      color="warn"
+                      (click)="endEvent(alloyEvent)"
                     >
-                      Invite
-                      <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+                      End Event
                     </button>
-                    <mat-menu
-                      #invite="matMenu"
-                      [overlapTrigger]="false"
-                      [disabled]="eventTemplate.isPublished ? true : false"
+                    <div
+                      style="display: inline-block"
+                      [matTooltip]="
+                        eventTemplate.isPublished
+                          ? 'Create An Invite Link'
+                          : 'Event Template Must Be Published To Invite Users.'
+                      "
                     >
                       <button
-                        *ngIf="!alloyEvent?.shareCode"
-                        mat-menu-item
-                        (click)="inviteEvent(alloyEvent)"
+                        mat-raised-button
+                        [matMenuTriggerFor]="invite"
+                        [disabled]="eventTemplate.isPublished ? false : true"
+                        class="event-button-end"
                       >
-                        Generate Link
-                      </button>
-                      <button
-                        *ngIf="alloyEvent?.shareCode"
-                        mat-menu-item
-                        ngxClipboard
-                        (click)="copyInviteLink(alloyEvent)"
-                        title="Copy:  {{ getInviteLink(alloyEvent) }}"
-                        class="copy-button"
-                      >
+                        Invite
                         <mat-icon
-                          class="icon-20px"
-                          svgIcon="ic_clipboard_copy"
+                          svgIcon="ic_expand_more_black_24px"
                         ></mat-icon>
-                        Copy Link
                       </button>
-                      <mat-slide-toggle
-                        *ngIf="alloyEvent?.shareCode"
-                        class="mat-menu-item"
-                        color="primary"
-                        [(checked)]="!inviteHidden"
-                        (click)="inviteHidden = !inviteHidden"
+                      <mat-menu
+                        #invite="matMenu"
+                        [overlapTrigger]="false"
+                        [disabled]="eventTemplate.isPublished ? true : false"
                       >
-                        Show Link
-                      </mat-slide-toggle>
-                    </mat-menu>
-                  </div>
-                  <button
-                    *ngIf="false"
-                    class="event-button-end"
-                    mat-raised-button
-                    color="warn"
-                    (click)="redeployEvent(alloyEvent)"
-                    [disabled]="redeploying"
-                  >
-                    <div *ngIf="redeploying">Redeploying...</div>
-                    <div *ngIf="!redeploying">Redeploy Event</div>
-                  </button>
+                        <button
+                          *ngIf="!alloyEvent?.shareCode"
+                          mat-menu-item
+                          (click)="inviteEvent(alloyEvent)"
+                        >
+                          Generate Link
+                        </button>
+                        <button
+                          *ngIf="alloyEvent?.shareCode"
+                          mat-menu-item
+                          ngxClipboard
+                          (click)="copyInviteLink(alloyEvent)"
+                          title="Copy:  {{ getInviteLink(alloyEvent) }}"
+                          class="copy-button"
+                        >
+                          <mat-icon
+                            class="icon-20px"
+                            svgIcon="ic_clipboard_copy"
+                          ></mat-icon>
+                          Copy Link
+                        </button>
+                        <mat-slide-toggle
+                          *ngIf="alloyEvent?.shareCode"
+                          class="mat-menu-item"
+                          color="primary"
+                          [(checked)]="!inviteHidden"
+                          (click)="inviteHidden = !inviteHidden"
+                        >
+                          Show Link
+                        </mat-slide-toggle>
+                      </mat-menu>
+                    </div>
+                    <button
+                      *ngIf="false"
+                      class="event-button-end"
+                      mat-raised-button
+                      color="warn"
+                      (click)="redeployEvent(alloyEvent)"
+                      [disabled]="redeploying"
+                    >
+                      <div *ngIf="redeploying">Redeploying...</div>
+                      <div *ngIf="!redeploying">Redeploy Event</div>
+                    </button>
+                  </ng-container>
                 </div>
                 <label *ngIf="!timeRunningLow" class="duration-label">{{
                   remainingTime

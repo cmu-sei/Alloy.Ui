@@ -26,6 +26,13 @@ export class EventTemplatesService {
       .subscribe();
   }
 
+  loadTemplate(id: string) {
+    return this.eventTemplateService
+      .getEventTemplate(id)
+      .pipe(tap((template) => this.stateCreate(template)))
+      .subscribe();
+  }
+
   addNew(eventTemplate: EventTemplate): Observable<EventTemplate> {
     return this.eventTemplateService.createEventTemplate(eventTemplate).pipe(
       tap((x) => this.stateCreate(x)),

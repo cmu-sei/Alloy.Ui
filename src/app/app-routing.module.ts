@@ -27,6 +27,11 @@ export const ROUTES: Routes = [
     canActivate: [ComnAuthGuardService],
   },
   {
+    path: 'templates/:id/view/:viewId',
+    component: EventTemplateInfoComponent,
+    canActivate: [ComnAuthGuardService],
+  },
+  {
     path: 'events',
     component: HomeAppComponent,
     canActivate: [ComnAuthGuardService],

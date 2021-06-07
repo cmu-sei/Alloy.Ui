@@ -79,7 +79,7 @@ export class SignalRService {
       this.eventTemplatesService.stateUpdate(template);
     });
     this.hubConnection.on('EventTemplateDeleted', (template: EventTemplate) => {
-      this.eventTemplatesService.stateDelete(template);
+      this.eventTemplatesService.stateDelete(template.id);
     });
     this.hubConnection.on('EventTemplateCreated', (template: EventTemplate) => {
       this.eventTemplatesService.stateCreate(template);

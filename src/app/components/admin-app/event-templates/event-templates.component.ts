@@ -1,14 +1,13 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, NgZone } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { Observable } from 'rxjs';
-import { EventTemplate } from 'src/app/generated/alloy.api';
 import { CasterDataService } from 'src/app/services/caster-data/caster-data.service';
 import { PlayerDataService } from 'src/app/services/player-data/player-data.service';
 import { SteamfitterDataService } from 'src/app/services/steamfitter-data/steamfitter-data.service';
+import { EventTemplatesQuery } from 'src/app/state/event-templates/event-templates.query';
 
 @Component({
   selector: 'app-event-templates',
@@ -18,7 +17,7 @@ import { SteamfitterDataService } from 'src/app/services/steamfitter-data/steamf
 export class EventTemplatesComponent {
   public matcher = new UserErrorStateMatcher();
   public isLinear = false;
-  public eventTemplates$ = new Observable<EventTemplate[] | void>();
+  public eventTemplates$ = this.eventTemplatesQuery.selectAll();
   public viewList = this.playerDataService.viewList;
   public scenarioTemplateList =
     this.steamfitterDataService.scenarioTemplateList;
@@ -28,7 +27,7 @@ export class EventTemplatesComponent {
     private playerDataService: PlayerDataService,
     private steamfitterDataService: SteamfitterDataService,
     private casterDataService: CasterDataService,
-    public zone: NgZone
+    private eventTemplatesQuery: EventTemplatesQuery
   ) {
     playerDataService.getViewsFromApi();
     steamfitterDataService.getScenarioTemplatesFromApi();

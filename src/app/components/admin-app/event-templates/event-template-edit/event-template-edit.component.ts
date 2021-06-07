@@ -185,24 +185,38 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     switch (changedField) {
       case 'viewId':
         if (this.eventTemplate.viewId !== event.option.value) {
-          this.eventTemplate.viewId = event.option.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            viewId: event.option.value,
+          };
           shouldUpdate = true;
         }
         this.viewSearchControl.setValue('');
+        this.viewIdFormControl.setValue(this.eventTemplate.viewId);
         break;
       case 'directoryId':
         if (this.eventTemplate.directoryId !== event.option.value) {
-          this.eventTemplate.directoryId = event.option.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            directoryId: event.option.value,
+          };
           shouldUpdate = true;
         }
         this.directorySearchControl.setValue('');
+        this.directoryIdFormControl.setValue(this.eventTemplate.directoryId);
         break;
       case 'scenarioTemplateId':
         if (this.eventTemplate.scenarioTemplateId !== event.option.value) {
-          this.eventTemplate.scenarioTemplateId = event.option.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            scenarioTemplateId: event.option.value,
+          };
           shouldUpdate = true;
         }
         this.scenarioTemplateSearchControl.setValue('');
+        this.scenarioTemplateIdFormControl.setValue(
+          this.eventTemplate.scenarioTemplateId
+        );
         break;
       default:
         break;
@@ -224,7 +238,10 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
           !this.eventTemplateNameFormControl.hasError('required') &&
           this.eventTemplate.name !== this.eventTemplateNameFormControl.value
         ) {
-          this.eventTemplate.name = this.eventTemplateNameFormControl.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            name: this.eventTemplateNameFormControl.value,
+          };
           shouldUpdate = true;
         }
         break;
@@ -232,7 +249,10 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         if (
           this.eventTemplate.description !== this.descriptionFormControl.value
         ) {
-          this.eventTemplate.description = this.descriptionFormControl.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            description: this.descriptionFormControl.value,
+          };
           shouldUpdate = true;
         }
         break;
@@ -245,8 +265,10 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
           this.eventTemplate.durationHours !==
             this.durationHoursFormControl.value
         ) {
-          this.eventTemplate.durationHours =
-            this.durationHoursFormControl.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            durationHours: this.durationHoursFormControl.value,
+          };
           shouldUpdate = true;
         }
         break;
@@ -254,7 +276,10 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         if (
           this.eventTemplate.isPublished !== this.isPublishedFormControl.value
         ) {
-          this.eventTemplate.isPublished = this.isPublishedFormControl.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            isPublished: this.isPublishedFormControl.value,
+          };
           shouldUpdate = true;
         }
         break;
@@ -263,8 +288,10 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
           this.eventTemplate.useDynamicHost !==
           this.useDynamicHostFormControl.value
         ) {
-          this.eventTemplate.useDynamicHost =
-            this.useDynamicHostFormControl.value;
+          this.eventTemplate = {
+            ...this.eventTemplate,
+            useDynamicHost: this.useDynamicHostFormControl.value,
+          };
           shouldUpdate = true;
         }
         break;

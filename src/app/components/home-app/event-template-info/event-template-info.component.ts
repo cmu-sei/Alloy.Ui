@@ -119,8 +119,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         switchMap(([id, viewId]) => {
           if (viewId) {
             this.viewId = viewId;
+            this.eventTemplatesService.loadTemplate(id);
+            this.eventsService.loadEvents(id);
             return this.eventsService.getViewEvents(viewId);
           } else if (id) {
+            this.eventTemplatesService.loadTemplate(id);
             return this.eventsService.loadEvents(id);
           } else {
             return of([]);
@@ -128,7 +131,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         }),
         takeUntil(this.unsubscribe$)
       )
-      .subscribe((data) => {});
+      .subscribe();
 
     this.eventTemplate$ = this.templatesQuery.selectLoading().pipe(
       filter((loading) => !loading),
@@ -157,8 +160,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     );
 
     this.currentEvent$ = this.eventsQuery.selectAll().pipe(
-      withLatestFrom(this.authQuery.user$),
-      map(([events, user]) => {
+      withLatestFrom(this.authQuery.user$, this.routerQuery.selectParams('id')),
+      map(([events, user, id]) => {
         if (events.length >= 1) {
           let currentEvent: AlloyEvent = null;
 
@@ -169,18 +172,18 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           } else {
             currentEvent = events.find(
               (e) =>
-                e.userId === user.profile.sub && this.isEventActive(e.status)
+                e.userId === user.profile.sub &&
+                e.eventTemplateId === id &&
+                this.isEventActive(e.status)
             );
           }
 
           if (currentEvent != null) {
             this.isOwner = currentEvent.userId === user.profile.sub;
 
-            if (this.isOwner) {
-              this.signalRService.startConnection().then(() => {
-                this.signalRService.joinEvent(currentEvent.id);
-              });
-            }
+            this.signalRService.startConnection().then(() => {
+              this.signalRService.joinEvent(currentEvent.id);
+            });
 
             this.expirationDate = currentEvent.expirationDate;
             this.remainingTime = this.calculateRemainingTime(
@@ -230,11 +233,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         skip(1),
         tap(([currentEvent, userEvents]) => {
           if (
-            this.isIframe() &&
+            this.viewId != null &&
             (userEvents == null || userEvents.length === 0) &&
             (currentEvent == null || !this.isEventActive(currentEvent.status))
           ) {
-            window.top.location.href = window.location.href;
+            window.top.location.href = window.location.href.split('/view/')[0];
           }
         }),
         takeUntil(this.unsubscribe$)

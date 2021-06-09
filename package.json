@@ -39,7 +39,7 @@
     "@datorama/akita-ng-router-store": "^6.0.0",
     "@openapitools/openapi-generator-cli": "^2.3.3",
     "core-js": "^3.14.0",
-    "@microsoft/signalr": "^5.0.6",
+    "@microsoft/signalr": "^5.0.7",
     "oidc-client": "^1.11.5",
     "rxjs": "^7.1.0",
     "rxjs-compat": "^6.6.7",

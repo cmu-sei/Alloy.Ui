@@ -141,16 +141,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                     </button>
                     <div
                       style="display: inline-block"
-                      [matTooltip]="
-                        eventTemplate.isPublished
-                          ? 'Create An Invite Link'
-                          : 'Event Template Must Be Published To Invite Users.'
-                      "
+                      matTooltip="Create An Invite Link"
                     >
                       <button
                         mat-raised-button
                         [matMenuTriggerFor]="invite"
-                        [disabled]="eventTemplate.isPublished ? false : true"
                         class="event-button-end"
                       >
                         Invite
@@ -158,11 +153,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                           svgIcon="ic_expand_more_black_24px"
                         ></mat-icon>
                       </button>
-                      <mat-menu
-                        #invite="matMenu"
-                        [overlapTrigger]="false"
-                        [disabled]="eventTemplate.isPublished ? true : false"
-                      >
+                      <mat-menu #invite="matMenu" [overlapTrigger]="false">
                         <button
                           *ngIf="!alloyEvent?.shareCode"
                           mat-menu-item

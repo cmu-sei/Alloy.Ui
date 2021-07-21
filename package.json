@@ -33,7 +33,7 @@
     "@angular/router": "^12.1.0",
     "ngx-clipboard": "^14.0.1",
     "@cmusei/crucible-common": "0.1.1",
-    "@datorama/akita": "^6.2.0",
+    "@datorama/akita": "^6.2.1",
     "@datorama/akita-cli": "^6.1.1",
     "@datorama/akita-ng-entity-service": "^6.1.1",
     "@datorama/akita-ng-router-store": "^6.0.0",

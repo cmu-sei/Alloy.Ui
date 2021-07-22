@@ -140,9 +140,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       switchMap((id) => {
         return this.templatesQuery.selectEntity(id ? id : this.eventTemplateId);
       }),
-      share({
-        connector: () => new ReplaySubject(),
-      }),
+      share(),
       takeUntil(this.unsubscribe$)
     );
 
@@ -153,9 +151,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           .pipe(map((events) => events));
       }),
       tap((events) => (this.impsDataSource.data = events)),
-      share({
-        connector: () => new ReplaySubject(),
-      }),
+      share(),
       takeUntil(this.unsubscribe$)
     );
 
@@ -196,9 +192,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           return null;
         }
       }),
-      share({
-        connector: () => new ReplaySubject(),
-      }),
+      share(),
       takeUntil(this.unsubscribe$)
     );
 
@@ -219,9 +213,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           });
         });
       }),
-      share({
-        connector: () => new ReplaySubject(),
-      }),
+      share(),
       takeUntil(this.unsubscribe$)
     );
 

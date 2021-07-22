@@ -95,9 +95,7 @@ export class EventListComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.isLoading$ = this.TemplatesQuery.selectLoading().pipe(
-      share({
-        connector: () => new ReplaySubject(),
-      })
+      share()
     );
   }
 

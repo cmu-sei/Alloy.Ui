@@ -22,6 +22,7 @@ import {
   filter,
   map,
   share,
+  shareReplay,
   skip,
   startWith,
   switchMap,
@@ -140,7 +141,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       switchMap((id) => {
         return this.templatesQuery.selectEntity(id ? id : this.eventTemplateId);
       }),
-      share(),
+      shareReplay()
+      // share({
+      //   connector: () => new ReplaySubject(),
+      // })
+      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -151,7 +156,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           .pipe(map((events) => events));
       }),
       tap((events) => (this.impsDataSource.data = events)),
-      share(),
+      shareReplay()
+      // share({
+      //   connector: () => new ReplaySubject(),
+      // })
+      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -192,7 +201,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           return null;
         }
       }),
-      share(),
+      shareReplay()
+      // share({
+      //   connector: () => new ReplaySubject(),
+      // })
+      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -213,7 +226,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           });
         });
       }),
-      share(),
+      shareReplay()
+      // share({
+      //   connector: () => new ReplaySubject(),
+      // })
+      ,
       takeUntil(this.unsubscribe$)
     );
 

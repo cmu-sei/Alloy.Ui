@@ -15,7 +15,7 @@ import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
 import { combineQueries } from '@datorama/akita';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
-import { filter, share, takeUntil, tap } from 'rxjs/operators';
+import { filter, share, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
 import { EventsService } from '../../../services/events/events.service';
@@ -95,7 +95,10 @@ export class EventListComponent implements OnInit, OnDestroy {
       .subscribe();
 
     this.isLoading$ = this.TemplatesQuery.selectLoading().pipe(
-      share()
+      shareReplay()
+      // share({
+      //   connector: () => new ReplaySubject(),
+      // })
     );
   }
 

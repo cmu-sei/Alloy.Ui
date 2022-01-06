@@ -51,13 +51,13 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-form-field class="full-width">
         <input
           matInput
+          type="number"
           placeholder="Duration Hours"
           [formControl]="durationHoursFormControl"
           (blur)="saveEventTemplate('durationHours')"
           value="{{ eventTemplate.durationHours }}"
-          [errorStateMatcher]="notAnIntegerErrorState"
         />
-        <mat-error *ngIf="durationHoursFormControl.hasError('notAnInteger')">
+        <mat-error *ngIf="durationHoursFormControl.errors?.pattern">
           Duration Hours must be an <strong>integer</strong>
         </mat-error>
       </mat-form-field>

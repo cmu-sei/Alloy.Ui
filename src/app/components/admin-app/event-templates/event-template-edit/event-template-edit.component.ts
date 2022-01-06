@@ -39,26 +39,6 @@ export class UserErrorStateMatcher implements ErrorStateMatcher {
   }
 }
 
-/** Error when control isn't an integer */
-export class NotIntegerErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(
-    control: FormControl | null,
-    form: FormGroupDirective | NgForm | null
-  ): boolean {
-    const isNotAnInteger =
-      parseInt(control.value, 10).toString() !== control.value;
-    if (isNotAnInteger) {
-      control.setErrors({ notAnInteger: true });
-    }
-    const isSubmitted = form && form.submitted;
-    return !!(
-      control &&
-      (control.invalid || isNotAnInteger) &&
-      (control.dirty || isSubmitted)
-    );
-  }
-}
-
 @Component({
   selector: 'app-event-template-edit',
   templateUrl: './event-template-edit.component.html',
@@ -87,14 +67,16 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     Validators.minLength(4),
   ]);
   public descriptionFormControl = new FormControl('', [Validators.required]);
-  public durationHoursFormControl = new FormControl('', []);
+  public durationHoursFormControl = new FormControl('', [
+    Validators.required,
+    Validators.pattern('^[0-9]*$'),
+  ]);
   public viewIdFormControl = new FormControl('', []);
   public directoryIdFormControl = new FormControl('', []);
   public scenarioTemplateIdFormControl = new FormControl('', []);
   public isPublishedFormControl = new FormControl('', []);
   public useDynamicHostFormControl = new FormControl('', []);
   public matcher = new UserErrorStateMatcher();
-  public notAnIntegerErrorState = new NotIntegerErrorStateMatcher();
   public viewSearchControl = new FormControl('', []);
   public directorySearchControl = new FormControl('', []);
   public scenarioTemplateSearchControl = new FormControl('', []);

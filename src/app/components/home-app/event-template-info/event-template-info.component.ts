@@ -1,7 +1,8 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
+import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import {
   ComnAuthQuery,
@@ -10,18 +11,10 @@ import {
 } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
-import {
-  combineLatest,
-  interval,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-} from 'rxjs';
+import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
 import {
   filter,
   map,
-  share,
   shareReplay,
   skip,
   startWith,
@@ -96,7 +89,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private authQuery: ComnAuthQuery,
     private routerQuery: RouterQuery,
     private signalRService: SignalRService,
-    private clipboardService: ClipboardService
+    private clipboardService: ClipboardService,
+    @Inject(APP_BASE_HREF) private baseHref: string
   ) {
     this.theme$ = this.authQuery.userTheme$;
 
@@ -141,11 +135,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       switchMap((id) => {
         return this.templatesQuery.selectEntity(id ? id : this.eventTemplateId);
       }),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -156,11 +149,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           .pipe(map((events) => events));
       }),
       tap((events) => (this.impsDataSource.data = events)),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -201,11 +193,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           return null;
         }
       }),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -226,11 +217,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           });
         });
       }),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -272,7 +262,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   }
 
   getInviteLink(event: AlloyEvent) {
-    const link: string = `${location.origin}/enlist/${event.shareCode}`;
+    const link: string = `${location.origin}${this.baseHref}enlist/${event.shareCode}`;
     return link;
   }
   copyInviteLink(event: AlloyEvent) {

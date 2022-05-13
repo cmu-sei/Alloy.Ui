@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  alloy-ui:
+    build: .
+    ports: 
+      - "4403:8080"
+    configs:
+      - source: alloy-ui
+        target: "/usr/share/nginx/html/assets/config/settings.env.json"
+    environment:
+      APP_BASEHREF: "/alloy/"
+configs:
+  alloy-ui:
+    file: ./src/assets/config/settings.env.json

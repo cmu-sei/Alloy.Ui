@@ -69,7 +69,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </div>
               </ng-container>
               <button
-                *ngIf="!isIframe()"
+                *ngIf="!isIFrame"
                 class="event-button-end"
                 mat-raised-button
                 color="warn"
@@ -122,7 +122,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                     </div>
                   </ng-container>
                   <button
-                    *ngIf="!isIframe()"
+                    *ngIf="!isIFrame"
                     class="event-button-end"
                     mat-raised-button
                     color="accent"
@@ -166,7 +166,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                           mat-menu-item
                           ngxClipboard
                           (click)="copyInviteLink(alloyEvent)"
-                          title="Copy:  {{ getInviteLink(alloyEvent) }}"
+                          title="Copy:  {{ inviteLink }}"
                           class="copy-button"
                         >
                           <mat-icon
@@ -205,8 +205,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 <label *ngIf="timeRunningLow" class="duration-label-warn">{{
                   remainingTime
                 }}</label>
-                <div #inviteLink [hidden]="inviteHidden">
-                  {{ getInviteLink(alloyEvent) }}
+                <div [hidden]="inviteHidden">
+                  {{ inviteLink }}
                 </div>
               </div>
             </ng-container>

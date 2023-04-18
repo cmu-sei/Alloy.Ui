@@ -1,7 +1,13 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import {
   ComnAuthQuery,
@@ -10,18 +16,10 @@ import {
 } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
-import {
-  combineLatest,
-  interval,
-  Observable,
-  of,
-  ReplaySubject,
-  Subject,
-} from 'rxjs';
+import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
 import {
   filter,
   map,
-  share,
   shareReplay,
   skip,
   startWith,
@@ -83,6 +81,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public isOwner: boolean = false;
   public viewId: string;
   public expirationDate: Date;
+  public isIFrame: boolean;
+  public inviteLink: string;
   private unsubscribe$: Subject<null> = new Subject<null>();
 
   constructor(
@@ -96,7 +96,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private authQuery: ComnAuthQuery,
     private routerQuery: RouterQuery,
     private signalRService: SignalRService,
-    private clipboardService: ClipboardService
+    private clipboardService: ClipboardService,
+    private changeDetector: ChangeDetectorRef
   ) {
     this.theme$ = this.authQuery.userTheme$;
 
@@ -114,6 +115,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.isIFrame = this.isIframe();
+
     this.routerQuery
       .selectParams(['id', 'viewId'])
       .pipe(
@@ -141,11 +144,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       switchMap((id) => {
         return this.templatesQuery.selectEntity(id ? id : this.eventTemplateId);
       }),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -156,11 +158,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           .pipe(map((events) => events));
       }),
       tap((events) => (this.impsDataSource.data = events)),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -194,18 +195,19 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
             this.remainingTime = this.calculateRemainingTime(
               currentEvent.expirationDate
             );
+            this.inviteLink = this.getInviteLink(currentEvent);
           }
 
+          this.changeDetector.markForCheck();
           return currentEvent;
         } else {
           return null;
         }
       }),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -226,11 +228,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           });
         });
       }),
-      shareReplay()
+      shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      ,
       takeUntil(this.unsubscribe$)
     );
 
@@ -272,8 +273,18 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   }
 
   getInviteLink(event: AlloyEvent) {
-    const link: string = `${location.origin}/enlist/${event.shareCode}`;
-    return link;
+    if (!event.shareCode) {
+      return null;
+    }
+
+    let baseURI = document.baseURI;
+
+    if (baseURI.endsWith('/')) {
+      baseURI = baseURI.slice(0, baseURI.length - 1);
+    }
+
+    const link = new URL(`${baseURI}/enlist/${event.shareCode}`);
+    return link.toString();
   }
   copyInviteLink(event: AlloyEvent) {
     this.clipboardService.copy(this.getInviteLink(event));

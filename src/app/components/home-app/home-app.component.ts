@@ -59,7 +59,13 @@ export class HomeAppComponent implements OnInit, OnDestroy {
 
           const event = events.find((e) => e.viewId === viewId);
           if (event) {
-            window.location.href = `${window.location.origin}/templates/${event.eventTemplateId}/view/${viewId}`;
+            let baseURI = document.baseURI;
+
+            if (baseURI.endsWith('/')) {
+              baseURI = baseURI.slice(0, baseURI.length - 1);
+            }
+
+            window.location.href = `${baseURI}/templates/${event.eventTemplateId}/view/${viewId}`;
           }
         }),
 

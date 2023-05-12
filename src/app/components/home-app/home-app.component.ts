@@ -9,6 +9,7 @@ import { combineLatest, Subject } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { EventsService } from 'src/app/services/events/events.service';
 import { TopbarView } from '../shared/top-bar/topbar.models';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home-app',
@@ -28,7 +29,8 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     private settingsService: ComnSettingsService,
     private titleService: Title,
     private eventsService: EventsService,
-    private routerQuery: RouterQuery
+    private routerQuery: RouterQuery,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -56,16 +58,15 @@ export class HomeAppComponent implements OnInit, OnDestroy {
         tap(([viewId, events]) => {
           // Convert set to array.
           events = [...events];
-
           const event = events.find((e) => e.viewId === viewId);
+
           if (event) {
-            let baseURI = document.baseURI;
-
-            if (baseURI.endsWith('/')) {
-              baseURI = baseURI.slice(0, baseURI.length - 1);
-            }
-
-            window.location.href = `${baseURI}/templates/${event.eventTemplateId}/view/${viewId}`;
+            this.router.navigate([
+              'templates',
+              event.eventTemplateId,
+              'view',
+              viewId,
+            ]);
           }
         }),
 

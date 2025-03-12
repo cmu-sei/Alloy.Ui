@@ -10,7 +10,7 @@ import {
   ComnAuthQuery,
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
-import { LoggedInUserService } from '../../services/logged-in-user/logged-in-user.service';
+import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from './../shared/top-bar/topbar.models';
 
 @Component({
@@ -39,7 +39,7 @@ export class AdminAppComponent implements OnInit {
     private authService: ComnAuthService,
     private settingsService: ComnSettingsService,
     private titleService: Title,
-    private usersService: LoggedInUserService,
+    private userDataService: UserDataService,
     private authQuery: ComnAuthQuery
   ) {
     this.theme$ = this.authQuery.userTheme$;
@@ -54,9 +54,7 @@ export class AdminAppComponent implements OnInit {
     this.titleService.setTitle(this.settingsService.settings.AppTitle);
     this.username = '';
     this.isSuperUser = false;
-    this.usersService.isSuperUser.subscribe((isSuperUser) => {
-      this.isSuperUser = isSuperUser;
-    });
+    this.userDataService.setCurrentUser();
   }
 
   logout(): void {

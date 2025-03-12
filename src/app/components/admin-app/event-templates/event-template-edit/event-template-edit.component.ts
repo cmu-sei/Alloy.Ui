@@ -26,7 +26,7 @@ import {
   View,
 } from 'src/app/generated/alloy.api';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class UserErrorStateMatcher implements ErrorStateMatcher {
@@ -83,7 +83,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject();
 
   constructor(
-    public eventTemplatesService: EventTemplatesService,
+    public eventTemplateDataService: EventTemplateDataService,
     public dialogService: DialogService,
     public zone: NgZone
   ) {}
@@ -153,7 +153,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
       )
       .subscribe((result) => {
         if (result['confirm']) {
-          this.eventTemplatesService.delete(this.eventTemplate.id);
+          this.eventTemplateDataService.delete(this.eventTemplate.id);
           this.closePanel.emit(true);
         }
       });
@@ -204,7 +204,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         break;
     }
     if (shouldUpdate) {
-      this.eventTemplatesService.update(this.eventTemplate);
+      this.eventTemplateDataService.update(this.eventTemplate);
     }
   }
 
@@ -281,7 +281,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         break;
     }
     if (shouldUpdate) {
-      this.eventTemplatesService.update(this.eventTemplate);
+      this.eventTemplateDataService.update(this.eventTemplate);
     }
   }
 
@@ -368,7 +368,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     };
   }
 
-  get selectedScenarioTemplateName() {
+  get selectedEventTemplateName() {
     return (selectedId) => {
       if (!selectedId) {
         selectedId = this.scenarioTemplateIdFormControl.value;
@@ -408,7 +408,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
             directoryId: this.eventTemplate.directoryId,
             scenarioTemplateId: this.eventTemplate.scenarioTemplateId,
           };
-          this.eventTemplatesService.addNew(newEventTemplate);
+          this.eventTemplateDataService.addNew(newEventTemplate);
           this.closePanel.emit(true);
         }
       });

@@ -19,7 +19,13 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles/styles.scss"],
+            "styles": [
+              "src/styles/styles.scss",
+              "./node_modules/bootstrap/scss/bootstrap-utilities.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/styles", "./node_modules/bootstrap/scss"]
+            },
             "scripts": [],
             "preserveSymlinks": true,
             "vendorChunk": true,

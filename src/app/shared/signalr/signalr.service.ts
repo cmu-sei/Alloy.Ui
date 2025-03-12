@@ -7,8 +7,8 @@ import * as SignalR from '@microsoft/signalr';
 import { Observable } from 'rxjs';
 import { EventTemplate } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
-import { EventTemplatesService } from '../../services/event-templates/event-templates.service';
-import { EventsService } from '../../services/events/events.service';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,8 +19,8 @@ export class SignalRService {
   private connectionObservable: Observable<SignalR.HubConnection>;
   private connectionPromise: Promise<void>;
   constructor(
-    private eventsService: EventsService,
-    private eventTemplatesService: EventTemplatesService,
+    private eventDataService: EventDataService,
+    private eventTemplateDataService: EventTemplateDataService,
     private authQuery: ComnAuthQuery,
     private settingsService: ComnSettingsService
   ) {}
@@ -66,23 +66,23 @@ export class SignalRService {
 
   private addEventHandlers() {
     this.hubConnection.on('EventUpdated', (event: AlloyEvent) => {
-      this.eventsService.stateUpdate(event);
+      this.eventDataService.stateUpdate(event);
     });
     this.hubConnection.on('EventDeleted', (event: AlloyEvent) => {
-      this.eventsService.stateDelete(event);
+      this.eventDataService.stateDelete(event);
     });
     this.hubConnection.on('EventCreated', (event: AlloyEvent) => {
-      this.eventsService.stateCreate(event);
+      this.eventDataService.stateCreate(event);
     });
 
     this.hubConnection.on('EventTemplateUpdated', (template: EventTemplate) => {
-      this.eventTemplatesService.stateUpdate(template);
+      this.eventTemplateDataService.stateUpdate(template);
     });
     this.hubConnection.on('EventTemplateDeleted', (template: EventTemplate) => {
-      this.eventTemplatesService.stateDelete(template.id);
+      this.eventTemplateDataService.stateDelete(template.id);
     });
     this.hubConnection.on('EventTemplateCreated', (template: EventTemplate) => {
-      this.eventTemplatesService.stateCreate(template);
+      this.eventTemplateDataService.stateCreate(template);
     });
   }
 }

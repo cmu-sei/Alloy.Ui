@@ -52,6 +52,16 @@ import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdminAppComponent } from './components/admin-app/admin-app.component';
+import { AdminGroupsComponent } from './components/admin-app/admin-groups/admin-groups.component';
+import { AdminGroupsDetailComponent } from './components/admin-app/admin-groups/admin-groups-detail/admin-groups-detail.component';
+import { AdminGroupsMemberListComponent } from './components/admin-app/admin-groups/admin-groups-member-list/admin-groups-member-list.component';
+import { AdminGroupsMembershipListComponent } from './components/admin-app/admin-groups/admin-groups-membership-list/admin-groups-membership-list.component';
+import { AdminRolesComponent } from './components/admin-app/admin-roles/admin-roles.component';
+import { AdminEventRolesComponent } from './components/admin-app/admin-roles/admin-event-roles/admin-event-roles.component';
+import { AdminEventTemplateRolesComponent } from './components/admin-app/admin-roles/admin-event-template-roles/admin-event-template-roles.component';
+import { AdminSystemRolesComponent } from './components/admin-app/admin-roles/admin-system-roles/admin-system-roles.component';
+import { AdminUserListComponent } from './components/admin-app/admin-users/admin-user-list/admin-user-list.component';
+import { AdminUsersComponent } from './components/admin-app/admin-users/admin-users.component';
 import { EventTemplateEditComponent } from './components/admin-app/event-templates/event-template-edit/event-template-edit.component';
 import { EventTemplateListComponent } from './components/admin-app/event-templates/event-template-list/event-template-list.component';
 import { EventTemplatesComponent } from './components/admin-app/event-templates/event-templates.component';
@@ -61,13 +71,21 @@ import { EventsComponent } from './components/admin-app/events/events.component'
 import { EnlistComponent } from './components/home-app/enlist/enlist.component';
 import { EventListComponent } from './components/home-app/event-list/event-list.component';
 import { EventTemplateInfoComponent } from './components/home-app/event-template-info/event-template-info.component';
+import { EventTemplateMembershipsComponent } from './components/admin-app/event-templates/event-template-memberships/event-template-memberships/event-template-memberships.component';
+import { EventTemplateMemberListComponent } from './components/admin-app/event-templates/event-template-memberships/event-template-member-list/event-template-member-list.component';
+import { EventTemplateMembershipsPageComponent } from './components/admin-app/event-templates/event-template-memberships/event-template-memberships-page/event-template-memberships-page.component';
+import { EventTemplateMembershipListComponent } from './components/admin-app/event-templates/event-template-memberships/event-template-membership-list/event-template-membership-list.component';
+import { EventMembershipsComponent } from './components/admin-app/events/event-memberships/event-memberships/event-memberships.component';
+import { EventMemberListComponent } from './components/admin-app/events/event-memberships/event-member-list/event-member-list.component';
+import { EventMembershipsPageComponent } from './components/admin-app/events/event-memberships/event-memberships-page/event-memberships-page.component';
+import { EventMembershipListComponent } from './components/admin-app/events/event-memberships/event-membership-list/event-membership-list.component';
 import { HomeAppComponent } from './components/home-app/home-app.component';
-import { ConfirmDialogComponent } from './components/shared/confirm-dialog/confirm-dialog.component';
+import { NameDialogComponent } from './shared/name-dialog/name-dialog.component';
+import { ConfirmDialogComponent } from './components/shared/confirm-dialog/components/confirm-dialog.component';
 import { TopbarComponent } from './components/shared/top-bar/topbar.component';
 import { BASE_PATH } from './generated/alloy.api';
 import { ApiModule as SwaggerCodegenApiModule } from './generated/alloy.api/api.module';
 import { DialogService } from './services/dialog/dialog.service';
-import { LoggedInUserService } from './services/logged-in-user/logged-in-user.service';
 import { SignalRService } from './shared/signalr/signalr.service';
 
 const settings: ComnSettingsConfig = {
@@ -127,9 +145,30 @@ export class AngularMaterialModule {}
     EventsComponent,
     AdminEventListComponent,
     EventEditComponent,
+    EventTemplateMemberListComponent,
+    EventTemplateMembershipListComponent,
+    EventTemplateMembershipsComponent,
+    EventTemplateMembershipsPageComponent,
+    EventMemberListComponent,
+    EventMembershipListComponent,
+    EventMembershipsComponent,
+    EventMembershipsPageComponent,
     ConfirmDialogComponent,
     TopbarComponent,
     EnlistComponent,
+    AdminGroupsComponent,
+    AdminGroupsDetailComponent,
+    AdminGroupsMemberListComponent,
+    AdminGroupsMembershipListComponent,
+    AdminRolesComponent,
+    AdminEventRolesComponent,
+    AdminEventTemplateRolesComponent,
+    EventsComponent,
+    EventTemplatesComponent,
+    AdminSystemRolesComponent,
+    AdminUsersComponent,
+    AdminUserListComponent,
+    NameDialogComponent,
   ],
   imports: [
     HttpClientModule,
@@ -148,7 +187,6 @@ export class AngularMaterialModule {}
     ComnAuthModule.forRoot(),
   ],
   providers: [
-    LoggedInUserService,
     SignalRService,
     {
       provide: BASE_PATH,

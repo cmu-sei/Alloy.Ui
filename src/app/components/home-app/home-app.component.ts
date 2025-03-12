@@ -7,7 +7,8 @@ import { ComnSettingsService } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { combineLatest, Subject } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { EventsService } from 'src/app/services/events/events.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
+import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from '../shared/top-bar/topbar.models';
 import { Router } from '@angular/router';
 
@@ -28,15 +29,17 @@ export class HomeAppComponent implements OnInit, OnDestroy {
   constructor(
     private settingsService: ComnSettingsService,
     private titleService: Title,
-    private eventsService: EventsService,
+    private eventDataService: EventDataService,
     private routerQuery: RouterQuery,
-    private router: Router
+    private router: Router,
+    private userDataService: UserDataService
   ) {}
 
   ngOnInit() {
     // Set the topbar color from config file
     this.titleService.setTitle(this.settingsService.settings.AppTitle);
     this.username = '';
+    this.userDataService.setCurrentUser();
 
     // Get the event GUID from the URL that the user is entering the web page on
     this.routerQuery
@@ -45,8 +48,8 @@ export class HomeAppComponent implements OnInit, OnDestroy {
         filter((viewId) => viewId),
         switchMap((viewId) => {
           return combineLatest([
-            this.eventsService.getViewEvents(viewId),
-            this.eventsService.getUserEvents(),
+            this.eventDataService.getViewEvents(viewId),
+            this.eventDataService.getUserEvents(),
           ]).pipe(
             map(([viewEvents, myEvents]) => [
               viewId,

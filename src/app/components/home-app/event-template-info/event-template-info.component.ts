@@ -33,13 +33,13 @@ import { EventStatus } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
-import { EventsService } from 'src/app/services/events/events.service';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
 import { ALLOY_CURRENT_EVENT_STATUS } from 'src/app/shared/models/enums';
-import { SignalRService } from '../../../shared/signalr/signalr.service';
-import { EventTemplatesQuery } from '../../../state/event-templates/event-templates.query';
-import { EventsQuery } from '../../../state/events/events.query';
-import { UserEventsQuery } from '../../../state/user-events/user-events.query';
+import { SignalRService } from 'src/app/shared/signalr/signalr.service';
+import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
+import { EventQuery } from 'src/app/data/event/event.query';
+import { UserEventsQuery } from '../../../data/event/user-events.query';
 
 @Component({
   selector: 'app-event-template-info',
@@ -88,10 +88,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   constructor(
     private settingsService: ComnSettingsService,
     private dialogService: DialogService,
-    public eventTemplatesService: EventTemplatesService,
-    public eventsService: EventsService,
-    private templatesQuery: EventTemplatesQuery,
-    private eventsQuery: EventsQuery,
+    public eventTemplateDataService: EventTemplateDataService,
+    public eventDataService: EventDataService,
+    private eventTemplateQuery: EventTemplateQuery,
+    private eventQuery: EventQuery,
     private userEventsQuery: UserEventsQuery,
     private authQuery: ComnAuthQuery,
     private routerQuery: RouterQuery,
@@ -123,12 +123,12 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         switchMap(([id, viewId]) => {
           if (viewId) {
             this.viewId = viewId;
-            this.eventTemplatesService.loadTemplate(id);
-            this.eventsService.loadEvents(id);
-            return this.eventsService.getViewEvents(viewId);
+            this.eventTemplateDataService.loadTemplate(id);
+            this.eventDataService.loadEvents(id);
+            return this.eventDataService.getViewEvents(viewId);
           } else if (id) {
-            this.eventTemplatesService.loadTemplate(id);
-            return this.eventsService.loadEvents(id);
+            this.eventTemplateDataService.loadTemplate(id);
+            return this.eventDataService.loadEvents(id);
           } else {
             return of([]);
           }
@@ -137,12 +137,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.eventTemplate$ = this.templatesQuery.selectLoading().pipe(
+    this.eventTemplate$ = this.eventTemplateQuery.selectLoading().pipe(
       filter((loading) => !loading),
       withLatestFrom(this.routerQuery.selectParams('id')),
       map(([loading, id]) => id),
       switchMap((id) => {
-        return this.templatesQuery.selectEntity(id ? id : this.eventTemplateId);
+        return this.eventTemplateQuery.selectEntity(
+          id ? id : this.eventTemplateId
+        );
       }),
       shareReplay(),
       // share({
@@ -153,8 +155,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
     this.events$ = this.eventTemplate$.pipe(
       switchMap((t) => {
-        return this.eventsQuery
-          .selectEventsByTemplateId$(t.id)
+        return this.eventQuery
+          .selectByEventTemplateId(t.id)
           .pipe(map((events) => events));
       }),
       tap((events) => (this.impsDataSource.data = events)),
@@ -165,7 +167,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
     );
 
-    this.currentEvent$ = this.eventsQuery.selectAll().pipe(
+    this.currentEvent$ = this.eventQuery.selectAll().pipe(
       withLatestFrom(this.authQuery.user$, this.routerQuery.selectParams('id')),
       map(([events, user, id]) => {
         if (events.length >= 1) {
@@ -331,7 +333,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     this.failedEvent = undefined;
     this.failureMessage = '';
 
-    this.eventsService
+    this.eventDataService
       .launchEvent(id)
       .pipe(
         tap((event: AlloyEvent) => {
@@ -355,7 +357,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .pipe(take(1))
         .subscribe((result) => {
           if (result['confirm']) {
-            this.eventsService.endEvent(event.id);
+            this.eventDataService.endEvent(event.id);
           }
         });
     }
@@ -372,14 +374,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .subscribe((result) => {
           if (result['confirm']) {
             this.redeploying = true;
-            this.eventsService.redeployEvent(event.id);
+            this.eventDataService.redeployEvent(event.id);
           }
         });
     }
   }
 
   inviteEvent(event: AlloyEvent) {
-    this.eventsService
+    this.eventDataService
       .inviteEvent(event.id)
       .pipe(take(1))
       .subscribe(() => {

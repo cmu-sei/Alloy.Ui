@@ -7,21 +7,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          type="text"
-          matInput
-          [formControl]="eventNameFormControl"
-          placeholder="Name (required)"
-          (blur)="saveEvent('name')"
-          value="{{ event.name }}"
-          [errorStateMatcher]="matcher"
-        />
-        <mat-error
-          *ngIf="
+        <input type="text" matInput [formControl]="eventNameFormControl" placeholder="Name (required)"
+          (blur)="saveEvent('name')" value="{{ event.name }}" [errorStateMatcher]="matcher" />
+        <mat-error *ngIf="
             eventNameFormControl.hasError('minlength') &&
             !eventNameFormControl.hasError('required')
-          "
-        >
+          ">
           Must contain 4 or more characters
         </mat-error>
         <mat-error *ngIf="eventNameFormControl.hasError('required')">
@@ -34,14 +25,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <textarea
-          matInput
-          placeholder="Description"
-          [formControl]="descriptionFormControl"
-          (blur)="saveEvent('description')"
-          value="{{ event.description }}"
-          [errorStateMatcher]="matcher"
-        ></textarea>
+        <textarea matInput placeholder="Description" [formControl]="descriptionFormControl"
+          (blur)="saveEvent('description')" value="{{ event.description }}" [errorStateMatcher]="matcher"></textarea>
       </mat-form-field>
     </div>
   </div>
@@ -49,14 +34,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          matInput
-          placeholder="Username"
-          [formControl]="usernameFormControl"
-          (blur)="saveEvent('username')"
-          value="{{ event.username }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Username" [formControl]="usernameFormControl" (blur)="saveEvent('username')"
+          value="{{ event.username }}" [errorStateMatcher]="matcher" />
         <mat-error *ngIf="usernameFormControl.hasError('required')">
           Username is <strong>required</strong>
         </mat-error>
@@ -67,14 +46,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          matInput
-          placeholder="Status"
-          [formControl]="statusFormControl"
-          (blur)="saveEvent('status')"
-          value="{{ event.status }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Status" [formControl]="statusFormControl" (blur)="saveEvent('status')"
+          value="{{ event.status }}" [errorStateMatcher]="matcher" />
         <mat-error *ngIf="statusFormControl.hasError('required')">
           Status is <strong>required</strong>
         </mat-error>
@@ -85,14 +58,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          matInput
-          placeholder="Internal Status"
-          [formControl]="internalStatusFormControl"
-          (blur)="saveEvent('internalStatus')"
-          value="{{ event.internalStatus }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Internal Status" [formControl]="internalStatusFormControl"
+          (blur)="saveEvent('internalStatus')" value="{{ event.internalStatus }}" [errorStateMatcher]="matcher" />
         <mat-error *ngIf="internalStatusFormControl.hasError('required')">
           Internal Status is <strong>required</strong>
         </mat-error>
@@ -103,27 +70,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="event.userId"
-          title="Copy:  {{ event.userId }}"
-          style="margin-top: -15px"
-        >
-          <mat-icon
-            style="transform: scale(0.65)"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
+        <button mat-icon-button matPrefix ngxClipboard [cbContent]="event.userId" title="Copy:  {{ event.userId }}"
+          style="margin-top: -15px">
+          <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
-        <input
-          matInput
-          placeholder="User ID"
-          [formControl]="userIdFormControl"
-          (blur)="saveEvent('userId')"
-          value="{{ event.userId }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="User ID" [formControl]="userIdFormControl" (blur)="saveEvent('userId')"
+          value="{{ event.userId }}" [errorStateMatcher]="matcher" />
         <mat-error *ngIf="userIdFormControl.hasError('required')">
           User ID is <strong>required</strong>
         </mat-error>
@@ -134,27 +86,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="event.eventTemplateId"
-          title="Copy:  {{ event.eventTemplateId }}"
-          style="margin-top: -15px"
-        >
-          <mat-icon
-            style="transform: scale(0.65)"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
+        <button mat-icon-button matPrefix ngxClipboard [cbContent]="event.eventTemplateId"
+          title="Copy:  {{ event.eventTemplateId }}" style="margin-top: -15px">
+          <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
-        <input
-          matInput
-          placeholder="Event Template ID"
-          [formControl]="eventTemplateIdFormControl"
-          (blur)="saveEvent('eventTemplateId')"
-          value="{{ event.eventTemplateId }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Event Template ID" [formControl]="eventTemplateIdFormControl"
+          (blur)="saveEvent('eventTemplateId')" value="{{ event.eventTemplateId }}" [errorStateMatcher]="matcher" />
         <mat-error *ngIf="eventTemplateIdFormControl.hasError('required')">
           Event Template ID is <strong>required</strong>
         </mat-error>
@@ -165,27 +102,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="event.viewId"
-          title="Copy:  {{ event.viewId }}"
-          style="margin-top: -15px"
-        >
-          <mat-icon
-            style="transform: scale(0.65)"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
+        <button mat-icon-button matPrefix ngxClipboard [cbContent]="event.viewId" title="Copy:  {{ event.viewId }}"
+          style="margin-top: -15px">
+          <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
-        <input
-          matInput
-          placeholder="View ID"
-          [formControl]="viewIdFormControl"
-          (blur)="saveEvent('viewId')"
-          value="{{ event.viewId }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="View ID" [formControl]="viewIdFormControl" (blur)="saveEvent('viewId')"
+          value="{{ event.viewId }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -193,27 +115,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="event.workspaceId"
-          title="Copy:  {{ event.workspaceId }}"
-          style="margin-top: -15px"
-        >
-          <mat-icon
-            style="transform: scale(0.65)"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
+        <button mat-icon-button matPrefix ngxClipboard [cbContent]="event.workspaceId"
+          title="Copy:  {{ event.workspaceId }}" style="margin-top: -15px">
+          <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
-        <input
-          matInput
-          placeholder="Workspace ID"
-          [formControl]="workspaceIdFormControl"
-          (blur)="saveEvent('workspaceId')"
-          value="{{ event.workspaceId }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Workspace ID" [formControl]="workspaceIdFormControl"
+          (blur)="saveEvent('workspaceId')" value="{{ event.workspaceId }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -221,27 +128,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="event.runId"
-          title="Copy:  {{ event.runId }}"
-          style="margin-top: -15px"
-        >
-          <mat-icon
-            style="transform: scale(0.65)"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
+        <button mat-icon-button matPrefix ngxClipboard [cbContent]="event.runId" title="Copy:  {{ event.runId }}"
+          style="margin-top: -15px">
+          <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
-        <input
-          matInput
-          placeholder="Run ID"
-          [formControl]="runIdFormControl"
-          (blur)="saveEvent('runId')"
-          value="{{ event.runId }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Run ID" [formControl]="runIdFormControl" (blur)="saveEvent('runId')"
+          value="{{ event.runId }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -249,27 +141,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="event.scenarioId"
-          title="Copy:  {{ event.scenarioId }}"
-          style="margin-top: -15px"
-        >
-          <mat-icon
-            style="transform: scale(0.65)"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
+        <button mat-icon-button matPrefix ngxClipboard [cbContent]="event.eventId" title="Copy:  {{ event.eventId }}"
+          style="margin-top: -15px">
+          <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
-        <input
-          matInput
-          placeholder="Scenario ID"
-          [formControl]="scenarioIdFormControl"
-          (blur)="saveEvent('scenarioId')"
-          value="{{ event.scenarioId }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Event ID" [formControl]="eventIdFormControl" (blur)="saveEvent('eventId')"
+          value="{{ event.eventId }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -277,14 +154,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          matInput
-          placeholder="Launch Date"
-          [formControl]="launchDateFormControl"
-          (blur)="saveEvent('launchDate')"
-          value="{{ event.launchDate }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Launch Date" [formControl]="launchDateFormControl" (blur)="saveEvent('launchDate')"
+          value="{{ event.launchDate }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -292,14 +163,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          matInput
-          placeholder="End Date"
-          [formControl]="endDateFormControl"
-          (blur)="saveEvent('endDate')"
-          value="{{ event.endDate }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="End Date" [formControl]="endDateFormControl" (blur)="saveEvent('endDate')"
+          value="{{ event.endDate }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -307,14 +172,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          matInput
-          placeholder="Expiration Date"
-          [formControl]="expirationDateFormControl"
-          (blur)="saveEvent('expirationDate')"
-          value="{{ event.expirationDate }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Expiration Date" [formControl]="expirationDateFormControl"
+          (blur)="saveEvent('expirationDate')" value="{{ event.expirationDate }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -322,14 +181,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <div fxLayout="row" class="add-margin">
     <div fxFlex fxFlexOffset="10">
       <mat-form-field class="full-width">
-        <input
-          matInput
-          placeholder="Status Date"
-          [formControl]="statusDateFormControl"
-          (blur)="saveEvent('statusDate')"
-          value="{{ event.statusDate }}"
-          [errorStateMatcher]="matcher"
-        />
+        <input matInput placeholder="Status Date" [formControl]="statusDateFormControl" (blur)="saveEvent('statusDate')"
+          value="{{ event.statusDate }}" [errorStateMatcher]="matcher" />
       </mat-form-field>
     </div>
   </div>
@@ -349,12 +202,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
   <div fxLayout="row" class="bottom-button">
     <div fxFlex fxLayoutAlign="left" class="delete-button">
-      <button
-        mat-stroked-button
-        (click)="endEvent()"
-        style="margin-left: 40px"
-        *ngIf="event.status !== 'Ended'"
-      >
+      <button mat-stroked-button (click)="endEvent()" style="margin-left: 40px" *ngIf="event.status !== 'Ended'">
         End Event Now
       </button>
     </div>

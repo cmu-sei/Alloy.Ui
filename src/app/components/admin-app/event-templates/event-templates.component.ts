@@ -4,10 +4,10 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { CasterDataService } from 'src/app/services/caster-data/caster-data.service';
-import { PlayerDataService } from 'src/app/services/player-data/player-data.service';
-import { SteamfitterDataService } from 'src/app/services/steamfitter-data/steamfitter-data.service';
-import { EventTemplatesQuery } from 'src/app/state/event-templates/event-templates.query';
+import { CasterDataService } from 'src/app/data/caster/caster-data-service';
+import { PlayerDataService } from 'src/app/data/player/player-data-service';
+import { SteamfitterDataService } from 'src/app/data/steamfitter/steamfitter-data.service';
+import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
 
 @Component({
   selector: 'app-event-templates',
@@ -17,17 +17,16 @@ import { EventTemplatesQuery } from 'src/app/state/event-templates/event-templat
 export class EventTemplatesComponent {
   public matcher = new UserErrorStateMatcher();
   public isLinear = false;
-  public eventTemplates$ = this.eventTemplatesQuery.selectAll();
+  public eventTemplates$ = this.eventTemplateQuery.selectAll();
   public viewList = this.playerDataService.viewList;
-  public scenarioTemplateList =
-    this.steamfitterDataService.scenarioTemplateList;
+  public eventTemplateList = this.steamfitterDataService.scenarioTemplateList;
   public directoryList = this.casterDataService.directoryList;
 
   constructor(
     private playerDataService: PlayerDataService,
     private steamfitterDataService: SteamfitterDataService,
     private casterDataService: CasterDataService,
-    private eventTemplatesQuery: EventTemplatesQuery
+    private eventTemplateQuery: EventTemplateQuery
   ) {
     playerDataService.getViewsFromApi();
     steamfitterDataService.getScenarioTemplatesFromApi();

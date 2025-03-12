@@ -17,9 +17,9 @@ import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 import { filter, share, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
-import { EventsService } from '../../../services/events/events.service';
-import { EventTemplatesQuery } from '../../../state/event-templates/event-templates.query';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
+import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
 
 @Component({
   selector: 'app-event-list',
@@ -56,9 +56,9 @@ export class EventListComponent implements OnInit, OnDestroy {
   theme$: Observable<Theme>;
 
   constructor(
-    private eventsService: EventsService,
-    private templateService: EventTemplatesService,
-    private TemplatesQuery: EventTemplatesQuery,
+    private eventDataService: EventDataService,
+    private templateDataService: EventTemplateDataService,
+    private eventTemplateQuery: EventTemplateQuery,
     private router: Router,
     private routerQuery: RouterQuery,
     private authQuery: ComnAuthQuery
@@ -74,11 +74,11 @@ export class EventListComponent implements OnInit, OnDestroy {
     this.filterString = '';
 
     // Initial datasource
-    this.templateService.loadTemplates();
+    this.templateDataService.loadTemplates();
 
     combineQueries([
-      this.TemplatesQuery.selectLoading(),
-      this.TemplatesQuery.selectAll(),
+      this.eventTemplateQuery.selectLoading(),
+      this.eventTemplateQuery.selectAll(),
     ])
       .pipe(
         filter(([loading]) => !loading),
@@ -94,7 +94,7 @@ export class EventListComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.isLoading$ = this.TemplatesQuery.selectLoading().pipe(
+    this.isLoading$ = this.eventTemplateQuery.selectLoading().pipe(
       shareReplay()
       // share({
       //   connector: () => new ReplaySubject(),

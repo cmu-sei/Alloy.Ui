@@ -24,7 +24,7 @@ import {
   ScenarioTemplate,
   View,
 } from 'src/app/generated/alloy.api';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { MatTableDataSource } from '@angular/material/table';
@@ -53,7 +53,7 @@ export class EventTemplateListComponent
 {
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
-  @Input() scenarioTemplateList: Observable<ScenarioTemplate[]>;
+  @Input() eventTemplateList: Observable<EventTemplate[]>;
   @Input() set eventTemplates(value: EventTemplate[]) {
     this.dataSource.data = value;
   }
@@ -85,10 +85,10 @@ export class EventTemplateListComponent
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
-    public eventTemplatesService: EventTemplatesService,
+    public eventTemplateDataService: EventTemplateDataService,
     private settingsService: ComnSettingsService
   ) {
-    this.eventTemplatesService.loadTemplates();
+    this.eventTemplateDataService.loadTemplates();
 
     this.isLoading = false;
     // Set the topbar color from config file
@@ -130,7 +130,7 @@ export class EventTemplateListComponent
       description: 'Add description',
     };
 
-    this.eventTemplatesService
+    this.eventTemplateDataService
       .addNew(eventTemplate)
       .pipe(take(1))
       .subscribe((x) => (this.expandedElementId = x.id));

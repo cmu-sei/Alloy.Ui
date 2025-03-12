@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Carnegie Mellon University. All Rights Reserved. 
+Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 */
 
@@ -15,7 +15,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { EventsService } from '../../../services/events/events.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
 
 @Component({
   selector: 'app-enlist',
@@ -29,7 +29,7 @@ export class EnlistComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private routerQuery: RouterQuery,
-    private eventsService: EventsService
+    private eventDataService: EventDataService
   ) {}
 
   ngOnInit(): void {
@@ -39,7 +39,7 @@ export class EnlistComponent implements OnInit, OnDestroy {
       .pipe(
         filter((code) => code),
         switchMap((code) =>
-          from(this.eventsService.enlistEvent(code)).pipe(
+          from(this.eventDataService.enlistEvent(code)).pipe(
             map((userEvent) => [code, userEvent])
           )
         ),

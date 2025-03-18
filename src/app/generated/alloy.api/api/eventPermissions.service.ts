@@ -130,7 +130,7 @@ export class EventPermissionsService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Array<EventPermissionClaim>>(`${this.configuration.basePath}/api/scenarios/${encodeURIComponent(String(id))}/me/permissions`,
+        return this.httpClient.get<Array<EventPermissionClaim>>(`${this.configuration.basePath}/api/events/${encodeURIComponent(String(id))}/me/permissions`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

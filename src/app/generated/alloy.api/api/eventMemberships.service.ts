@@ -88,17 +88,17 @@ export class EventMembershipsService {
 
     /**
      * Create a new Event Membership.
-     * @param scenarioId 
+     * @param eventId 
      * @param eventMembership 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public createEventMembership(scenarioId: string, eventMembership?: EventMembership, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<EventMembership>;
-    public createEventMembership(scenarioId: string, eventMembership?: EventMembership, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<EventMembership>>;
-    public createEventMembership(scenarioId: string, eventMembership?: EventMembership, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<EventMembership>>;
-    public createEventMembership(scenarioId: string, eventMembership?: EventMembership, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
-        if (scenarioId === null || scenarioId === undefined) {
-            throw new Error('Required parameter scenarioId was null or undefined when calling createEventMembership.');
+    public createEventMembership(eventId: string, eventMembership?: EventMembership, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<EventMembership>;
+    public createEventMembership(eventId: string, eventMembership?: EventMembership, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<EventMembership>>;
+    public createEventMembership(eventId: string, eventMembership?: EventMembership, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<EventMembership>>;
+    public createEventMembership(eventId: string, eventMembership?: EventMembership, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+        if (eventId === null || eventId === undefined) {
+            throw new Error('Required parameter eventId was null or undefined when calling createEventMembership.');
         }
 
         let headers = this.defaultHeaders;
@@ -142,7 +142,7 @@ export class EventMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.post<EventMembership>(`${this.configuration.basePath}/api/scenarios/${encodeURIComponent(String(scenarioId))}/memberships`,
+        return this.httpClient.post<EventMembership>(`${this.configuration.basePath}/api/events/${encodeURIComponent(String(eventId))}/memberships`,
             eventMembership,
             {
                 responseType: <any>responseType,
@@ -196,7 +196,7 @@ export class EventMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.delete<any>(`${this.configuration.basePath}/api/scenarios/memberships/${encodeURIComponent(String(id))}`,
+        return this.httpClient.delete<any>(`${this.configuration.basePath}/api/events/memberships/${encodeURIComponent(String(id))}`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
@@ -251,7 +251,7 @@ export class EventMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Array<EventMembership>>(`${this.configuration.basePath}/api/scenarios/${encodeURIComponent(String(id))}/memberships`,
+        return this.httpClient.get<Array<EventMembership>>(`${this.configuration.basePath}/api/events/${encodeURIComponent(String(id))}/memberships`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
@@ -306,7 +306,7 @@ export class EventMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<EventMembership>(`${this.configuration.basePath}/api/scenarios/memberships/${encodeURIComponent(String(id))}`,
+        return this.httpClient.get<EventMembership>(`${this.configuration.basePath}/api/events/memberships/${encodeURIComponent(String(id))}`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

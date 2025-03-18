@@ -5,62 +5,30 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <div fxLayout="row" fxLayoutAlign="start center">
   <div class="sp-icon">
-    <mat-icon
-      class="icon35px"
-      svgIcon="clipboard_play_outline"
-      [ngStyle]="{ color: topBarColor }"
-      alt="Events"
-    ></mat-icon>
+    <mat-icon class="icon35px" fontIcon="mdi_clipboard_play_outline" [ngStyle]="{ color: topBarColor }"
+      alt="Events"></mat-icon>
   </div>
   <div fxLayout="row" fxLayoutAlign="start center" fxFlexOffset="5">
-    <mat-icon
-      class="text icon-24px search-icon"
-      svgIcon="ic_magnify_search"
-    ></mat-icon>
+    <mat-icon class="text icon-24px search-icon" svgIcon="ic_magnify_search"></mat-icon>
     <mat-form-field class="search-field">
-      <input
-        matInput
-        [(ngModel)]="filterString"
-        (keyup)="applyFilter($event.target.value)"
-        placeholder="Search"
-      />
+      <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
     </mat-form-field>
     <div class="clear-search">
-      <button
-        mat-icon-button
-        fxLayoutAlign="start center"
-        (click)="clearFilter()"
-        title="Clear Search"
-      >
+      <button mat-icon-button fxLayoutAlign="start center" (click)="clearFilter()" title="Clear Search">
         <mat-icon class="text icon-20px" svgIcon="ic_cancel_circle"></mat-icon>
       </button>
     </div>
   </div>
   <div class="status-selection">
-    <input
-      type="checkbox"
-      [(ngModel)]="showActive"
-      (change)="filterAndSort()"
-    /><span class="status-text">Active</span><br />
-    <input
-      type="checkbox"
-      [(ngModel)]="showEnded"
-      (change)="filterAndSort()"
-    /><span class="status-text">Ended</span><br />
-    <input
-      type="checkbox"
-      [(ngModel)]="showFailed"
-      (change)="filterAndSort()"
-    /><span class="status-text">Failed</span>
+    <input type="checkbox" [(ngModel)]="showActive" (change)="filterAndSort()" /><span
+      class="status-text">Active</span><br />
+    <input type="checkbox" [(ngModel)]="showEnded" (change)="filterAndSort()" /><span
+      class="status-text">Ended</span><br />
+    <input type="checkbox" [(ngModel)]="showFailed" (change)="filterAndSort()" /><span class="status-text">Failed</span>
   </div>
   <div class="button-end">
-    <mat-paginator
-      #paginator
-      [length]="totalRows$ | async"
-      [pageIndex]="0"
-      [pageSize]="20"
-      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"
-    ></mat-paginator>
+    <mat-paginator #paginator [length]="totalRows$ | async" [pageIndex]="0" [pageSize]="20"
+      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
   </div>
 </div>
 
@@ -74,31 +42,17 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <span class="mat-header-cell" mat-sort-header="name">Name</span>
     <span class="mat-header-cell" mat-sort-header="username">User</span>
     <span class="mat-header-cell" mat-sort-header="status">Status</span>
-    <span class="mat-header-cell" mat-sort-header="statusDate"
-      >Status Date</span
-    >
-    <span class="mat-header-cell" mat-sort-header="launchDate"
-      >Launch Date</span
-    >
-    <span class="mat-header-cell" mat-sort-header="expirationDate"
-      >Expiration Date</span
-    >
+    <span class="mat-header-cell" mat-sort-header="statusDate">Status Date</span>
+    <span class="mat-header-cell" mat-sort-header="launchDate">Launch Date</span>
+    <span class="mat-header-cell" mat-sort-header="expirationDate">Expiration Date</span>
   </section>
 
   <mat-expansion-panel *ngFor="let item of displayedRows$ | async">
     <mat-expansion-panel-header class="mat-row">
       <span class="mat-cell">
-        <button
-          mat-icon-button
-          ngxClipboard
-          [cbContent]="item.id"
-          (click)="$event.stopPropagation()"
-          title="Copy:  {{ item.id }}"
-        >
-          <mat-icon
-            class="icon-color icon-20px"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
+        <button mat-icon-button ngxClipboard [cbContent]="item.id" (click)="$event.stopPropagation()"
+          title="Copy:  {{ item.id }}">
+          <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
         </button>
         {{ item.name }}
       </span>
@@ -106,19 +60,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <span class="mat-cell detail-cell">{{ item.status }}</span>
       <span class="mat-cell detail-cell">{{
         !!item.statusDate ? (item.statusDate | date: 'yyyy-MM-dd HH:mm') : ' '
-      }}</span>
+        }}</span>
       <span class="mat-cell detail-cell">{{
         !!item.launchDate ? (item.launchDate | date: 'yyyy-MM-dd HH:mm') : ' '
-      }}</span>
+        }}</span>
       <span class="mat-cell detail-cell">{{
         !!item.expirationDate
-          ? (item.expirationDate | date: 'yyyy-MM-dd HH:mm')
-          : ' '
-      }}</span>
+        ? (item.expirationDate | date: 'yyyy-MM-dd HH:mm')
+        : ' '
+        }}</span>
     </mat-expansion-panel-header>
-    <app-event-edit
-      [event]="item"
-      (editComplete)="refreshEvents()"
-    ></app-event-edit>
+    <app-event-edit [event]="item" (editComplete)="refreshEvents()"></app-event-edit>
   </mat-expansion-panel>
 </mat-accordion>

@@ -130,7 +130,7 @@ export class EventTemplatePermissionsService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Array<EventTemplatePermissionClaim>>(`${this.configuration.basePath}/api/scenariotemplates/${encodeURIComponent(String(id))}/me/permissions`,
+        return this.httpClient.get<Array<EventTemplatePermissionClaim>>(`${this.configuration.basePath}/api/eventtemplates/${encodeURIComponent(String(id))}/me/permissions`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

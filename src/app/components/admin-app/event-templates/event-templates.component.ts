@@ -19,8 +19,11 @@ export class EventTemplatesComponent {
   public isLinear = false;
   public eventTemplates$ = this.eventTemplateQuery.selectAll();
   public viewList = this.playerDataService.viewList;
-  public eventTemplateList = this.steamfitterDataService.scenarioTemplateList;
+  public scenarioTemplateList =
+    this.steamfitterDataService.scenarioTemplateList;
   public directoryList = this.casterDataService.directoryList;
+  selectedEventTemplateId: string;
+  loading$ = this.eventTemplateQuery.selectLoading();
 
   constructor(
     private playerDataService: PlayerDataService,

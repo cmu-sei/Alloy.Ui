@@ -6,6 +6,21 @@
 @include mat.core();
 /* END VENDER IMPORTS */
 
+/* BOOTSTRAP IMPORTS */
+/* Required */
+@import '../../node_modules/bootstrap/scss/functions';
+@import '../../node_modules/bootstrap/scss/variables';
+@import '../../node_modules/bootstrap/scss/maps';
+@import '../../node_modules/bootstrap/scss/mixins';
+@import '../../node_modules/bootstrap/scss/root';
+
+/* Optional */
+@import '../../node_modules/bootstrap/scss/utilities';
+/* END BOOTSRAP IMPORTS */
+
+$mdi-font-path: '~@mdi/font/fonts';
+@import '@mdi/font/scss/materialdesignicons';
+
 /* LOCAL IMPORTS */
 @import 'theme';
 /* END LOCAL IMPORTS */
@@ -24,6 +39,7 @@
 .mat-select-panel {
   background: #fff;
 }
+
 .mat-select-panel:not([class*='mat-elevation-z']) {
   box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
     0 1px 10px 0 rgba(0, 0, 0, 0.12);

@@ -15,8 +15,10 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 export class EventTemplateMembershipsPageComponent implements OnInit {
   eventTemplateId: string;
 
-  activatedRoute = inject(ActivatedRoute);
-  permissionDataService = inject(PermissionDataService);
+  constructor(
+    private activatedRoute: ActivatedRoute,
+    private permissionDataService: PermissionDataService
+  ) {}
 
   ngOnInit(): void {
     this.eventTemplateId = this.activatedRoute.snapshot.paramMap.get('id');

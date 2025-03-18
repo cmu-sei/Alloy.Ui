@@ -59,3 +59,42 @@
   transform: scale(2);
   width: 60px;
 }
+
+#wrapper {
+  display: table;
+  table-layout: fixed;
+  width: 220px;
+  margin-top: 5px;
+  border-width: 0.25pt;
+  border-color: darkgray;
+}
+
+#wrapper>div {
+  display: table-cell;
+}
+
+#lefticon {
+  width: 30px;
+  font-size: 75%;
+  padding: 0.5em;
+}
+
+#lefticon>img {
+  height: 35px;
+  width: 35px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#rightcontext {
+  width: 30px;
+  font-size: 75%;
+}
+
+#content {
+  text-align: left;
+  vertical-align: middle;
+  width: 160px;
+  font-size: 90%;
+  padding: 0.5em;
+}

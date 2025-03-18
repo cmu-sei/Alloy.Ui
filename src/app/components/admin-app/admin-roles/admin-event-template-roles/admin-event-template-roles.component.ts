@@ -19,8 +19,6 @@ import { EventTemplateRoleDataService } from 'src/app/data/event-template/event-
   styleUrls: ['./admin-event-template-roles.component.scss'],
 })
 export class AdminEventTemplateRolesComponent implements OnInit {
-  private eventTemplateRoleService = inject(EventTemplateRoleDataService);
-
   public allPermission = 'All';
 
   public permissionMap = EventTemplateRolesModel.EventTemplatePermissions;
@@ -44,6 +42,8 @@ export class AdminEventTemplateRolesComponent implements OnInit {
       return ['permissions', ...columnNames];
     })
   );
+
+  constructor(private eventTemplateRoleService: EventTemplateRoleDataService) {}
 
   ngOnInit(): void {
     this.eventTemplateRoleService.loadRoles().subscribe();

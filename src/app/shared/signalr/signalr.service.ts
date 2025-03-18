@@ -2,7 +2,11 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { Injectable } from '@angular/core';
-import { ComnAuthQuery, ComnSettingsService } from '@cmusei/crucible-common';
+import {
+  ComnAuthQuery,
+  ComnAuthService,
+  ComnSettingsService,
+} from '@cmusei/crucible-common';
 import * as SignalR from '@microsoft/signalr';
 import { Observable } from 'rxjs';
 import { EventTemplate } from 'src/app/generated/alloy.api';
@@ -18,7 +22,10 @@ export class SignalRService {
   private eventId: string;
   private connectionObservable: Observable<SignalR.HubConnection>;
   private connectionPromise: Promise<void>;
+  private systemGroupJoined = false;
+
   constructor(
+    private authService: ComnAuthService,
     private eventDataService: EventDataService,
     private eventTemplateDataService: EventTemplateDataService,
     private authQuery: ComnAuthQuery,
@@ -30,12 +37,11 @@ export class SignalRService {
       return this.connectionPromise;
     }
 
+    const token = this.authService.getAuthorizationToken();
     this.hubConnection = new SignalR.HubConnectionBuilder()
-      .withUrl(`${this.settingsService.settings.ApiUrl}/hubs/event`, {
-        accessTokenFactory: () => {
-          return this.authQuery.getValue().user.access_token;
-        },
-      })
+      .withUrl(
+        `${this.settingsService.settings.ApiUrl}/hubs/engine?bearer=${token}`
+      )
       .withAutomaticReconnect(new RetryPolicy(60, 0, 5))
       .build();
     this.hubConnection.onreconnected(() => {
@@ -59,6 +65,14 @@ export class SignalRService {
   public leaveEvent(eventId: string) {
     eventId = null;
     this.hubConnection.invoke('LeaveEvent', eventId);
+  }
+  public joinAdmin() {
+    this.systemGroupJoined = true;
+    this.startConnection().then((x) => this.hubConnection.invoke('JoinAdmin'));
+  }
+  public leaveAdmin() {
+    this.systemGroupJoined = false;
+    this.startConnection().then((x) => this.hubConnection.invoke('LeaveAdmin'));
   }
   private addHandlers() {
     this.addEventHandlers();

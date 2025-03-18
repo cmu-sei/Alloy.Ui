@@ -88,17 +88,17 @@ export class EventTemplateMembershipsService {
 
     /**
      * Create a new EventTemplate Membership.
-     * @param scenarioTemplateId 
+     * @param eventTemplateId 
      * @param eventTemplateMembership 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public createEventTemplateMembership(scenarioTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<EventTemplateMembership>;
-    public createEventTemplateMembership(scenarioTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<EventTemplateMembership>>;
-    public createEventTemplateMembership(scenarioTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<EventTemplateMembership>>;
-    public createEventTemplateMembership(scenarioTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
-        if (scenarioTemplateId === null || scenarioTemplateId === undefined) {
-            throw new Error('Required parameter scenarioTemplateId was null or undefined when calling createEventTemplateMembership.');
+    public createEventTemplateMembership(eventTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<EventTemplateMembership>;
+    public createEventTemplateMembership(eventTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<EventTemplateMembership>>;
+    public createEventTemplateMembership(eventTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<EventTemplateMembership>>;
+    public createEventTemplateMembership(eventTemplateId: string, eventTemplateMembership?: EventTemplateMembership, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+        if (eventTemplateId === null || eventTemplateId === undefined) {
+            throw new Error('Required parameter eventTemplateId was null or undefined when calling createEventTemplateMembership.');
         }
 
         let headers = this.defaultHeaders;
@@ -142,7 +142,7 @@ export class EventTemplateMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.post<EventTemplateMembership>(`${this.configuration.basePath}/api/scenariotemplates/${encodeURIComponent(String(scenarioTemplateId))}/memberships`,
+        return this.httpClient.post<EventTemplateMembership>(`${this.configuration.basePath}/api/eventtemplates/${encodeURIComponent(String(eventTemplateId))}/memberships`,
             eventTemplateMembership,
             {
                 responseType: <any>responseType,
@@ -196,7 +196,7 @@ export class EventTemplateMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.delete<any>(`${this.configuration.basePath}/api/scenariotemplates/memberships/${encodeURIComponent(String(id))}`,
+        return this.httpClient.delete<any>(`${this.configuration.basePath}/api/eventtemplates/memberships/${encodeURIComponent(String(id))}`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
@@ -251,7 +251,7 @@ export class EventTemplateMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Array<EventTemplateMembership>>(`${this.configuration.basePath}/api/scenariotemplates/${encodeURIComponent(String(id))}/memberships`,
+        return this.httpClient.get<Array<EventTemplateMembership>>(`${this.configuration.basePath}/api/eventtemplates/${encodeURIComponent(String(id))}/memberships`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
@@ -306,7 +306,7 @@ export class EventTemplateMembershipsService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<EventTemplateMembership>(`${this.configuration.basePath}/api/scenariotemplates/memberships/${encodeURIComponent(String(id))}`,
+        return this.httpClient.get<EventTemplateMembership>(`${this.configuration.basePath}/api/eventtemplates/memberships/${encodeURIComponent(String(id))}`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

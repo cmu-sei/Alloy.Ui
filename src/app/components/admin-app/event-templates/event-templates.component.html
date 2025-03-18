@@ -3,11 +3,13 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 
-<div class="component-container mat-elevation-z8">
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex>
-      <app-event-template-list [viewList]="viewList" [directoryList]="directoryList"
-        [eventTemplateList]="eventTemplateList" [eventTemplates]="eventTemplates$ | async"></app-event-template-list>
-    </div>
-  </div>
-</div>
+<app-event-template-list *ngIf="!selectedEventTemplateId" class="background" fxFill fxLayout="row"
+  fxLayoutAlign="center start" [isLoading]="loading$ | async" [eventTemplateList]="eventTemplates$" [adminMode]="true"
+  (itemSelected)="selectedEventTemplateId = $event.toString()">
+</app-event-template-list>
+<app-event-template-list [viewList]="viewList" [directoryList]="directoryList" [eventTemplateList]="eventTemplates$"
+  [eventTemplates]="eventTemplates$ | async"></app-event-template-list>
+
+
+<app-event-template-memberships *ngIf="selectedEventTemplateId" [eventTemplateId]="selectedEventTemplateId"
+  [embedded]="true" (goBack)="selectedEventTemplateId = null"></app-event-template-memberships>

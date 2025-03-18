@@ -126,7 +126,7 @@ export class EventRolesService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Array<EventRole>>(`${this.configuration.basePath}/api/scenario-roles`,
+        return this.httpClient.get<Array<EventRole>>(`${this.configuration.basePath}/api/event-roles`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
@@ -181,7 +181,7 @@ export class EventRolesService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<EventRole>(`${this.configuration.basePath}/api/scenario-roles/${encodeURIComponent(String(id))}`,
+        return this.httpClient.get<EventRole>(`${this.configuration.basePath}/api/event-roles/${encodeURIComponent(String(id))}`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

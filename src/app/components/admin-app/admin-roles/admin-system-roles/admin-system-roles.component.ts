@@ -25,12 +25,6 @@ const NAME_VALUE = 'nameValue';
   styleUrls: ['./admin-system-roles.component.scss'],
 })
 export class AdminSystemRolesComponent implements OnInit {
-  private roleService = inject(RoleDataService);
-  private dialog = inject(MatDialog);
-  private confirmService = inject(ConfirmDialogService);
-  private permissionDataService = inject(PermissionDataService);
-  private signalRService = inject(SignalRService);
-
   public canEdit = this.permissionDataService.hasPermission(
     SystemPermission.ManageRoles
   );
@@ -63,6 +57,14 @@ export class AdminSystemRolesComponent implements OnInit {
       return ['permissions', ...columnNames];
     })
   );
+
+  constructor(
+    private roleService: RoleDataService,
+    private dialog: MatDialog,
+    private confirmService: ConfirmDialogService,
+    private permissionDataService: PermissionDataService,
+    private signalRService: SignalRService
+  ) {}
 
   ngOnInit(): void {
     this.roleService.getRoles().subscribe();

@@ -57,6 +57,8 @@ export class EventTemplateListComponent
   @Input() set eventTemplates(value: EventTemplate[]) {
     this.dataSource.data = value;
   }
+  @Input() isLoading: boolean;
+  @Input() adminMode = false;
 
   @ViewChild(EventTemplateEditComponent, { static: true })
   eventTemplateEditComponent: EventTemplateEditComponent;
@@ -68,7 +70,6 @@ export class EventTemplateListComponent
     'dateCreated',
   ];
   editEventTemplateText = 'Edit Event Template';
-  isLoading = true;
 
   // MatPaginator Output
   defaultPageSize = 10;

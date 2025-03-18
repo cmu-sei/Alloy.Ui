@@ -130,7 +130,6 @@
       }
     }
   },
-  "defaultProject": "alloy",
   "schematics": {
     "@schematics/angular:component": {
       "style": "scss"

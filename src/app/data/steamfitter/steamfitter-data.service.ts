@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { Injectable } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import {
   ScenarioTemplate,
   SteamfitterService,
@@ -21,7 +21,7 @@ export class SteamfitterDataService {
     this._scenarioTemplates
   );
   readonly scenarioTemplateList: Observable<ScenarioTemplate[]>;
-  readonly scenarioTemplateFilter = new FormControl();
+  readonly scenarioTemplateFilter = new UntypedFormControl();
   readonly selectedScenarioTemplate: Observable<ScenarioTemplate>;
   private _selectedScenarioTemplateId: string;
   private _vmMask: Observable<string>;

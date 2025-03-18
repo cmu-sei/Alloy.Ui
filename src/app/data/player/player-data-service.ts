@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { Injectable } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { View, PlayerService } from 'src/app/generated/alloy.api';
 import { map, take } from 'rxjs/operators';
 import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
@@ -16,7 +16,7 @@ export class PlayerDataService {
   private _viewMask: Observable<string>;
   readonly views = new BehaviorSubject<View[]>(this._views);
   readonly viewList: Observable<View[]>;
-  readonly viewFilter = new FormControl();
+  readonly viewFilter = new UntypedFormControl();
   readonly selectedView: Observable<View>;
   private _selectedViewId: string;
   private requestedViewId = this.activatedRoute.queryParamMap.pipe(

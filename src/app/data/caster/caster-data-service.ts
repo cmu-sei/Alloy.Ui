@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { Injectable } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Directory, CasterService } from 'src/app/generated/alloy.api';
 import { map, take } from 'rxjs/operators';
 import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
@@ -17,7 +17,7 @@ export class CasterDataService {
   private _directoryMask: Observable<string>;
   readonly directories = new BehaviorSubject<Directory[]>(this._directories);
   readonly directoryList: Observable<Directory[]>;
-  readonly directoryFilter = new FormControl();
+  readonly directoryFilter = new UntypedFormControl();
   readonly selectedDirectory: Observable<Directory>;
   private _selectedDirectoryId: string;
   private _vmMask: Observable<string>;

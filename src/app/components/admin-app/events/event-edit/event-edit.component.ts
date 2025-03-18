@@ -10,7 +10,7 @@ import {
   Output,
 } from '@angular/core';
 import {
-  FormControl,
+  UntypedFormControl,
   FormGroupDirective,
   NgForm,
   Validators,
@@ -34,21 +34,21 @@ export class EventEditComponent implements OnInit {
   @Input() event: Event;
   @Output() editComplete = new EventEmitter<boolean>();
 
-  public eventNameFormControl: FormControl;
-  public descriptionFormControl: FormControl;
-  public launchDateFormControl: FormControl;
-  public endDateFormControl: FormControl;
-  public expirationDateFormControl: FormControl;
-  public statusDateFormControl: FormControl;
-  public userIdFormControl: FormControl;
-  public usernameFormControl: FormControl;
-  public statusFormControl: FormControl;
-  public internalStatusFormControl: FormControl;
-  public eventTemplateIdFormControl: FormControl;
-  public viewIdFormControl: FormControl;
-  public workspaceIdFormControl: FormControl;
-  public runIdFormControl: FormControl;
-  public scenarioIdFormControl: FormControl;
+  public eventNameFormControl: UntypedFormControl;
+  public descriptionFormControl: UntypedFormControl;
+  public launchDateFormControl: UntypedFormControl;
+  public endDateFormControl: UntypedFormControl;
+  public expirationDateFormControl: UntypedFormControl;
+  public statusDateFormControl: UntypedFormControl;
+  public userIdFormControl: UntypedFormControl;
+  public usernameFormControl: UntypedFormControl;
+  public statusFormControl: UntypedFormControl;
+  public internalStatusFormControl: UntypedFormControl;
+  public eventTemplateIdFormControl: UntypedFormControl;
+  public viewIdFormControl: UntypedFormControl;
+  public workspaceIdFormControl: UntypedFormControl;
+  public runIdFormControl: UntypedFormControl;
+  public scenarioIdFormControl: UntypedFormControl;
 
   public eventStates = Object.values(EventStatus);
   public matcher = new UserErrorStateMatcher();
@@ -85,41 +85,41 @@ export class EventEditComponent implements OnInit {
   }
 
   private initForm() {
-    this.eventNameFormControl = new FormControl(this.event.name, [
+    this.eventNameFormControl = new UntypedFormControl(this.event.name, [
       Validators.required,
       Validators.minLength(4),
     ]);
-    this.descriptionFormControl = new FormControl(this.event.description, [
+    this.descriptionFormControl = new UntypedFormControl(this.event.description, [
       Validators.required,
     ]);
-    this.launchDateFormControl = new FormControl(this.event.launchDate, []);
-    this.endDateFormControl = new FormControl(this.event.endDate, []);
-    this.expirationDateFormControl = new FormControl(
+    this.launchDateFormControl = new UntypedFormControl(this.event.launchDate, []);
+    this.endDateFormControl = new UntypedFormControl(this.event.endDate, []);
+    this.expirationDateFormControl = new UntypedFormControl(
       this.event.expirationDate,
       []
     );
-    this.statusDateFormControl = new FormControl(this.event.statusDate, []);
-    this.userIdFormControl = new FormControl(this.event.userId, [
+    this.statusDateFormControl = new UntypedFormControl(this.event.statusDate, []);
+    this.userIdFormControl = new UntypedFormControl(this.event.userId, [
       Validators.required,
     ]);
-    this.usernameFormControl = new FormControl(this.event.username, [
+    this.usernameFormControl = new UntypedFormControl(this.event.username, [
       Validators.required,
     ]);
-    this.statusFormControl = new FormControl(this.event.status, [
+    this.statusFormControl = new UntypedFormControl(this.event.status, [
       Validators.required,
     ]);
-    this.internalStatusFormControl = new FormControl(
+    this.internalStatusFormControl = new UntypedFormControl(
       this.event.internalStatus,
       [Validators.required]
     );
-    this.eventTemplateIdFormControl = new FormControl(
+    this.eventTemplateIdFormControl = new UntypedFormControl(
       this.event.eventTemplateId,
       []
     );
-    this.viewIdFormControl = new FormControl(this.event.viewId, []);
-    this.workspaceIdFormControl = new FormControl(this.event.workspaceId, []);
-    this.runIdFormControl = new FormControl(this.event.runId, []);
-    this.scenarioIdFormControl = new FormControl(this.event.scenarioId, []);
+    this.viewIdFormControl = new UntypedFormControl(this.event.viewId, []);
+    this.workspaceIdFormControl = new UntypedFormControl(this.event.workspaceId, []);
+    this.runIdFormControl = new UntypedFormControl(this.event.runId, []);
+    this.scenarioIdFormControl = new UntypedFormControl(this.event.scenarioId, []);
   }
 
   private setFormDisabled() {
@@ -304,7 +304,7 @@ export class EventEditComponent implements OnInit {
 /** Error when invalid control is dirty, touched, or submitted. */
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
-    control: FormControl | null,
+    control: UntypedFormControl | null,
     form: FormGroupDirective | NgForm | null
   ): boolean {
     const isSubmitted = form && form.submitted;

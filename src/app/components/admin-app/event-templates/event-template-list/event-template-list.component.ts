@@ -9,7 +9,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import {
   debounceTime,
@@ -80,7 +80,7 @@ export class EventTemplateListComponent
   topBarTextColor = '#FFFFFF';
   dataSource = new MatTableDataSource<EventTemplate>();
   expandedElementId = null;
-  filterControl = new FormControl();
+  filterControl = new UntypedFormControl();
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;

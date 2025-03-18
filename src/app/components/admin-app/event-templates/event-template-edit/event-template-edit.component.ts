@@ -11,7 +11,7 @@ import {
   Output,
 } from '@angular/core';
 import {
-  FormControl,
+  UntypedFormControl,
   FormGroupDirective,
   NgForm,
   Validators,
@@ -31,7 +31,7 @@ import { EventTemplateDataService } from 'src/app/data/event-template/event-temp
 /** Error when invalid control is dirty, touched, or submitted. */
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
-    control: FormControl | null,
+    control: UntypedFormControl | null,
     form: FormGroupDirective | NgForm | null
   ): boolean {
     const isSubmitted = form && form.submitted;
@@ -62,24 +62,24 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public filteredScenarioTemplateList = new BehaviorSubject<ScenarioTemplate[]>(
     []
   );
-  public eventTemplateNameFormControl = new FormControl('', [
+  public eventTemplateNameFormControl = new UntypedFormControl('', [
     Validators.required,
     Validators.minLength(4),
   ]);
-  public descriptionFormControl = new FormControl('', [Validators.required]);
-  public durationHoursFormControl = new FormControl('', [
+  public descriptionFormControl = new UntypedFormControl('', [Validators.required]);
+  public durationHoursFormControl = new UntypedFormControl('', [
     Validators.required,
     Validators.pattern('^[0-9]*$'),
   ]);
-  public viewIdFormControl = new FormControl('', []);
-  public directoryIdFormControl = new FormControl('', []);
-  public scenarioTemplateIdFormControl = new FormControl('', []);
-  public isPublishedFormControl = new FormControl('', []);
-  public useDynamicHostFormControl = new FormControl('', []);
+  public viewIdFormControl = new UntypedFormControl('', []);
+  public directoryIdFormControl = new UntypedFormControl('', []);
+  public scenarioTemplateIdFormControl = new UntypedFormControl('', []);
+  public isPublishedFormControl = new UntypedFormControl('', []);
+  public useDynamicHostFormControl = new UntypedFormControl('', []);
   public matcher = new UserErrorStateMatcher();
-  public viewSearchControl = new FormControl('', []);
-  public directorySearchControl = new FormControl('', []);
-  public scenarioTemplateSearchControl = new FormControl('', []);
+  public viewSearchControl = new UntypedFormControl('', []);
+  public directorySearchControl = new UntypedFormControl('', []);
+  public scenarioTemplateSearchControl = new UntypedFormControl('', []);
   private unsubscribe$ = new Subject();
 
   constructor(

@@ -1,9 +1,19 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { MatLegacyPaginator as MatPaginator, LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
+import {
+  MatLegacyPaginator as MatPaginator,
+  LegacyPageEvent as PageEvent,
+} from '@angular/material/legacy-paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import { map } from 'rxjs/operators';
@@ -30,6 +40,7 @@ export interface Action {
   styleUrls: ['./event-list.component.scss'],
 })
 export class AdminEventListComponent implements OnInit {
+  @Output() itemSelected: EventEmitter<string> = new EventEmitter<string>();
   displayedColumns: string[] = [
     'name',
     'username',
@@ -249,5 +260,13 @@ export class AdminEventListComponent implements OnInit {
       this.refreshEvents();
       this.executeEventAction('edit', ex.id);
     });
+  }
+
+  editEvent(id: string) {
+    alert('editing ' + id);
+  }
+
+  eventSelected(id: string) {
+    this.itemSelected.emit(id);
   }
 }

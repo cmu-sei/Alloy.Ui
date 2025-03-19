@@ -36,6 +36,8 @@ export class AppComponent implements OnDestroy {
     private authQuery: ComnAuthQuery,
     private settingsService: ComnSettingsService
   ) {
+    iconRegistry.setDefaultFontSetClass('mdi');
+
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
       ? this.settingsService.settings.AppTopBarHexColor
       : this.topBarColor;

@@ -4,13 +4,18 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
+  Output,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
-import { MatLegacyPaginator as MatPaginator, LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
+import {
+  MatLegacyPaginator as MatPaginator,
+  LegacyPageEvent as PageEvent,
+} from '@angular/material/legacy-paginator';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -53,12 +58,13 @@ export class EventTemplateListComponent
 {
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
-  @Input() eventTemplateList: Observable<EventTemplate[]>;
+  @Input() scenarioTemplateList: Observable<EventTemplate[]>;
   @Input() set eventTemplates(value: EventTemplate[]) {
     this.dataSource.data = value;
   }
   @Input() isLoading: boolean;
   @Input() adminMode = false;
+  @Output() itemSelected: EventEmitter<string> = new EventEmitter<string>();
 
   @ViewChild(EventTemplateEditComponent, { static: true })
   eventTemplateEditComponent: EventTemplateEditComponent;
@@ -135,6 +141,14 @@ export class EventTemplateListComponent
       .addNew(eventTemplate)
       .pipe(take(1))
       .subscribe((x) => (this.expandedElementId = x.id));
+  }
+
+  editEventTemplate(eventTemplateId: string) {
+    alert('editing ' + eventTemplateId);
+  }
+
+  elementSelected(id: string) {
+    this.itemSelected.emit(id);
   }
 
   trackById(item: EventTemplate): string {

@@ -22,8 +22,9 @@ export class EventsComponent implements OnInit {
   @Input() refresh: Subject<boolean>;
   @Output() editComplete = new EventEmitter<boolean>();
 
-  public matcher = new UserErrorStateMatcher();
-  public isLinear = false;
+  matcher = new UserErrorStateMatcher();
+  isLinear = false;
+  selectedEventId = '';
 
   constructor(public zone: NgZone) {}
 

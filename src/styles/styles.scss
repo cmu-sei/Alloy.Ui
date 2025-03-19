@@ -13,6 +13,12 @@
 //    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
 @include mat.all-legacy-component-typographies();
 @include mat.legacy-core();
+$mdi-font-path: '~@mdi/font/fonts';
+@import '@mdi/font/scss/materialdesignicons';
+@import '~material-design-icons/iconfont/material-icons.css';
+
+@import '~@fortawesome/fontawesome-free/css/all.css';
+@include mat.core();
 /* END VENDER IMPORTS */
 
 /* BOOTSTRAP IMPORTS */
@@ -26,9 +32,6 @@
 /* Optional */
 @import '../../node_modules/bootstrap/scss/utilities';
 /* END BOOTSRAP IMPORTS */
-
-$mdi-font-path: '~@mdi/font/fonts';
-@import '@mdi/font/scss/materialdesignicons';
 
 /* LOCAL IMPORTS */
 @import 'theme';
@@ -52,4 +55,101 @@ $mdi-font-path: '~@mdi/font/fonts';
 .mat-select-panel:not([class*='mat-elevation-z']) {
   box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
     0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* The following acts as drop in replacement for the deprecation of Angular FlexLayout */
+.cssLayoutColumnCenterCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+}
+
+.cssLayoutColumnCenterStart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  align-content: center;
+}
+
+.cssLayoutColumnCenterStretch {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.cssLayoutColumnSpaceCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+}
+
+.cssLayoutRowSpaceCenter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+}
+
+.cssLayoutRowSpaceBetween {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  align-content: center;
+}
+
+.cssLayoutRowSpaceStretch {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.cssLayoutRowStartStretch {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.cssLayoutRowCenterCenter {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.cssLayoutRowStartCenter {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: flex-start;
+}
+
+.cssLayoutRowEndCenter {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  align-content: center;
+}
+
+.mat-card-header-text {
+  width: 100% !important;
+}
+
+.full-width {
+  width: 100%;
 }

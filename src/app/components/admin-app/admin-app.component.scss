@@ -1,20 +1,19 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-.list-container {
-  display: flex;
-  flex-flow: column nowrap;
+.list-container .mat-list-item {
+  height: auto;
 }
 
-.list-item {
+.appslist {
   margin-top: 10px;
   margin-bottom: 20px;
-  display: flex;
-  flex-flow: row nowrap;
 }
 
 .nolink {
   text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .appcontent-container {

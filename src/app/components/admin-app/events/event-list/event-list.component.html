@@ -3,18 +3,17 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 
-<div fxLayout="row" fxLayoutAlign="start center">
+<div class="cssLayoutRowStartCenter">
   <div class="sp-icon">
-    <mat-icon class="icon35px" fontIcon="mdi_clipboard_play_outline" [ngStyle]="{ color: topBarColor }"
-      alt="Events"></mat-icon>
+    <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play" [ngStyle]="{ color: topBarColor }" alt="Events"></mat-icon>
   </div>
-  <div fxLayout="row" fxLayoutAlign="start center" fxFlexOffset="5">
+  <div class="cssLayoutRowStartCenter">
     <mat-icon class="text icon-24px search-icon" svgIcon="ic_magnify_search"></mat-icon>
     <mat-form-field class="search-field">
       <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
     </mat-form-field>
     <div class="clear-search">
-      <button mat-icon-button fxLayoutAlign="start center" (click)="clearFilter()" title="Clear Search">
+      <button mat-icon-button (click)="clearFilter()" title="Clear Search">
         <mat-icon class="text icon-20px" svgIcon="ic_cancel_circle"></mat-icon>
       </button>
     </div>
@@ -48,8 +47,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </section>
 
   <mat-expansion-panel *ngFor="let item of displayedRows$ | async">
-    <mat-expansion-panel-header class="mat-row">
+    <mat-expansion-panel-header class="mat-row" (click)="eventSelected(item.id)">
       <span class="mat-cell">
+        <button mat-icon-button (click)="editEvent(item.id); $event.stopPropagation()" title="Copy:  {{ item.id }}">
+          <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+        </button>
         <button mat-icon-button ngxClipboard [cbContent]="item.id" (click)="$event.stopPropagation()"
           title="Copy:  {{ item.id }}">
           <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
@@ -70,6 +72,5 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         : ' '
         }}</span>
     </mat-expansion-panel-header>
-    <app-event-edit [event]="item" (editComplete)="refreshEvents()"></app-event-edit>
   </mat-expansion-panel>
 </mat-accordion>

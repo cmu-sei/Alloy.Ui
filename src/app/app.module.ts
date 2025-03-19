@@ -2,7 +2,6 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -94,14 +93,64 @@ const settings: ComnSettingsConfig = {
 };
 
 @NgModule({
-  exports: [
+  exports: [MatSortModule],
+})
+export class AngularMaterialModule {}
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    AdminAppComponent,
+    HomeAppComponent,
+    EventListComponent,
+    EventTemplateInfoComponent,
+    EventTemplatesComponent,
+    EventTemplateListComponent,
+    EventTemplateEditComponent,
+    EventsComponent,
+    AdminEventListComponent,
+    EventEditComponent,
+    EventTemplateMemberListComponent,
+    EventTemplateMembershipListComponent,
+    EventTemplateMembershipsComponent,
+    EventTemplateMembershipsPageComponent,
+    EventMemberListComponent,
+    EventMembershipListComponent,
+    EventMembershipsComponent,
+    EventMembershipsPageComponent,
+    ConfirmDialogComponent,
+    TopbarComponent,
+    EnlistComponent,
+    AdminGroupsComponent,
+    AdminGroupsDetailComponent,
+    AdminGroupsMemberListComponent,
+    AdminGroupsMembershipListComponent,
+    AdminRolesComponent,
+    AdminEventRolesComponent,
+    AdminEventTemplateRolesComponent,
+    EventsComponent,
+    EventTemplatesComponent,
+    AdminSystemRolesComponent,
+    AdminUsersComponent,
+    AdminUserListComponent,
+    NameDialogComponent,
+  ],
+  imports: [
+    AkitaNgDevtools.forRoot(),
+    AkitaNgRouterStoreModule,
+    BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    SwaggerCodegenApiModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatCardModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatStepperModule,
     MatDatepickerModule,
     MatDialogModule,
     MatExpansionModule,
@@ -125,77 +174,25 @@ const settings: ComnSettingsConfig = {
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
+    MatStepperModule,
     MatBottomSheetModule,
-    MatTreeModule,
     MatBadgeModule,
+    MatDatepickerModule,
+    MatTreeModule,
+    ClipboardModule,
+    ComnAuthModule.forRoot(),
+    ComnSettingsModule.forRoot(),
   ],
-})
-export class AngularMaterialModule {}
-
-@NgModule({
-    declarations: [
-        AppComponent,
-        AdminAppComponent,
-        HomeAppComponent,
-        EventListComponent,
-        EventTemplateInfoComponent,
-        EventTemplatesComponent,
-        EventTemplateListComponent,
-        EventTemplateEditComponent,
-        EventsComponent,
-        AdminEventListComponent,
-        EventEditComponent,
-        EventTemplateMemberListComponent,
-        EventTemplateMembershipListComponent,
-        EventTemplateMembershipsComponent,
-        EventTemplateMembershipsPageComponent,
-        EventMemberListComponent,
-        EventMembershipListComponent,
-        EventMembershipsComponent,
-        EventMembershipsPageComponent,
-        ConfirmDialogComponent,
-        TopbarComponent,
-        EnlistComponent,
-        AdminGroupsComponent,
-        AdminGroupsDetailComponent,
-        AdminGroupsMemberListComponent,
-        AdminGroupsMembershipListComponent,
-        AdminRolesComponent,
-        AdminEventRolesComponent,
-        AdminEventTemplateRolesComponent,
-        EventsComponent,
-        EventTemplatesComponent,
-        AdminSystemRolesComponent,
-        AdminUsersComponent,
-        AdminUserListComponent,
-        NameDialogComponent,
-    ],
-    imports: [
-        HttpClientModule,
-        BrowserModule,
-        BrowserAnimationsModule,
-        AppRoutingModule,
-        AngularMaterialModule,
-        FlexLayoutModule,
-        FormsModule,
-        ReactiveFormsModule,
-        SwaggerCodegenApiModule,
-        ClipboardModule,
-        environment.production ? [] : AkitaNgDevtools.forRoot(),
-        AkitaNgRouterStoreModule,
-        ComnSettingsModule.forRoot(),
-        ComnAuthModule.forRoot(),
-    ],
-    providers: [
-        SignalRService,
-        {
-            provide: BASE_PATH,
-            useFactory: getBasePath,
-            deps: [ComnSettingsService],
-        },
-        DialogService,
-    ],
-    bootstrap: [AppComponent]
+  providers: [
+    SignalRService,
+    {
+      provide: BASE_PATH,
+      useFactory: getBasePath,
+      deps: [ComnSettingsService],
+    },
+    DialogService,
+  ],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
 

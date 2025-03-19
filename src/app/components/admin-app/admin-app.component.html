@@ -5,12 +5,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <mat-sidenav-container class="appcontent-container" autosize>
   <mat-sidenav class="appbarmenu-container" #sidenav mode="side" [(opened)]="isSidebarOpen">
-    <mat-list class="list-container">
-      <mat-list-item>
+    <mat-list *ngIf="permissions" class="list-container">
+      <mat-list-item class="appslist">
         <a class="nolink" [routerLink]="['/']">
-          <div fxLayout="row" fxLayoutAlign="start center">
+          <div class="cssLayoutRowStartCenter">
             <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy" [ngStyle]="{ color: topBarColor }"></mat-icon>
-            <h3 class="icon-text">Administration</h3>
+            <h2 class="icon-text">Administration</h2>
           </div>
         </a>
         <mat-divider></mat-divider>
@@ -18,14 +18,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-list-item *ngIf="canViewEventTemplateList()">
         <div class="showhand" id="wrapper" (click)="adminGotoEventTemplates()" title="Show Event Templates">
           <div id="lefticon">
-            #<mat-icon class="icon-35px" fontIcon="mdi_clipboard_outline" [ngStyle]="{ color: topBarColor }"></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-clipboard"></mat-icon>
           </div>
-          <div id="content">
-            {{ eventTemplatesText }}
-          </div>
+          <div id="content">{{ eventTemplatesText }}</div>
           <div class="pull-right" id="rightcontext">
             <button mat-icon-button>
-              #<mat-icon fontIcon="mdi-menu-right"></mat-icon>
+              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
             </button>
           </div>
         </div>
@@ -33,14 +31,14 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-list-item *ngIf="canViewEventList()">
         <div class="showhand" id="wrapper" (click)="adminGotoEvents()" title="Show Events">
           <div id="lefticon">
-            #<mat-icon class="icon-35px" fontIcon="mdi_clipboard_outline" [ngStyle]="{ color: topBarColor }"></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play"></mat-icon>
           </div>
           <div id="content">
             {{ eventsText }}
           </div>
           <div class="pull-right" id="rightcontext">
             <button mat-icon-button>
-              #<mat-icon class="icon-35px" fontIcon="mdi-menu-right" [ngStyle]="{ color: topBarColor }"></mat-icon>
+              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
             </button>
           </div>
         </div>
@@ -48,14 +46,14 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-list-item *ngIf="permissions.includes(SystemPermission.ViewRoles)">
         <div class="showhand" id="wrapper" (click)="adminGotoRoles()">
           <div id="lefticon">
-            #<mat-icon class="icon-35px" fontIcon="mdi-lock" [ngStyle]="{ color: topBarColor }"></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-lock"></mat-icon>
           </div>
 
           <div id="content">{{ rolesText }}</div>
 
           <div class="pull-right" id="rightcontext">
             <button mat-icon-button style="outline: none">
-              #<mat-icon class="icon-35px" fontIcon="mdi-menu-right" [ngStyle]="{ color: topBarColor }"></mat-icon>
+              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
             </button>
           </div>
         </div>
@@ -63,14 +61,14 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-list-item *ngIf="permissions.includes(SystemPermission.ViewGroups)">
         <div class="showhand" id="wrapper" (click)="adminGotoGroups()">
           <div id="lefticon">
-            #<mat-icon class="icon-35px" fontIcon="mdi-account-group" [ngStyle]="{ color: topBarColor }"></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-account-group"></mat-icon>
           </div>
 
           <div id="content">{{ groupsText }}</div>
 
           <div class="pull-right" id="rightcontext">
             <button mat-icon-button style="outline: none">
-              #<mat-icon class="icon-35px" fontIcon="mdi-menu-right" [ngStyle]="{ color: topBarColor }"></mat-icon>
+              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
             </button>
           </div>
         </div>
@@ -78,14 +76,14 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-list-item *ngIf="permissions.includes(SystemPermission.ViewUsers)">
         <div class="showhand" id="wrapper" (click)="adminGotoUsers()">
           <div id="lefticon">
-            #<mat-icon class="icon-35px" fontIcon="mdi-account-multiple" [ngStyle]="{ color: topBarColor }"></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-account-multiple"></mat-icon>
           </div>
 
           <div id="content">{{ usersText }}</div>
 
           <div class="pull-right" id="rightcontext">
             <button mat-icon-button style="outline: none">
-              #<mat-icon class="icon-35px" fontIcon="mdi-menu-right" [ngStyle]="{ color: topBarColor }"></mat-icon>
+              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
             </button>
           </div>
         </div>

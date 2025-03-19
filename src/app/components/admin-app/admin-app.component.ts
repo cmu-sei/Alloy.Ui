@@ -113,14 +113,14 @@ export class AdminAppComponent implements OnInit {
    * Set the display to View
    */
   adminGotoEventTemplates(): void {
-    this.showStatus = this.eventTemplatesText;
+    this.navigateToSection(this.eventTemplatesText);
   }
 
   /**
    * Sets the display to Users
    */
   adminGotoEvents(): void {
-    this.showStatus = this.eventsText;
+    this.navigateToSection(this.eventsText);
   }
 
   /**

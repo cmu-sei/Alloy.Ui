@@ -2,22 +2,21 @@
 Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
-<div fxFlex="1 0 93vh" fxLayoutAlign="center center">
+<div class="cssLayoutRowCenterCenter">
   <div class="event-info-container mat-elevation-z8">
-    <div fxLayout="row" fxLayoutAlign="start center">
+    <div class="cssLayoutRowStartCenter full-width">
       <div class="sp-icon">
         <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy"></mat-icon>
       </div>
-      <div><h2 class="text title-text">Event</h2></div>
-      <div fxFlex fxLayoutAlign="end center">
-        <img
-          class="crucible-logo"
-          [src]="
+      <div>
+        <h2 class="text title-text">Event</h2>
+      </div>
+      <div class="cssLayoutRowEndCenter full-width">
+        <img class="crucible-logo" [src]="
             (theme$ | async) === 'light-theme'
               ? 'assets/img/crucible-logo-light.png'
               : 'assets/img/crucible-logo-dark.png'
-          "
-        />
+          " />
       </div>
     </div>
 
@@ -30,32 +29,24 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-divider [inset]="true"></mat-divider>
       <mat-card>
         <mat-card-header>
-          <mat-card-title
-            ><h1 class="template-name">
+          <mat-card-title>
+            <h1 class="template-name">
               {{ eventTemplate.name }}
-            </h1></mat-card-title
-          >
+            </h1>
+          </mat-card-title>
           <mat-card-subtitle></mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div
-            class="description-text"
-            fxLayout="row"
-            fxFlexAlign="start center"
-          >
+          <div class="description-text cssLayoutRowStartCenter">
             {{ eventTemplate.description }}
           </div>
         </mat-card-content>
         <ng-container *ngIf="!(currentEvent$ | async)">
-          <div fxLayout="column" fxLayoutAlign="space-between center">
-            <div fxLayout="row" fxLayoutAlign="center center">
+          <div class="cssLayoutColumnSpaceCenter">
+            <div class="cssLayoutRowCenterCenter">
               <ng-container *ngIf="userEvents$ | async as userEvents">
                 <div *ngIf="userEvents.length > 0">
-                  <button
-                    mat-raised-button
-                    [matMenuTriggerFor]="join"
-                    class="event-button"
-                  >
+                  <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
                     Join
                     <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
                   </button>
@@ -68,19 +59,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                   </mat-menu>
                 </div>
               </ng-container>
-              <button
-                *ngIf="!isIFrame"
-                class="event-button-end"
-                mat-raised-button
-                color="warn"
-                (click)="launchEvent(eventTemplate.id)"
-              >
+              <button *ngIf="!isIFrame" class="event-button-end" mat-raised-button color="warn"
+                (click)="launchEvent(eventTemplate.id)">
                 Launch
               </button>
             </div>
-            <label class="duration-label"
-              >Duration: {{ eventTemplate.durationHours }} hours</label
-            >
+            <label class="duration-label">Duration: {{ eventTemplate.durationHours }} hours</label>
           </div>
         </ng-container>
         <ng-container *ngIf="currentEvent$ | async as alloyEvent">
@@ -98,19 +82,13 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             </ng-container>
             <!-- ACTIVE EVENT -->
             <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.LAUNCHED">
-              <div fxLayout="column" fxLayoutAlign="space-between center">
-                <div fxLayout="row">
+              <div class="cssLayoutColumnSpaceCenter">
+                <div class="cssLayoutRowSpaceCenter">
                   <ng-container *ngIf="userEvents$ | async as userEvents">
                     <div *ngIf="userEvents.length > 0">
-                      <button
-                        mat-raised-button
-                        [matMenuTriggerFor]="join"
-                        class="event-button"
-                      >
+                      <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
                         Join
-                        <mat-icon
-                          svgIcon="ic_expand_more_black_24px"
-                        ></mat-icon>
+                        <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
                       </button>
                       <mat-menu #join="matMenu" [overlapTrigger]="false">
                         <ng-container *ngFor="let element of userEvents">
@@ -121,79 +99,36 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                       </mat-menu>
                     </div>
                   </ng-container>
-                  <button
-                    *ngIf="!isIFrame"
-                    class="event-button-end"
-                    mat-raised-button
-                    color="accent"
-                    (click)="rejoinEvent(alloyEvent)"
-                  >
+                  <button *ngIf="!isIFrame" class="event-button-end" mat-raised-button color="accent"
+                    (click)="rejoinEvent(alloyEvent)">
                     Open Event
                   </button>
                   <ng-container *ngIf="isOwner">
-                    <button
-                      class="event-button-end"
-                      mat-raised-button
-                      color="warn"
-                      (click)="endEvent(alloyEvent)"
-                    >
+                    <button class="event-button-end" mat-raised-button color="warn" (click)="endEvent(alloyEvent)">
                       End Event
                     </button>
-                    <div
-                      style="display: inline-block"
-                      matTooltip="Create An Invite Link"
-                    >
-                      <button
-                        mat-raised-button
-                        [matMenuTriggerFor]="invite"
-                        class="event-button-end"
-                      >
+                    <div style="display: inline-block" matTooltip="Create An Invite Link">
+                      <button mat-raised-button [matMenuTriggerFor]="invite" class="event-button-end">
                         Invite
-                        <mat-icon
-                          svgIcon="ic_expand_more_black_24px"
-                        ></mat-icon>
+                        <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
                       </button>
                       <mat-menu #invite="matMenu" [overlapTrigger]="false">
-                        <button
-                          *ngIf="!alloyEvent?.shareCode"
-                          mat-menu-item
-                          (click)="inviteEvent(alloyEvent)"
-                        >
+                        <button *ngIf="!alloyEvent?.shareCode" mat-menu-item (click)="inviteEvent(alloyEvent)">
                           Generate Link
                         </button>
-                        <button
-                          *ngIf="alloyEvent?.shareCode"
-                          mat-menu-item
-                          ngxClipboard
-                          (click)="copyInviteLink(alloyEvent)"
-                          title="Copy:  {{ inviteLink }}"
-                          class="copy-button"
-                        >
-                          <mat-icon
-                            class="icon-20px"
-                            svgIcon="ic_clipboard_copy"
-                          ></mat-icon>
+                        <button *ngIf="alloyEvent?.shareCode" mat-menu-item ngxClipboard
+                          (click)="copyInviteLink(alloyEvent)" title="Copy:  {{ inviteLink }}" class="copy-button">
+                          <mat-icon class="icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
                           Copy Link
                         </button>
-                        <mat-slide-toggle
-                          *ngIf="alloyEvent?.shareCode"
-                          class="mat-menu-item"
-                          color="primary"
-                          [(checked)]="!inviteHidden"
-                          (click)="inviteHidden = !inviteHidden"
-                        >
+                        <mat-slide-toggle *ngIf="alloyEvent?.shareCode" class="mat-menu-item" color="primary"
+                          [(checked)]="!inviteHidden" (click)="inviteHidden = !inviteHidden">
                           Show Link
                         </mat-slide-toggle>
                       </mat-menu>
                     </div>
-                    <button
-                      *ngIf="false"
-                      class="event-button-end"
-                      mat-raised-button
-                      color="warn"
-                      (click)="redeployEvent(alloyEvent)"
-                      [disabled]="redeploying"
-                    >
+                    <button *ngIf="false" class="event-button-end" mat-raised-button color="warn"
+                      (click)="redeployEvent(alloyEvent)" [disabled]="redeploying">
                       <div *ngIf="redeploying">Redeploying...</div>
                       <div *ngIf="!redeploying">Redeploy Event</div>
                     </button>
@@ -201,10 +136,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </div>
                 <label *ngIf="!timeRunningLow" class="duration-label">{{
                   remainingTime
-                }}</label>
+                  }}</label>
                 <label *ngIf="timeRunningLow" class="duration-label-warn">{{
                   remainingTime
-                }}</label>
+                  }}</label>
                 <div [hidden]="inviteHidden">
                   {{ inviteLink }}
                 </div>
@@ -212,12 +147,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             </ng-container>
             <!-- LAUNCHING -->
             <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.LAUNCHING">
-              <div fxLayout="column" fxLayoutAlign="space-between center">
+              <div class="cssLayoutColumnSpaceCenter">
                 <h2>Please wait!</h2>
-                <mat-progress-spinner
-                  color="primary"
-                  mode="indeterminate"
-                ></mat-progress-spinner>
+                <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
                 <h3 *ngIf="alloyEvent !== undefined">
                   Status: {{ alloyEvent.status }}
                 </h3>
@@ -226,12 +158,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             </ng-container>
             <!-- ENDING -->
             <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.ENDING">
-              <div fxLayout="column" fxLayoutAlign="space-between center">
+              <div class="cssLayoutColumnSpaceCenter">
                 <h2>Please wait!</h2>
-                <mat-progress-spinner
-                  color="primary"
-                  mode="indeterminate"
-                ></mat-progress-spinner>
+                <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
                 <h3 *ngIf="alloyEvent !== undefined">
                   Status: {{ alloyEvent.status }}
                 </h3>
@@ -249,11 +178,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </mat-expansion-panel-header>
 
           <div>
-            <mat-table
-              class="history-table"
-              [dataSource]="impsDataSource"
-              matSort
-            >
+            <mat-table class="history-table" [dataSource]="impsDataSource" matSort>
               <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row eventTemplate" -->
 
@@ -268,10 +193,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">{{ element?.status }}</div>
-                  <div
-                    *ngIf="element.status === EventStatus.Failed"
-                    class="small-font"
-                  >
+                  <div *ngIf="element.status === EventStatus.Failed" class="small-font">
                     &nbsp;{{ element.internalStatus }}
                   </div>
                 </mat-cell>
@@ -291,8 +213,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
               <ng-container matColumnDef="lastEndStatus">
                 <mat-header-cell *matHeaderCellDef>
-                  Last End Status</mat-header-cell
-                >
+                  Last End Status</mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div *ngIf="element.lastEndStatus" class="small-font">
                     {{ element.lastEndStatus }}
@@ -303,8 +224,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
               <ng-container matColumnDef="dateCreated">
                 <mat-header-cell *matHeaderCellDef>
-                  Start Date Status</mat-header-cell
-                >
+                  Start Date Status</mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">
                     {{ element.dateCreated | date: 'long' }}
@@ -332,12 +252,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
 
-              <mat-header-row
-                *matHeaderRowDef="displayedColumns; sticky: true"
-              ></mat-header-row>
-              <mat-row
-                *matRowDef="let row; columns: displayedColumns"
-              ></mat-row>
+              <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
             </mat-table>
             <div *ngIf="impsDataSource.filteredData.length === 0">
               No results found

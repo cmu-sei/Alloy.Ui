@@ -65,6 +65,7 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
       this.eventRolesDataService.loadRoles(),
       this.groupDataService.load(),
     ]).subscribe();
+    console.log('event ID = ' + this.eventId);
   }
 
   ngOnChanges(changes: SimpleChanges) {

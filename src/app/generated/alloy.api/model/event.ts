@@ -42,5 +42,6 @@ export interface Event {
     launchDate?: Date | null;
     endDate?: Date | null;
     expirationDate?: Date | null;
+    eventPermissions?: Array<string> | null;
 }
 

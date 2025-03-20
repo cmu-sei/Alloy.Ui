@@ -12,6 +12,7 @@ import {
 import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { Subject } from 'rxjs';
+import { Event as AlloyEvent } from 'src/app/generated/alloy.api';
 
 @Component({
   selector: 'app-events',
@@ -24,7 +25,7 @@ export class EventsComponent implements OnInit {
 
   matcher = new UserErrorStateMatcher();
   isLinear = false;
-  selectedEvent: Event = null;
+  selectedEvent: AlloyEvent = null;
 
   constructor(public zone: NgZone) {}
 

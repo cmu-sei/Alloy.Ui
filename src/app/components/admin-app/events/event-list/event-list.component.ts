@@ -24,11 +24,10 @@ import {
   paginateRows,
   sortRows,
 } from 'src/app/datasource-utils';
-import { Event, EventService } from 'src/app/generated/alloy.api';
+import { Event as AlloyEvent, EventService } from 'src/app/generated/alloy.api';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { EventDataService } from 'src/app/data/event/event-data.service';
 
 export interface Action {
   Value: string;
@@ -41,7 +40,8 @@ export interface Action {
   styleUrls: ['./event-list.component.scss'],
 })
 export class AdminEventListComponent implements OnInit {
-  @Output() itemSelected: EventEmitter<Event> = new EventEmitter<Event>();
+  @Output() itemSelected: EventEmitter<AlloyEvent> =
+    new EventEmitter<AlloyEvent>();
   displayedColumns: string[] = [
     'name',
     'username',
@@ -53,11 +53,11 @@ export class AdminEventListComponent implements OnInit {
   filterString: string;
 
   editEventText = 'Edit Event';
-  eventToEdit: Event;
-  eventDataSource = new MatTableDataSource<Event>(new Array<Event>());
-  activeEvents = new Array<Event>();
-  failedEvents = new Array<Event>();
-  endedEvents = new Array<Event>();
+  eventToEdit: AlloyEvent;
+  eventDataSource = new MatTableDataSource<AlloyEvent>(new Array<AlloyEvent>());
+  activeEvents = new Array<AlloyEvent>();
+  failedEvents = new Array<AlloyEvent>();
+  endedEvents = new Array<AlloyEvent>();
   showActive = true;
   showFailed = false;
   showEnded = false;
@@ -67,7 +67,7 @@ export class AdminEventListComponent implements OnInit {
   defaultPageSize = 10;
   pageEvent: PageEvent;
   isLoading: Boolean;
-  displayedRows$: Observable<Event[]>;
+  displayedRows$: Observable<AlloyEvent[]>;
   totalRows$: Observable<number>;
   sortEvents$: Observable<Sort>;
   pageEvents$: Observable<PageEvent>;
@@ -80,8 +80,7 @@ export class AdminEventListComponent implements OnInit {
     private eventService: EventService,
     public dialogService: DialogService,
     private dialog: MatDialog,
-    private settingsService: ComnSettingsService,
-    private eventDataService: EventDataService
+    private settingsService: ComnSettingsService
   ) {
     // Set the topbar color from config file
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
@@ -98,9 +97,6 @@ export class AdminEventListComponent implements OnInit {
   ngOnInit() {
     this.sortEvents$ = fromMatSort(this.sort);
     this.pageEvents$ = fromMatPaginator(this.paginator);
-    // this.eventDataSource.filterPredicate = (data: Event, filterString: string) => {
-    //   return this.customEventFilter(data, filterString);
-    // };
     this.refresh.subscribe((shouldRefresh) => {
       if (shouldRefresh) {
         this.refreshEvents();
@@ -186,7 +182,7 @@ export class AdminEventListComponent implements OnInit {
    * filters the events by status (active, ended, failed)
    */
   selectEvents() {
-    let selectedEvents = new Array<Event>();
+    let selectedEvents = new Array<AlloyEvent>();
     if (this.showActive) {
       selectedEvents = selectedEvents.concat(this.activeEvents);
     }
@@ -215,13 +211,13 @@ export class AdminEventListComponent implements OnInit {
       startDate: startDate,
       endDate: endDate,
     };
-    this.eventService.createEvent(<Event>event).subscribe((event) => {
+    this.eventService.createEvent(<AlloyEvent>event).subscribe((event) => {
       this.refreshEvents();
       this.editEvent(event);
     });
   }
 
-  editEvent(event: Event) {
+  editEvent(event: AlloyEvent) {
     const dialogRef = this.dialog.open(EventEditComponent, {
       width: '800px',
       data: {
@@ -261,7 +257,7 @@ export class AdminEventListComponent implements OnInit {
     });
   }
 
-  eventSelected(item: Event) {
+  eventSelected(item: AlloyEvent) {
     this.itemSelected.emit(item);
   }
 }

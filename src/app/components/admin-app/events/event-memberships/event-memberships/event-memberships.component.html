@@ -2,7 +2,7 @@
 Copyright 2025 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
-<div *ngIf="event$ | async as event">
+<div *ngIf="event">
   <div *ngIf="embedded" class="d-flex justify-content-center align-items-center">
     <button mat-icon-button (click)="goBack.emit()" matTooltip="Return">
       <mat-icon class="mdi-24px" fontIcon="mdi-keyboard-return"></mat-icon>

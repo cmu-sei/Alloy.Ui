@@ -16,7 +16,7 @@ import {
 } from '@angular/material/legacy-paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { Subject, Observable, of } from 'rxjs';
 import {
   fromMatPaginator,
@@ -28,6 +28,7 @@ import { Event, EventService } from 'src/app/generated/alloy.api';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
+import { EventDataService } from 'src/app/data/event/event-data.service';
 
 export interface Action {
   Value: string;
@@ -40,7 +41,7 @@ export interface Action {
   styleUrls: ['./event-list.component.scss'],
 })
 export class AdminEventListComponent implements OnInit {
-  @Output() itemSelected: EventEmitter<string> = new EventEmitter<string>();
+  @Output() itemSelected: EventEmitter<Event> = new EventEmitter<Event>();
   displayedColumns: string[] = [
     'name',
     'username',
@@ -74,14 +75,13 @@ export class AdminEventListComponent implements OnInit {
   @Input() refresh: Subject<boolean>;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(EventEditComponent, { static: true })
-  eventEditComponent: EventEditComponent;
 
   constructor(
     private eventService: EventService,
     public dialogService: DialogService,
     private dialog: MatDialog,
-    private settingsService: ComnSettingsService
+    private settingsService: ComnSettingsService,
+    private eventDataService: EventDataService
   ) {
     // Set the topbar color from config file
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
@@ -108,13 +108,6 @@ export class AdminEventListComponent implements OnInit {
     });
     this.refreshEvents();
   }
-
-  /**
-   * Defines the custom filterPredicate to filter the events
-   */
-  // customEventFilter(data: Event, filterString: string) {
-  //   return data.status.toLowerCase().includes(filterString.toLowerCase());
-  // }
 
   /**
    * Called by UI to add a filter to the viewDataSource
@@ -207,40 +200,6 @@ export class AdminEventListComponent implements OnInit {
   }
 
   /**
-   * Executes an action menu item
-   * @param action: action string to case from
-   * @param eventGuid: The guid for event
-   */
-  executeEventAction(action: string, eventGuid: string) {
-    switch (action) {
-      case 'edit': {
-        // Edit event
-        this.eventService.getEvent(eventGuid).subscribe((event) => {
-          const dialogRef = this.dialog.open(EventEditComponent);
-          dialogRef.afterOpened().subscribe((r) => {
-            event.launchDate = new Date(event.launchDate);
-            event.endDate = new Date(event.endDate);
-            dialogRef.componentInstance.event = event;
-          });
-
-          dialogRef.componentInstance.editComplete.subscribe((newEvent) => {
-            dialogRef.close();
-            this.refreshEvents();
-            if (!!newEvent) {
-              this.executeEventAction('edit', event.id);
-            }
-          });
-        });
-        break;
-      }
-      default: {
-        alert('Unknown Action');
-        break;
-      }
-    }
-  }
-
-  /**
    * Adds a new event
    */
   addNewEvent() {
@@ -256,17 +215,53 @@ export class AdminEventListComponent implements OnInit {
       startDate: startDate,
       endDate: endDate,
     };
-    this.eventService.createEvent(<Event>event).subscribe((ex) => {
+    this.eventService.createEvent(<Event>event).subscribe((event) => {
       this.refreshEvents();
-      this.executeEventAction('edit', ex.id);
+      this.editEvent(event);
     });
   }
 
-  editEvent(id: string) {
-    alert('editing ' + id);
+  editEvent(event: Event) {
+    const dialogRef = this.dialog.open(EventEditComponent, {
+      width: '800px',
+      data: {
+        event: { ...event },
+      },
+    });
+    dialogRef.componentInstance.editComplete.subscribe((result) => {
+      switch (result.action) {
+        case 'end':
+          this.eventService
+            .endEvent(result.event.id)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.refreshEvents();
+            });
+          break;
+        case 'save':
+          this.eventService
+            .updateEvent(result.event.id, result.event)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.refreshEvents();
+            });
+          break;
+        case 'delete':
+          this.eventService
+            .deleteEvent(result.event.id)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.refreshEvents();
+            });
+          break;
+        default:
+          break;
+      }
+      dialogRef.close();
+    });
   }
 
-  eventSelected(id: string) {
-    this.itemSelected.emit(id);
+  eventSelected(item: Event) {
+    this.itemSelected.emit(item);
   }
 }

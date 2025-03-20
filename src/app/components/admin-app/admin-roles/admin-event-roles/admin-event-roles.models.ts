@@ -10,7 +10,7 @@ export class EventRolesModel {
     ['All', 'Gives permission to perform any action within the Event'],
     [
       EventPermission.EditEvent,
-      'Allows performing most actions in the Event. Can make changes to the contents of the Event, including creating and editing Files, Directories, and Workspaces. Can Plan and Apply Workspace Runs.',
+      'Allows performing most actions in the Event. Can make changes to the contents of the Event.',
     ],
     [
       EventPermission.ManageEvent,

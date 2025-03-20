@@ -47,10 +47,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </section>
 
   <mat-expansion-panel *ngFor="let item of displayedRows$ | async">
-    <mat-expansion-panel-header class="mat-row" (click)="eventSelected(item.id)">
+    <mat-expansion-panel-header class="mat-row" (click)="eventSelected(item)">
       <span class="mat-cell">
-        <button mat-icon-button (click)="editEvent(item.id); $event.stopPropagation()" title="Copy:  {{ item.id }}">
-          <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+        <button mat-icon-button (click)="editEvent(item); $event.stopPropagation()" title="Edit event">
+          <mat-icon class="mdi-24px" fontIcon="mdi-pencil-outline"></mat-icon>
         </button>
         <button mat-icon-button ngxClipboard [cbContent]="item.id" (click)="$event.stopPropagation()"
           title="Copy:  {{ item.id }}">

@@ -5,7 +5,7 @@ import {
   Component,
   EventEmitter,
   Input,
-  NgZone,
+  Inject,
   OnInit,
   Output,
 } from '@angular/core';
@@ -16,14 +16,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { Event, EventStatus } from '../../../../generated/alloy.api';
 import {
-  Event,
-  EventService,
-  EventStatus,
-  PlayerService,
-  View,
-} from '../../../../generated/alloy.api';
-import { DialogService } from '../../../../services/dialog/dialog.service';
+  MatLegacyDialogRef as MatDialogRef,
+  MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+} from '@angular/material/legacy-dialog';
+import { DialogService } from 'src/app/services/dialog/dialog.service';
 
 @Component({
   selector: 'app-event-edit',
@@ -31,8 +29,7 @@ import { DialogService } from '../../../../services/dialog/dialog.service';
   styleUrls: ['./event-edit.component.scss'],
 })
 export class EventEditComponent implements OnInit {
-  @Input() event: Event;
-  @Output() editComplete = new EventEmitter<boolean>();
+  @Output() editComplete = new EventEmitter<any>();
 
   public eventNameFormControl: UntypedFormControl;
   public descriptionFormControl: UntypedFormControl;
@@ -52,16 +49,16 @@ export class EventEditComponent implements OnInit {
 
   public eventStates = Object.values(EventStatus);
   public matcher = new UserErrorStateMatcher();
-  public views: View[];
   public selectedViewId: any;
   public changesWereMade = false;
 
   constructor(
-    public eventService: EventService,
     public dialogService: DialogService,
-    public zone: NgZone,
-    public playerService: PlayerService
-  ) {}
+    dialogRef: MatDialogRef<EventEditComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    dialogRef.disableClose = true;
+  }
 
   /**
    * Initialize component
@@ -69,57 +66,74 @@ export class EventEditComponent implements OnInit {
   ngOnInit() {
     this.initForm();
 
-    console.log(this.event);
-    this.playerService.getViews().subscribe(
-      (views) => {
-        this.views = views.sort((x1, x2) => {
-          return x1.name > x2.name ? 1 : x1.name < x2.name ? -1 : 0;
-        });
-      },
-      (error) => {
-        console.log('The Player API is not responding.  ' + error.message);
-      }
-    );
+    // console.log(this.event);
+    // this.playerService.getViews().subscribe(
+    //   (views) => {
+    //     this.views = views.sort((x1, x2) => {
+    //       return x1.name > x2.name ? 1 : x1.name < x2.name ? -1 : 0;
+    //     });
+    //   },
+    //   (error) => {
+    //     console.log('The Player API is not responding.  ' + error.message);
+    //   }
+    // );
 
     this.setFormDisabled();
   }
 
   private initForm() {
-    this.eventNameFormControl = new UntypedFormControl(this.event.name, [
+    this.eventNameFormControl = new UntypedFormControl(this.data.event.name, [
       Validators.required,
       Validators.minLength(4),
     ]);
-    this.descriptionFormControl = new UntypedFormControl(this.event.description, [
-      Validators.required,
-    ]);
-    this.launchDateFormControl = new UntypedFormControl(this.event.launchDate, []);
-    this.endDateFormControl = new UntypedFormControl(this.event.endDate, []);
-    this.expirationDateFormControl = new UntypedFormControl(
-      this.event.expirationDate,
+    this.descriptionFormControl = new UntypedFormControl(
+      this.data.event.description,
+      [Validators.required]
+    );
+    this.launchDateFormControl = new UntypedFormControl(
+      this.data.event.launchDate,
       []
     );
-    this.statusDateFormControl = new UntypedFormControl(this.event.statusDate, []);
-    this.userIdFormControl = new UntypedFormControl(this.event.userId, [
+    this.endDateFormControl = new UntypedFormControl(
+      this.data.event.endDate,
+      []
+    );
+    this.expirationDateFormControl = new UntypedFormControl(
+      this.data.event.expirationDate,
+      []
+    );
+    this.statusDateFormControl = new UntypedFormControl(
+      this.data.event.statusDate,
+      []
+    );
+    this.userIdFormControl = new UntypedFormControl(this.data.event.userId, [
       Validators.required,
     ]);
-    this.usernameFormControl = new UntypedFormControl(this.event.username, [
-      Validators.required,
-    ]);
-    this.statusFormControl = new UntypedFormControl(this.event.status, [
+    this.usernameFormControl = new UntypedFormControl(
+      this.data.event.username,
+      [Validators.required]
+    );
+    this.statusFormControl = new UntypedFormControl(this.data.event.status, [
       Validators.required,
     ]);
     this.internalStatusFormControl = new UntypedFormControl(
-      this.event.internalStatus,
+      this.data.event.internalStatus,
       [Validators.required]
     );
     this.eventTemplateIdFormControl = new UntypedFormControl(
-      this.event.eventTemplateId,
+      this.data.event.eventTemplateId,
       []
     );
-    this.viewIdFormControl = new UntypedFormControl(this.event.viewId, []);
-    this.workspaceIdFormControl = new UntypedFormControl(this.event.workspaceId, []);
-    this.runIdFormControl = new UntypedFormControl(this.event.runId, []);
-    this.scenarioIdFormControl = new UntypedFormControl(this.event.scenarioId, []);
+    this.viewIdFormControl = new UntypedFormControl(this.data.event.viewId, []);
+    this.workspaceIdFormControl = new UntypedFormControl(
+      this.data.event.workspaceId,
+      []
+    );
+    this.runIdFormControl = new UntypedFormControl(this.data.event.runId, []);
+    this.scenarioIdFormControl = new UntypedFormControl(
+      this.data.event.scenarioId,
+      []
+    );
   }
 
   private setFormDisabled() {
@@ -135,7 +149,10 @@ export class EventEditComponent implements OnInit {
     this.launchDateFormControl.disable();
     this.endDateFormControl.disable();
     this.statusDateFormControl.disable();
-    if (this.event.status === 'Ended' || this.event.status === 'Failed') {
+    if (
+      this.data.event.status === 'Ended' ||
+      this.data.event.status === 'Failed'
+    ) {
       this.eventNameFormControl.disable();
       this.descriptionFormControl.disable();
       this.expirationDateFormControl.disable();
@@ -145,8 +162,15 @@ export class EventEditComponent implements OnInit {
   /**
    * Closes the edit screen
    */
-  returnToEventList(changesWereMade: boolean): void {
-    this.editComplete.emit(changesWereMade || this.changesWereMade);
+  handleEditComplete(saveChanges: boolean): void {
+    if (!saveChanges) {
+      this.editComplete.emit({ action: '', event: null });
+    } else {
+      this.editComplete.emit({
+        action: 'save',
+        event: this.data.event,
+      });
+    }
   }
 
   /**
@@ -156,13 +180,15 @@ export class EventEditComponent implements OnInit {
     this.dialogService
       .confirm(
         'Delete Event',
-        'Are you sure that you want to delete event ' + this.event.name + '?'
+        'Are you sure that you want to delete event ' +
+          this.data.event.name +
+          '?'
       )
       .subscribe((result) => {
         if (result['confirm']) {
-          this.eventService.deleteEvent(this.event.id).subscribe((deleted) => {
-            console.log('successfully deleted event');
-            this.returnToEventList(true);
+          this.editComplete.emit({
+            action: 'delete',
+            event: this.data.event,
           });
         }
       });
@@ -175,13 +201,13 @@ export class EventEditComponent implements OnInit {
     this.dialogService
       .confirm(
         'End Event Now',
-        'Are you sure that you want to end event ' + this.event.name + '?'
+        'Are you sure that you want to end event ' + this.data.event.name + '?'
       )
       .subscribe((result) => {
         if (result['confirm']) {
-          this.eventService.endEvent(this.event.id).subscribe((event) => {
-            console.log('successfully ended event ' + event.id);
-            this.returnToEventList(true);
+          this.editComplete.emit({
+            action: 'end',
+            event: this.data.event,
           });
         }
       });
@@ -191,112 +217,88 @@ export class EventEditComponent implements OnInit {
    * Saves the current event
    */
   saveEvent(changedField): void {
-    let shouldUpdate = false;
     switch (changedField) {
       case 'name':
         if (
           !this.eventNameFormControl.hasError('minlength') &&
           !this.eventNameFormControl.hasError('required') &&
-          this.event.name !== this.eventNameFormControl.value
+          this.data.event.name !== this.eventNameFormControl.value
         ) {
-          this.event.name = this.eventNameFormControl.value;
-          shouldUpdate = true;
+          this.data.event.name = this.eventNameFormControl.value;
         }
         break;
       case 'description':
         if (
           !this.descriptionFormControl.hasError('required') &&
-          this.event.description !== this.descriptionFormControl.value
+          this.data.event.description !== this.descriptionFormControl.value
         ) {
-          this.event.description = this.descriptionFormControl.value;
-          shouldUpdate = true;
+          this.data.event.description = this.descriptionFormControl.value;
         }
         break;
       case 'viewId':
         if (
           !this.viewIdFormControl.hasError('required') &&
-          this.event.viewId !== this.viewIdFormControl.value
+          this.data.event.viewId !== this.viewIdFormControl.value
         ) {
-          this.event.viewId = this.viewIdFormControl.value;
-          shouldUpdate = true;
+          this.data.event.viewId = this.viewIdFormControl.value;
         }
         break;
       case 'launchDate':
         if (
-          this.event.launchDate.toLocaleDateString() !==
+          this.data.event.launchDate.toLocaleDateString() !==
           this.launchDateFormControl.value
         ) {
           if (this.launchDateFormControl.value > '') {
-            this.event.launchDate = new Date(this.launchDateFormControl.value);
+            this.data.event.launchDate = new Date(
+              this.launchDateFormControl.value
+            );
           } else {
-            this.event.launchDate = null;
+            this.data.event.launchDate = null;
           }
-          shouldUpdate = true;
         }
         break;
       case 'endDate':
         if (
-          this.event.endDate.toLocaleDateString() !==
+          this.data.event.endDate.toLocaleDateString() !==
           this.endDateFormControl.value
         ) {
           if (this.endDateFormControl.value > '') {
-            this.event.endDate = new Date(this.endDateFormControl.value);
+            this.data.event.endDate = new Date(this.endDateFormControl.value);
           } else {
-            this.event.endDate = null;
+            this.data.event.endDate = null;
           }
-          shouldUpdate = true;
         }
         break;
       case 'expirationDate':
         if (
-          this.event.expirationDate.toLocaleDateString() !==
+          this.data.event.expirationDate.toLocaleDateString() !==
           this.expirationDateFormControl.value
         ) {
           if (this.expirationDateFormControl.value > '') {
-            this.event.expirationDate = new Date(
+            this.data.event.expirationDate = new Date(
               this.expirationDateFormControl.value
             );
           } else {
-            this.event.expirationDate = null;
+            this.data.event.expirationDate = null;
           }
-          shouldUpdate = true;
         }
         break;
       case 'statusDate':
         if (
-          this.event.statusDate.toLocaleDateString() !==
+          this.data.event.statusDate.toLocaleDateString() !==
           this.statusDateFormControl.value
         ) {
           if (this.statusDateFormControl.value > '') {
-            this.event.statusDate = new Date(this.statusDateFormControl.value);
+            this.data.event.statusDate = new Date(
+              this.statusDateFormControl.value
+            );
           } else {
-            this.event.statusDate = null;
+            this.data.event.statusDate = null;
           }
-          shouldUpdate = true;
         }
         break;
       default:
         break;
-    }
-    if (shouldUpdate) {
-      this.changesWereMade = true;
-      this.eventService
-        .updateEvent(this.event.id, this.event)
-        .subscribe((updatedEvent) => {
-          updatedEvent.launchDate = !updatedEvent.launchDate
-            ? null
-            : new Date(updatedEvent.launchDate);
-          updatedEvent.endDate = !updatedEvent.endDate
-            ? null
-            : new Date(updatedEvent.endDate);
-          updatedEvent.expirationDate = !updatedEvent.expirationDate
-            ? null
-            : new Date(updatedEvent.expirationDate);
-          updatedEvent.statusDate = !updatedEvent.statusDate
-            ? null
-            : new Date(updatedEvent.statusDate);
-          this.event = updatedEvent;
-        });
     }
   }
 } // End Class

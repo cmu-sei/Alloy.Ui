@@ -10,7 +10,7 @@ export class EventTemplateRolesModel {
     ['All', 'Gives permission to perform any action within the EventTemplate'],
     [
       EventTemplatePermission.EditEventTemplate,
-      'Allows performing most actions in the EventTemplate. Can make changes to the contents of the EventTemplate, including creating and editing Files, Directories, and Workspaces. Can Plan and Apply Workspace Runs.',
+      'Allows performing most actions in the EventTemplate. Can make changes to the contents of the EventTemplate.',
     ],
     [
       EventTemplatePermission.ManageEventTemplate,

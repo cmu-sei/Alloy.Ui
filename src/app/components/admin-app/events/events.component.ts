@@ -24,7 +24,7 @@ export class EventsComponent implements OnInit {
 
   matcher = new UserErrorStateMatcher();
   isLinear = false;
-  selectedEventId = '';
+  selectedEvent: Event = null;
 
   constructor(public zone: NgZone) {}
 

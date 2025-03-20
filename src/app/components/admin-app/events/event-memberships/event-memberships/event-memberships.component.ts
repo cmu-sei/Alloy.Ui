@@ -31,7 +31,7 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 })
 export class EventMembershipsComponent implements OnInit, OnChanges {
   @Input() embedded: boolean;
-  @Input() eventId: string;
+  @Input() event: Event;
   @Output() goBack = new EventEmitter();
 
   event$: Observable<Event>;
@@ -49,6 +49,7 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
   canEdit: boolean;
 
   constructor(
+    private eventDataService: EventDataService,
     private eventQuery: EventQuery,
     private eventMembershipDataService: EventMembershipDataService,
     private eventRolesDataService: EventRoleDataService,
@@ -60,16 +61,17 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     forkJoin([
-      this.eventMembershipDataService.loadMemberships(this.eventId),
+      this.eventMembershipDataService.loadMemberships(this.event.id),
       this.userDataService.load(),
       this.eventRolesDataService.loadRoles(),
       this.groupDataService.load(),
-    ]).subscribe();
-    console.log('event ID = ' + this.eventId);
+    ]).subscribe(() => {
+      this.eventDataService.getEvent(this.event.id).subscribe;
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.event$ = this.eventQuery.selectEntity(this.eventId).pipe(
+    this.event$ = this.eventQuery.selectEntity(this.event.id).pipe(
       filter((x) => x != null),
       tap((x) => (this.canEdit = this.permissionDataService.canEditEvent(x.id)))
     );
@@ -119,9 +121,9 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
   }
 
   createMembership(eventMembership: EventMembership) {
-    eventMembership.eventId = this.eventId;
+    eventMembership.eventId = this.event.id;
     this.eventMembershipDataService
-      .createMembership(this.eventId, eventMembership)
+      .createMembership(this.event.id, eventMembership)
       .subscribe();
   }
 

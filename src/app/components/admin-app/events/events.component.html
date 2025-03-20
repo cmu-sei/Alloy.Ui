@@ -5,9 +5,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <div class="component-container mat-elevation-z8">
   <!-- <app-admin-event-list [refresh]="refresh"></app-admin-event-list> -->
-  <app-admin-event-list *ngIf="!selectedEventId" [refresh]="refresh"
-    (itemSelected)="selectedEventId = $event"></app-admin-event-list>
+  <app-admin-event-list *ngIf="!selectedEvent" [refresh]="refresh"
+    (itemSelected)="selectedEvent = $event"></app-admin-event-list>
 
-  <app-event-memberships *ngIf="selectedEventId" [eventId]="selectedEventId" [embedded]="true"
-    (goBack)="selectedEventId = null"></app-event-memberships>
+  <app-event-memberships *ngIf="selectedEvent" [event]="selectedEvent" [embedded]="true"
+    (goBack)="selectedEvent = null"></app-event-memberships>
 </div>

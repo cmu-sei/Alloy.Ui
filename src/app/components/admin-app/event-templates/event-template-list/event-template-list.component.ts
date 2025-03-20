@@ -33,6 +33,8 @@ import { EventTemplateDataService } from 'src/app/data/event-template/event-temp
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 
@@ -92,6 +94,8 @@ export class EventTemplateListComponent
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
+    public dialog: MatDialog,
+    public dialogService: DialogService,
     public eventTemplateDataService: EventTemplateDataService,
     private settingsService: ComnSettingsService
   ) {
@@ -143,8 +147,35 @@ export class EventTemplateListComponent
       .subscribe((x) => (this.expandedElementId = x.id));
   }
 
-  editEventTemplate(eventTemplateId: string) {
-    alert('editing ' + eventTemplateId);
+  editEventTemplate(eventTemplate: EventTemplate) {
+    const dialogRef = this.dialog.open(EventTemplateEditComponent, {
+      width: '800px',
+      data: {
+        eventTemplate: { ...eventTemplate },
+        viewList: this.viewList,
+        directoryList: this.directoryList,
+        scenarioTemplateList: this.scenarioTemplateList,
+      },
+    });
+    dialogRef.componentInstance.editComplete.subscribe((result) => {
+      switch (result.action) {
+        case 'clone':
+          this.eventTemplateDataService
+            .addNew(result.eventTemplate)
+            .pipe(take(1))
+            .subscribe();
+          break;
+        case 'save':
+          this.eventTemplateDataService.update(result.eventTemplate);
+          break;
+        case 'delete':
+          this.eventTemplateDataService.delete(result.eventTemplate.id);
+          break;
+        default:
+          break;
+      }
+      dialogRef.close();
+    });
   }
 
   elementSelected(id: string) {

@@ -19,7 +19,6 @@ import { Observable }                                        from 'rxjs';
 
 import { CreateEventCommand } from '../model/models';
 import { Event } from '../model/models';
-import { EventUser } from '../model/models';
 import { ProblemDetails } from '../model/models';
 import { QuestionView } from '../model/models';
 import { VirtualMachine } from '../model/models';
@@ -407,9 +406,9 @@ export class EventService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public enlist(code: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<EventUser>;
-    public enlist(code: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<EventUser>>;
-    public enlist(code: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<EventUser>>;
+    public enlist(code: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Event>;
+    public enlist(code: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Event>>;
+    public enlist(code: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Event>>;
     public enlist(code: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
         if (code === null || code === undefined) {
             throw new Error('Required parameter code was null or undefined when calling enlist.');
@@ -445,7 +444,7 @@ export class EventService {
             responseType = 'text';
         }
 
-        return this.httpClient.post<EventUser>(`${this.configuration.basePath}/api/events/enlist/${encodeURIComponent(String(code))}`,
+        return this.httpClient.post<Event>(`${this.configuration.basePath}/api/events/enlist/${encodeURIComponent(String(code))}`,
             null,
             {
                 responseType: <any>responseType,

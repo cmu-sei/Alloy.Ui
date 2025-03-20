@@ -9,7 +9,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { EventUser } from './eventUser';
 import { InternalEventStatus } from './internalEventStatus';
 import { EventStatus } from './eventStatus';
 
@@ -30,7 +29,6 @@ export interface Event {
     name?: string | null;
     description?: string | null;
     shareCode?: string | null;
-    eventUsers?: Array<EventUser> | null;
     status?: EventStatus;
     internalStatus?: InternalEventStatus;
     failureCount?: number;

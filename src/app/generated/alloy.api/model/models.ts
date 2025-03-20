@@ -11,7 +11,6 @@ export * from './eventTemplateMembership';
 export * from './eventTemplatePermission';
 export * from './eventTemplatePermissionClaim';
 export * from './eventTemplateRole';
-export * from './eventUser';
 export * from './group';
 export * from './groupMembership';
 export * from './healthStatus';

@@ -7,7 +7,6 @@ import {
   ComnAuthService,
   ComnSettingsService,
   Theme,
-  ComnAuthQuery,
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
 import { UserDataService } from 'src/app/data/user/user-data.service';
@@ -52,12 +51,11 @@ export class AdminAppComponent implements OnInit {
     private settingsService: ComnSettingsService,
     private titleService: Title,
     private userDataService: UserDataService,
-    private authQuery: ComnAuthQuery,
     private permissionDataService: PermissionDataService,
     private signalRService: SignalRService,
     private currentUserQuery: CurrentUserQuery
   ) {
-    this.theme$ = this.authQuery.userTheme$;
+    this.theme$ = this.currentUserQuery.userTheme$;
   }
 
   ngOnInit() {

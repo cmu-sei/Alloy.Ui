@@ -41,24 +41,22 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             {{ eventTemplate.description }}
           </div>
         </mat-card-content>
-        <ng-container *ngIf="!(currentEvent$ | async)">
+        <ng-container *ngIf="!currentEvent">
           <div class="cssLayoutColumnSpaceCenter">
             <div class="cssLayoutRowCenterCenter">
-              <ng-container *ngIf="userEvents$ | async as userEvents">
-                <div *ngIf="userEvents.length > 0">
-                  <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
-                    Join
-                    <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
-                  </button>
-                  <mat-menu #join="matMenu" [overlapTrigger]="false">
-                    <ng-container *ngFor="let element of userEvents">
-                      <button mat-menu-item (click)="rejoinEvent(element)">
-                        Invited By: {{ element.username }}
-                      </button>
-                    </ng-container>
-                  </mat-menu>
-                </div>
-              </ng-container>
+              <div *ngIf="userEvents.length > 0">
+                <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
+                  Join
+                  <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+                </button>
+                <mat-menu #join="matMenu" [overlapTrigger]="false">
+                  <ng-container *ngFor="let element of userEvents">
+                    <button mat-menu-item (click)="rejoinEvent(element)">
+                      Invited By: {{ element.username }}
+                    </button>
+                  </ng-container>
+                </mat-menu>
+              </div>
               <button *ngIf="!isIFrame" class="event-button-end" mat-raised-button color="warn"
                 (click)="launchEvent(eventTemplate.id)">
                 Launch
@@ -67,12 +65,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <label class="duration-label">Duration: {{ eventTemplate.durationHours }} hours</label>
           </div>
         </ng-container>
-        <ng-container *ngIf="currentEvent$ | async as alloyEvent">
-          <ng-container [ngSwitch]="determineEventStatus(alloyEvent)">
+        <ng-container *ngIf="currentEvent">
+          <ng-container [ngSwitch]="determineEventStatus(currentEvent)">
             <!-- FAILED EVENT -->
             <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.FAILED">
               Event Failed
-              <div *ngIf="failureMessage !== '' && isNewLaunch">
+              <div *ngIf="failureMessage !== ''">
                 <div class="failure-text">Failure: {{ failureMessage }}</div>
                 <div>
                   Event ended. Please try again later or contact an
@@ -84,27 +82,25 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.LAUNCHED">
               <div class="cssLayoutColumnSpaceCenter">
                 <div class="cssLayoutRowSpaceCenter">
-                  <ng-container *ngIf="userEvents$ | async as userEvents">
-                    <div *ngIf="userEvents.length > 0">
-                      <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
-                        Join
-                        <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
-                      </button>
-                      <mat-menu #join="matMenu" [overlapTrigger]="false">
-                        <ng-container *ngFor="let element of userEvents">
-                          <button mat-menu-item (click)="rejoinEvent(element)">
-                            Invited By: {{ element.username }}
-                          </button>
-                        </ng-container>
-                      </mat-menu>
-                    </div>
-                  </ng-container>
+                  <div *ngIf="userEvents.length > 0">
+                    <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
+                      Join
+                      <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+                    </button>
+                    <mat-menu #join="matMenu" [overlapTrigger]="false">
+                      <ng-container *ngFor="let element of userEvents">
+                        <button mat-menu-item (click)="rejoinEvent(element)">
+                          Invited By: {{ element.username }}
+                        </button>
+                      </ng-container>
+                    </mat-menu>
+                  </div>
                   <button *ngIf="!isIFrame" class="event-button-end" mat-raised-button color="accent"
-                    (click)="rejoinEvent(alloyEvent)">
+                    (click)="rejoinEvent(currentEvent)">
                     Open Event
                   </button>
                   <ng-container *ngIf="isOwner">
-                    <button class="event-button-end" mat-raised-button color="warn" (click)="endEvent(alloyEvent)">
+                    <button class="event-button-end" mat-raised-button color="warn" (click)="endEvent(currentEvent)">
                       End Event
                     </button>
                     <div style="display: inline-block" matTooltip="Create An Invite Link">
@@ -113,22 +109,22 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                         <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
                       </button>
                       <mat-menu #invite="matMenu" [overlapTrigger]="false">
-                        <button *ngIf="!alloyEvent?.shareCode" mat-menu-item (click)="inviteEvent(alloyEvent)">
+                        <button *ngIf="!currentEvent?.shareCode" mat-menu-item (click)="inviteEvent(currentEvent)">
                           Generate Link
                         </button>
-                        <button *ngIf="alloyEvent?.shareCode" mat-menu-item ngxClipboard
-                          (click)="copyInviteLink(alloyEvent)" title="Copy:  {{ inviteLink }}" class="copy-button">
+                        <button *ngIf="currentEvent?.shareCode" mat-menu-item ngxClipboard
+                          (click)="copyInviteLink(currentEvent)" title="Copy:  {{ inviteLink }}" class="copy-button">
                           <mat-icon class="icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
                           Copy Link
                         </button>
-                        <mat-slide-toggle *ngIf="alloyEvent?.shareCode" class="mat-menu-item" color="primary"
-                          [(checked)]="!inviteHidden" (click)="inviteHidden = !inviteHidden">
+                        <mat-slide-toggle *ngIf="currentEvent?.shareCode" class="mat-menu-item" color="primary"
+                          [(ngModel)]="inviteShown">
                           Show Link
                         </mat-slide-toggle>
                       </mat-menu>
                     </div>
                     <button *ngIf="false" class="event-button-end" mat-raised-button color="warn"
-                      (click)="redeployEvent(alloyEvent)" [disabled]="redeploying">
+                      (click)="redeployEvent(currentEvent)" [disabled]="redeploying">
                       <div *ngIf="redeploying">Redeploying...</div>
                       <div *ngIf="!redeploying">Redeploy Event</div>
                     </button>
@@ -140,7 +136,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 <label *ngIf="timeRunningLow" class="duration-label-warn">{{
                   remainingTime
                   }}</label>
-                <div [hidden]="inviteHidden">
+                <div [hidden]="!inviteShown">
                   {{ inviteLink }}
                 </div>
               </div>
@@ -150,10 +146,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
               <div class="cssLayoutColumnSpaceCenter">
                 <h2>Please wait!</h2>
                 <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
-                <h3 *ngIf="alloyEvent !== undefined">
-                  Status: {{ alloyEvent.status }}
+                <h3 *ngIf="currentEvent !== undefined">
+                  Status: {{ currentEvent.status }}
                 </h3>
-                <h3 *ngIf="alloyEvent === undefined">Status: -</h3>
+                <h3 *ngIf="currentEvent === undefined">Status: -</h3>
               </div>
             </ng-container>
             <!-- ENDING -->
@@ -161,10 +157,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
               <div class="cssLayoutColumnSpaceCenter">
                 <h2>Please wait!</h2>
                 <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
-                <h3 *ngIf="alloyEvent !== undefined">
-                  Status: {{ alloyEvent.status }}
+                <h3 *ngIf="currentEvent !== undefined">
+                  Status: {{ currentEvent.status }}
                 </h3>
-                <h3 *ngIf="alloyEvent === undefined">Status: -</h3>
+                <h3 *ngIf="currentEvent === undefined">Status: -</h3>
               </div>
             </ng-container>
           </ng-container>

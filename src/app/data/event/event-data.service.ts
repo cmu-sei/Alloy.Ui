@@ -81,7 +81,7 @@ export class EventDataService implements OnDestroy {
   }
 
   getTemplateEvents(id: string) {
-    return of(this.permissionDataService.canManageEventTemplate).pipe(
+    return of(this.permissionDataService.canManageEventTemplate(id)).pipe(
       switchMap((isAdmin) =>
         isAdmin
           ? this.eventService.getEventTemplateEvents(id)

@@ -14,7 +14,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
-          <input type="text" matInput [(ngModel)]="data.eventTemplate.name" placeholder="Name (required)" />
+          <input type="text" matInput [(ngModel)]="data.eventTemplate.name" placeholder="Name (required)" [disabled]="!data.canEdit" />
         </mat-form-field>
       </div>
     </div>
@@ -23,7 +23,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div>
         <mat-form-field class="full-width">
           <textarea matInput placeholder="Event Template Description"
-            [(ngModel)]="data.eventTemplate.description"></textarea>
+            [(ngModel)]="data.eventTemplate.description" [disabled]="!data.canEdit"></textarea>
         </mat-form-field>
       </div>
     </div>
@@ -31,7 +31,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
-          <input matInput type="number" placeholder="Duration Hours" [(ngModel)]="data.eventTemplate.durationHours" />
+          <input matInput type="number" placeholder="Duration Hours" [(ngModel)]="data.eventTemplate.durationHours" [disabled]="!data.canEdit" />
         </mat-form-field>
       </div>
     </div>
@@ -40,14 +40,14 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div>
         <mat-form-field class="full-width">
           <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView"
-            placeholder="Player View Template" />
+            placeholder="Player View Template" [disabled]="!data.canEdit" />
           <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.eventTemplate.viewId"
             title="Copy:  {{ data.eventTemplate.viewId }}">
             <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
           </button>
           <mat-autocomplete #autoView="matAutocomplete" ngDefaultControl [displayWith]="selectedViewName"
             placeholder="Select a View Template" [(ngModel)]="data.eventTemplate.viewId"
-            (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()">
+            (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()" [disabled]="!data.canEdit">
             <mat-option [value]="null">None</mat-option>
             <mat-option *ngFor="let view of filteredViewList | async" [value]="view.id">
               {{ view.name }}
@@ -68,7 +68,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </button>
           <mat-autocomplete #autoDirectory="matAutocomplete" ngDefaultControl [displayWith]="selectedDirectoryName"
             placeholder="Select a Directory" [(ngModel)]="data.eventTemplate.directoryId"
-            (optionSelected)="saveEventIds($event, 'directoryId')" (opened)="filterDirectories()">
+            (optionSelected)="saveEventIds($event, 'directoryId')" (opened)="filterDirectories()" [disabled]="!data.canEdit">
             <mat-option [value]="null">None</mat-option>
             <mat-option *ngFor="let directory of filteredDirectoryList | async" [value]="directory.id">
               {{ directory.name }}
@@ -104,29 +104,29 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </div>
 
     <div class="add-margin">
-      <mat-checkbox [(ngModel)]="data.eventTemplate.isPublished" placeholder="Public">Publish For Use</mat-checkbox>
+      <mat-checkbox [(ngModel)]="data.eventTemplate.isPublished" placeholder="Public" [disabled]="!data.canEdit">Publish For Use</mat-checkbox>
     </div>
     <div class="add-margin">
-      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost" placeholder="Public">Use Dynamic Host</mat-checkbox>
+      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost" placeholder="Public" [disabled]="!data.canEdit">Use Dynamic Host</mat-checkbox>
     </div>
   </mat-dialog-content>
 
   <div class="cssLayoutRowStartCenter bottom-button">
     <div class="delete-button">
-      <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template">Save</button>
+      <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template" [disabled]="!data.canEdit">Save</button>
     </div>
     <div class="delete-button">
       <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
     </div>
     <div class="delete-button">
       <button mat-stroked-button (click)="cloneEventTemplate()" class="clone-button" title="Clone this event template"
-        style="margin-left: 80px;">
+        style="margin-left: 80px;" [disabled]="!data.canCreate">
         Clone
       </button>
     </div>
     <div class="delete-button">
       <button mat-stroked-button (click)="deleteEventTemplate()" title="Delete this event template"
-        style="margin-left: 80px;">
+        style="margin-left: 80px;" [disabled]="!data.canManage">
         Delete
       </button>
     </div>

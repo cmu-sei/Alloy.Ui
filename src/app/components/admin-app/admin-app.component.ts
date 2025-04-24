@@ -95,12 +95,12 @@ export class AdminAppComponent implements OnInit {
       );
   }
 
-  canViewEventTemplateList(): boolean {
-    return this.permissionDataService.canViewEventTemplateList();
+  canCreateEventTemplates(): boolean {
+    return this.permissionDataService.canCreateEventTemplates();
   }
 
-  canViewEventList(): boolean {
-    return this.permissionDataService.canViewEventList();
+  canCreateEvents(): boolean {
+    return this.permissionDataService.canCreateEvents();
   }
 
   logout(): void {

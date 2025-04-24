@@ -15,7 +15,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         </a>
         <mat-divider></mat-divider>
       </mat-list-item>
-      <mat-list-item *ngIf="canViewEventTemplateList()">
+      <mat-list-item>
         <div class="showhand" id="wrapper" (click)="adminGotoEventTemplates()" title="Show Event Templates">
           <div id="lefticon">
             <mat-icon class="mdi-24px" fontIcon="mdi-clipboard"></mat-icon>
@@ -28,7 +28,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </div>
         </div>
       </mat-list-item>
-      <mat-list-item *ngIf="canViewEventList()">
+      <mat-list-item>
         <div class="showhand" id="wrapper" (click)="adminGotoEvents()" title="Show Events">
           <div id="lefticon">
             <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play"></mat-icon>

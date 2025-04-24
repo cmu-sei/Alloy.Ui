@@ -26,7 +26,7 @@ import { Observable, Subject } from 'rxjs';
 import {
   Directory,
   EventTemplate,
-  ScenarioTemplate,
+  SystemPermission,
   View,
 } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
@@ -37,6 +37,7 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
   selector: 'app-event-template-list',
@@ -89,6 +90,7 @@ export class EventTemplateListComponent
   dataSource = new MatTableDataSource<EventTemplate>();
   expandedElementId = null;
   filterControl = new UntypedFormControl();
+  systemPermissions: SystemPermission[] = [];
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -96,8 +98,9 @@ export class EventTemplateListComponent
   constructor(
     public dialog: MatDialog,
     public dialogService: DialogService,
-    public eventTemplateDataService: EventTemplateDataService,
-    private settingsService: ComnSettingsService
+    private eventTemplateDataService: EventTemplateDataService,
+    private settingsService: ComnSettingsService,
+    private permissionDataService: PermissionDataService
   ) {
     this.eventTemplateDataService.loadTemplates();
 
@@ -109,7 +112,22 @@ export class EventTemplateListComponent
     this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
       ? this.settingsService.settings.AppTopBarHexTextColor
       : this.topBarTextColor;
+    // load permissions
+    this.permissionDataService
+      .load()
+      .subscribe(
+        (x) => (this.systemPermissions = this.permissionDataService.permissions)
+      );
   }
+
+  canCreateEventTemplates(): boolean {
+    return this.permissionDataService.canCreateEventTemplates();
+  }
+
+  canCreateEvents(): boolean {
+    return this.permissionDataService.canCreateEvents();
+  }
+
 
   ngOnInit() {
     this.filterControl.valueChanges
@@ -155,6 +173,9 @@ export class EventTemplateListComponent
         viewList: this.viewList,
         directoryList: this.directoryList,
         scenarioTemplateList: this.scenarioTemplateList,
+        canEdit: this.permissionDataService.canEditEventTemplate(eventTemplate.id),
+        canManage: this.permissionDataService.canManageEventTemplate(eventTemplate.id),
+        canCreate: this.permissionDataService.canCreateEventTemplates()
       },
     });
     dialogRef.componentInstance.editComplete.subscribe((result) => {

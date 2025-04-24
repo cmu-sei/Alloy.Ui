@@ -52,7 +52,7 @@ export class EventListComponent implements OnInit, OnDestroy {
   ];
 
   public filterString: string;
-  public isLoading$: Observable<Boolean>;
+  public doneLoading = false;
   private unsubscribe$: Subject<null> = new Subject<null>();
   theme$: Observable<Theme>;
 
@@ -73,10 +73,8 @@ export class EventListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.filterString = '';
-
     // Initial datasource
     this.templateDataService.loadTemplates();
-
     combineQueries([
       this.eventTemplateQuery.selectLoading(),
       this.eventTemplateQuery.selectAll(),
@@ -90,17 +88,11 @@ export class EventListComponent implements OnInit, OnDestroy {
             start: 'asc',
           });
           this.eventTemplateDataSource.sort = this.eventTemplateSort;
+          this.doneLoading = !loading;
         }),
         takeUntil(this.unsubscribe$)
       )
       .subscribe();
-
-    this.isLoading$ = this.eventTemplateQuery.selectLoading().pipe(
-      shareReplay()
-      // share({
-      //   connector: () => new ReplaySubject(),
-      // })
-    );
   }
 
   /**

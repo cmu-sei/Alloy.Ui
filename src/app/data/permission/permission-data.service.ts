@@ -47,6 +47,14 @@ export class PermissionDataService {
     );
   }
 
+  canCreateEventTemplates() {
+    return this._permissions.some((y) => y.startsWith('CreateEventTemplates'));
+  }
+
+  canCreateEvents() {
+    return this._permissions.some((y) => y.startsWith('CreateEvents'));
+  }
+
   canViewAdiminstration() {
     return this._permissions.some((y) => y.startsWith('View'));
   }

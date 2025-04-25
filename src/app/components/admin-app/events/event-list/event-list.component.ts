@@ -28,6 +28,7 @@ import { Event as AlloyEvent, EventService } from 'src/app/generated/alloy.api';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 export interface Action {
   Value: string;
@@ -80,7 +81,8 @@ export class AdminEventListComponent implements OnInit {
     private eventService: EventService,
     public dialogService: DialogService,
     private dialog: MatDialog,
-    private settingsService: ComnSettingsService
+    private settingsService: ComnSettingsService,
+    private permissionDataService: PermissionDataService
   ) {
     // Set the topbar color from config file
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
@@ -222,6 +224,8 @@ export class AdminEventListComponent implements OnInit {
       width: '800px',
       data: {
         event: { ...event },
+        canEdit: this.canEdit(event.id),
+        canManage: this.canManage(event.id),
       },
     });
     dialogRef.componentInstance.editComplete.subscribe((result) => {
@@ -257,7 +261,17 @@ export class AdminEventListComponent implements OnInit {
     });
   }
 
+  canEdit(id: string): boolean {
+    return this.permissionDataService.canEditEvent(id);
+  }
+
+  canManage(id: string): boolean {
+    return this.permissionDataService.canManageEvent(id);
+  }
+
   eventSelected(item: AlloyEvent) {
-    this.itemSelected.emit(item);
+    if (this.permissionDataService.canEditEvent(item.id)) {
+      this.itemSelected.emit(item);
+    }
   }
 }

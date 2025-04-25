@@ -65,19 +65,6 @@ export class EventEditComponent implements OnInit {
    */
   ngOnInit() {
     this.initForm();
-
-    // console.log(this.event);
-    // this.playerService.getViews().subscribe(
-    //   (views) => {
-    //     this.views = views.sort((x1, x2) => {
-    //       return x1.name > x2.name ? 1 : x1.name < x2.name ? -1 : 0;
-    //     });
-    //   },
-    //   (error) => {
-    //     console.log('The Player API is not responding.  ' + error.message);
-    //   }
-    // );
-
     this.setFormDisabled();
   }
 
@@ -151,7 +138,8 @@ export class EventEditComponent implements OnInit {
     this.statusDateFormControl.disable();
     if (
       this.data.event.status === 'Ended' ||
-      this.data.event.status === 'Failed'
+      this.data.event.status === 'Failed' ||
+      !this.data.canEdit
     ) {
       this.eventNameFormControl.disable();
       this.descriptionFormControl.disable();

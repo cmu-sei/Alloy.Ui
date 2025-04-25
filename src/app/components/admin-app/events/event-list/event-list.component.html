@@ -46,7 +46,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <span class="mat-header-cell" mat-sort-header="expirationDate">Expiration Date</span>
   </section>
 
-  <mat-expansion-panel *ngFor="let item of displayedRows$ | async">
+  <mat-expansion-panel *ngFor="let item of displayedRows$ | async" [disabled]="!(canEdit(item.id) || canManage(item.id))">
     <mat-expansion-panel-header class="mat-row" (click)="eventSelected(item)">
       <span class="mat-cell">
         <button mat-icon-button (click)="editEvent(item); $event.stopPropagation()" title="Edit event">

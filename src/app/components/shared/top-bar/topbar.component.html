@@ -47,7 +47,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <button *ngIf="topbarView === TopbarView.ALLOY_ADMIN" [routerLink]="['/']" mat-menu-item>
           Exit Administration
         </button>
-        <button *ngIf="canViewAdmin && topbarView !== TopbarView.ALLOY_ADMIN" [routerLink]="['/admin']" mat-menu-item>
+        <button *ngIf="topbarView !== TopbarView.ALLOY_ADMIN" [routerLink]="['/admin']" mat-menu-item>
           Administration
         </button>
         <button mat-menu-item (click)="logout()">Logout</button>

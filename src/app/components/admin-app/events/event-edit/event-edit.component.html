@@ -200,18 +200,18 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </mat-dialog-content>
   <div class="bottom-button cssLayoutRowCenterCenter">
     <div class="delete-button">
-      <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template">Save</button>
+      <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template" [disabled]="!data.canEdit">Save</button>
     </div>
     <div class="delete-button">
       <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
     </div>
     <div class="delete-button">
-      <button mat-stroked-button (click)="endEvent()" style="margin-left: 80px" *ngIf="data.event.status !== 'Ended'">
+      <button mat-stroked-button (click)="endEvent()" style="margin-left: 80px" *ngIf="data.event.status !== 'Ended'" [disabled]="!data.canManage">
         End Event Now
       </button>
     </div>
     <div class="delete-button">
-      <button mat-stroked-button (click)="deleteEvent()" style="margin-left: 80px">Delete Event</button>
+      <button mat-stroked-button (click)="deleteEvent()" style="margin-left: 80px" [disabled]="!data.canManage">Delete Event</button>
     </div>
   </div>
 </div>

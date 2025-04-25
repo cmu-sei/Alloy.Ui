@@ -9,10 +9,18 @@ import {
 } from '@cmusei/crucible-common';
 import * as SignalR from '@microsoft/signalr';
 import { Observable } from 'rxjs';
-import { EventTemplate } from 'src/app/generated/alloy.api';
-import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
+import {
+  EventTemplate,
+  EventTemplateMembership,
+  Event as AlloyEvent,
+  EventMembership,
+  GroupMembership,
+} from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import { EventTemplateMembershipDataService } from 'src/app/data/event-template/event-template-membership-data.service';
 import { EventDataService } from 'src/app/data/event/event-data.service';
+import { EventMembershipDataService } from 'src/app/data/event/event-membership-data.service';
+import { GroupMembershipService } from 'src/app/data/group/group-membership.service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,8 +35,10 @@ export class SignalRService {
   constructor(
     private authService: ComnAuthService,
     private eventDataService: EventDataService,
+    private eventMembershipDataService: EventMembershipDataService,
     private eventTemplateDataService: EventTemplateDataService,
-    private authQuery: ComnAuthQuery,
+    private eventTemplateMembershipDataService: EventTemplateMembershipDataService,
+    private groupMembershipService: GroupMembershipService,
     private settingsService: ComnSettingsService
   ) {}
 
@@ -88,7 +98,23 @@ export class SignalRService {
     this.hubConnection.on('EventCreated', (event: AlloyEvent) => {
       this.eventDataService.stateCreate(event);
     });
+    this.hubConnection.on(
+      'EventMembershipCreated',
+      (eventMembership: EventMembership) => {
+        this.eventMembershipDataService.updateStore(eventMembership);
+      }
+    );
 
+    this.hubConnection.on(
+      'EventMembershipUpdated',
+      (eventMembership: EventMembership) => {
+        this.eventMembershipDataService.updateStore(eventMembership);
+      }
+    );
+
+    this.hubConnection.on('EventMembershipDeleted', (id: string) => {
+      this.eventMembershipDataService.deleteFromStore(id);
+    });
     this.hubConnection.on('EventTemplateUpdated', (template: EventTemplate) => {
       this.eventTemplateDataService.stateUpdate(template);
     });
@@ -97,6 +123,44 @@ export class SignalRService {
     });
     this.hubConnection.on('EventTemplateCreated', (template: EventTemplate) => {
       this.eventTemplateDataService.stateCreate(template);
+    });
+    this.hubConnection.on(
+      'EventTemplateMembershipCreated',
+      (eventTemplateMembership: EventTemplateMembership) => {
+        this.eventTemplateMembershipDataService.updateStore(
+          eventTemplateMembership
+        );
+      }
+    );
+
+    this.hubConnection.on(
+      'EventTemplateMembershipUpdated',
+      (eventTemplateMembership: EventTemplateMembership) => {
+        this.eventTemplateMembershipDataService.updateStore(
+          eventTemplateMembership
+        );
+      }
+    );
+
+    this.hubConnection.on('EventTemplateMembershipDeleted', (id: string) => {
+      this.eventTemplateMembershipDataService.deleteFromStore(id);
+    });
+    this.hubConnection.on(
+      'GroupMembershipCreated',
+      (groupMembership: GroupMembership) => {
+        this.groupMembershipService.updateStore(groupMembership);
+      }
+    );
+
+    this.hubConnection.on(
+      'GroupMembershipUpdated',
+      (groupMembership: GroupMembership) => {
+        this.groupMembershipService.updateStore(groupMembership);
+      }
+    );
+
+    this.hubConnection.on('GroupMembershipDeleted', (id: string) => {
+      this.groupMembershipService.deleteFromStore(id);
     });
   }
 }

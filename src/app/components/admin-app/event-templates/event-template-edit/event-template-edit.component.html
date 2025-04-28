@@ -104,10 +104,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </div>
 
     <div class="add-margin">
-      <mat-checkbox [(ngModel)]="data.eventTemplate.isPublished" placeholder="Public" [disabled]="!data.canEdit">Publish For Use</mat-checkbox>
+      <mat-checkbox [(ngModel)]="data.eventTemplate.isPublished" title="Makes this template available to ALL authenticated users" [disabled]="!data.canEdit">Public</mat-checkbox>
     </div>
     <div class="add-margin">
-      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost" placeholder="Public" [disabled]="!data.canEdit">Use Dynamic Host</mat-checkbox>
+      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost" [disabled]="!data.canEdit">Use Dynamic Host</mat-checkbox>
     </div>
   </mat-dialog-content>
 

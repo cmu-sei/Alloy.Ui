@@ -14,13 +14,15 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ViewStatus } from './viewStatus';
 
 
 export interface View { 
-    id?: string | null;
+    id?: string;
     name?: string | null;
     description?: string | null;
-    status?: string | null;
-    canManage?: boolean | null;
+    status?: ViewStatus;
+    canManage?: boolean;
+    parentViewId?: string | null;
 }
 

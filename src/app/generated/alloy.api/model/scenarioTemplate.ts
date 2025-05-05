@@ -18,15 +18,20 @@ import { VmCredential } from './vmCredential';
 
 
 export interface ScenarioTemplate { 
-    id?: string | null;
+  [key: string]: object | any;
+
+
+    id?: string;
     name?: string | null;
     description?: string | null;
     durationHours?: number | null;
     defaultVmCredentialId?: string | null;
     vmCredentials?: Array<VmCredential> | null;
-    dateCreated?: Date | null;
+    score?: number;
+    scoreEarned?: number;
+    dateCreated?: Date;
     dateModified?: Date | null;
-    createdBy?: string | null;
+    createdBy?: string;
     modifiedBy?: string | null;
 }
 

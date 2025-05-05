@@ -18,11 +18,12 @@ import { Workspace } from './workspace';
 
 
 export interface Directory { 
-    id?: string | null;
+    id?: string;
     name?: string | null;
-    projectId?: string | null;
+    projectId?: string;
     parentId?: string | null;
     files?: Array<any> | null;
     workspaces?: Array<Workspace> | null;
+    terraformVersion?: string | null;
 }
 

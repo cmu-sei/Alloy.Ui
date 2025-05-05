@@ -17,12 +17,12 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 
 export interface EventUser { 
-    id?: string;
-    userId?: string;
-    eventId?: string;
     dateCreated?: Date;
     dateModified?: Date | null;
     createdBy?: string;
     modifiedBy?: string | null;
+    id?: string;
+    userId?: string;
+    eventId?: string;
 }
 

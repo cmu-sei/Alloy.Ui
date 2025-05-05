@@ -14,12 +14,15 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { EventUser } from './eventUser';
 import { InternalEventStatus } from './internalEventStatus';
 import { EventStatus } from './eventStatus';
 
 
 export interface Event { 
+    dateCreated?: Date;
+    dateModified?: Date | null;
+    createdBy?: string;
+    modifiedBy?: string | null;
     id?: string;
     userId?: string;
     username?: string | null;
@@ -31,7 +34,6 @@ export interface Event {
     name?: string | null;
     description?: string | null;
     shareCode?: string | null;
-    eventUsers?: Array<EventUser> | null;
     status?: EventStatus;
     internalStatus?: InternalEventStatus;
     failureCount?: number;
@@ -43,9 +45,6 @@ export interface Event {
     launchDate?: Date | null;
     endDate?: Date | null;
     expirationDate?: Date | null;
-    dateCreated?: Date;
-    dateModified?: Date | null;
-    createdBy?: string;
-    modifiedBy?: string | null;
+    eventPermissions?: Array<string> | null;
 }
 

@@ -17,9 +17,10 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 
 export interface Workspace { 
-    id?: string | null;
+    id?: string;
     name?: string | null;
-    directoryId?: string | null;
-    dynamicHost?: boolean | null;
+    directoryId?: string;
+    dynamicHost?: boolean;
+    terraformVersion?: string | null;
 }
 

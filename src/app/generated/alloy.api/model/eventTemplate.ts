@@ -17,6 +17,10 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 
 export interface EventTemplate { 
+    dateCreated?: Date;
+    dateModified?: Date | null;
+    createdBy?: string;
+    modifiedBy?: string | null;
     id?: string;
     viewId?: string | null;
     directoryId?: string | null;
@@ -26,9 +30,6 @@ export interface EventTemplate {
     durationHours?: number;
     useDynamicHost?: boolean;
     isPublished?: boolean;
-    dateCreated?: Date;
-    dateModified?: Date | null;
-    createdBy?: string;
-    modifiedBy?: string | null;
+    eventTemplatePermissions?: Array<string> | null;
 }
 

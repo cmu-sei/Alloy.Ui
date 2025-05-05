@@ -4,14 +4,13 @@
 import {
   Component,
   EventEmitter,
-  Input,
-  NgZone,
+  Inject,
   OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
 import {
-  FormControl,
+  UntypedFormControl,
   FormGroupDirective,
   NgForm,
   Validators,
@@ -25,13 +24,16 @@ import {
   ScenarioTemplate,
   View,
 } from 'src/app/generated/alloy.api';
+import {
+  MatLegacyDialogRef as MatDialogRef,
+  MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
+} from '@angular/material/legacy-dialog';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
-    control: FormControl | null,
+    control: UntypedFormControl | null,
     form: FormGroupDirective | NgForm | null
   ): boolean {
     const isSubmitted = form && form.submitted;
@@ -45,11 +47,7 @@ export class UserErrorStateMatcher implements ErrorStateMatcher {
   styleUrls: ['./event-template-edit.component.scss'],
 })
 export class EventTemplateEditComponent implements OnInit, OnDestroy {
-  @Input() eventTemplate: EventTemplate;
-  @Input() viewList: Observable<View[]>;
-  @Input() directoryList: Observable<Directory[]>;
-  @Input() scenarioTemplateList: Observable<ScenarioTemplate[]>;
-  @Output() closePanel = new EventEmitter<boolean>();
+  @Output() editComplete = new EventEmitter<any>();
 
   private _viewList: View[] = [];
   private _directoryList: Directory[] = [];
@@ -62,47 +60,51 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public filteredScenarioTemplateList = new BehaviorSubject<ScenarioTemplate[]>(
     []
   );
-  public eventTemplateNameFormControl = new FormControl('', [
+  public eventTemplateNameFormControl = new UntypedFormControl('', [
     Validators.required,
     Validators.minLength(4),
   ]);
-  public descriptionFormControl = new FormControl('', [Validators.required]);
-  public durationHoursFormControl = new FormControl('', [
+  public descriptionFormControl = new UntypedFormControl('', [
+    Validators.required,
+  ]);
+  public durationHoursFormControl = new UntypedFormControl('', [
     Validators.required,
     Validators.pattern('^[0-9]*$'),
   ]);
-  public viewIdFormControl = new FormControl('', []);
-  public directoryIdFormControl = new FormControl('', []);
-  public scenarioTemplateIdFormControl = new FormControl('', []);
-  public isPublishedFormControl = new FormControl('', []);
-  public useDynamicHostFormControl = new FormControl('', []);
+  public viewIdFormControl = new UntypedFormControl('', []);
+  public directoryIdFormControl = new UntypedFormControl('', []);
+  public scenarioTemplateIdFormControl = new UntypedFormControl('', []);
+  public isPublishedFormControl = new UntypedFormControl('', []);
+  public useDynamicHostFormControl = new UntypedFormControl('', []);
   public matcher = new UserErrorStateMatcher();
-  public viewSearchControl = new FormControl('', []);
-  public directorySearchControl = new FormControl('', []);
-  public scenarioTemplateSearchControl = new FormControl('', []);
+  public viewSearchControl = new UntypedFormControl('', []);
+  public directorySearchControl = new UntypedFormControl('', []);
+  public scenarioTemplateSearchControl = new UntypedFormControl('', []);
   private unsubscribe$ = new Subject();
 
   constructor(
-    public eventTemplatesService: EventTemplatesService,
     public dialogService: DialogService,
-    public zone: NgZone
-  ) {}
+    dialogRef: MatDialogRef<EventTemplateEditComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    dialogRef.disableClose = true;
+  }
 
   /**
    * Initialize component
    */
   ngOnInit() {
-    this.viewList.pipe(takeUntil(this.unsubscribe$)).subscribe((views) => {
+    this.data.viewList.pipe(takeUntil(this.unsubscribe$)).subscribe((views) => {
       this._viewList = views;
       this.viewSearchControl.setValue(this.viewSearchControl.value);
     });
-    this.directoryList
+    this.data.directoryList
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((directories) => {
         this._directoryList = directories;
         this.directorySearchControl.setValue(this.directorySearchControl.value);
       });
-    this.scenarioTemplateList
+    this.data.scenarioTemplateList
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((scenarioTemplates) => {
         this._scenarioTemplateList = scenarioTemplates;
@@ -128,16 +130,20 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         this._scenarioTemplateFilter = filterTerm;
         this.filterScenarioTemplates();
       });
-    this.eventTemplateNameFormControl.setValue(this.eventTemplate.name);
-    this.descriptionFormControl.setValue(this.eventTemplate.description);
-    this.durationHoursFormControl.setValue(this.eventTemplate.durationHours);
-    this.viewIdFormControl.setValue(this.eventTemplate.viewId);
-    this.directoryIdFormControl.setValue(this.eventTemplate.directoryId);
-    this.scenarioTemplateIdFormControl.setValue(
-      this.eventTemplate.scenarioTemplateId
+    this.eventTemplateNameFormControl.setValue(this.data.eventTemplate.name);
+    this.descriptionFormControl.setValue(this.data.eventTemplate.description);
+    this.durationHoursFormControl.setValue(
+      this.data.eventTemplate.durationHours
     );
-    this.isPublishedFormControl.setValue(this.eventTemplate.isPublished);
-    this.useDynamicHostFormControl.setValue(this.eventTemplate.useDynamicHost);
+    this.viewIdFormControl.setValue(this.data.eventTemplate.viewId);
+    this.directoryIdFormControl.setValue(this.data.eventTemplate.directoryId);
+    this.scenarioTemplateIdFormControl.setValue(
+      this.data.eventTemplate.scenarioTemplateId
+    );
+    this.isPublishedFormControl.setValue(this.data.eventTemplate.isPublished);
+    this.useDynamicHostFormControl.setValue(
+      this.data.eventTemplate.useDynamicHost
+    );
   }
 
   /**
@@ -148,13 +154,15 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
       .confirm(
         'Delete Event Template',
         'Are you sure that you want to delete Event Template ' +
-          this.eventTemplate.name +
+          this.data.eventTemplate.name +
           '?'
       )
       .subscribe((result) => {
         if (result['confirm']) {
-          this.eventTemplatesService.delete(this.eventTemplate.id);
-          this.closePanel.emit(true);
+          this.editComplete.emit({
+            action: 'delete',
+            eventTemplate: this.data.eventTemplate,
+          });
         }
       });
   }
@@ -166,122 +174,41 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     let shouldUpdate = false;
     switch (changedField) {
       case 'viewId':
-        if (this.eventTemplate.viewId !== event.option.value) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
+        if (this.data.eventTemplate.viewId !== event.option.value) {
+          this.data.eventTemplate = {
+            ...this.data.eventTemplate,
             viewId: event.option.value,
           };
-          shouldUpdate = true;
         }
         this.viewSearchControl.setValue('');
-        this.viewIdFormControl.setValue(this.eventTemplate.viewId);
+        this.viewIdFormControl.setValue(this.data.eventTemplate.viewId);
         break;
       case 'directoryId':
-        if (this.eventTemplate.directoryId !== event.option.value) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
+        if (this.data.eventTemplate.directoryId !== event.option.value) {
+          this.data.eventTemplate = {
+            ...this.data.eventTemplate,
             directoryId: event.option.value,
           };
-          shouldUpdate = true;
         }
         this.directorySearchControl.setValue('');
-        this.directoryIdFormControl.setValue(this.eventTemplate.directoryId);
+        this.directoryIdFormControl.setValue(
+          this.data.eventTemplate.directoryId
+        );
         break;
       case 'scenarioTemplateId':
-        if (this.eventTemplate.scenarioTemplateId !== event.option.value) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
+        if (this.data.eventTemplate.scenarioTemplateId !== event.option.value) {
+          this.data.eventTemplate = {
+            ...this.data.eventTemplate,
             scenarioTemplateId: event.option.value,
           };
-          shouldUpdate = true;
         }
         this.scenarioTemplateSearchControl.setValue('');
         this.scenarioTemplateIdFormControl.setValue(
-          this.eventTemplate.scenarioTemplateId
+          this.data.eventTemplate.scenarioTemplateId
         );
         break;
       default:
         break;
-    }
-    if (shouldUpdate) {
-      this.eventTemplatesService.update(this.eventTemplate);
-    }
-  }
-
-  /**
-   * Saves the current event template
-   */
-  saveEventTemplate(changedField): void {
-    let shouldUpdate = false;
-    switch (changedField) {
-      case 'name':
-        if (
-          !this.eventTemplateNameFormControl.hasError('minlength') &&
-          !this.eventTemplateNameFormControl.hasError('required') &&
-          this.eventTemplate.name !== this.eventTemplateNameFormControl.value
-        ) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
-            name: this.eventTemplateNameFormControl.value,
-          };
-          shouldUpdate = true;
-        }
-        break;
-      case 'description':
-        if (
-          this.eventTemplate.description !== this.descriptionFormControl.value
-        ) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
-            description: this.descriptionFormControl.value,
-          };
-          shouldUpdate = true;
-        }
-        break;
-      case 'durationHours':
-        if (
-          parseInt(
-            this.durationHoursFormControl.value.toString(),
-            10
-          ).toString() === this.durationHoursFormControl.value.toString() &&
-          this.eventTemplate.durationHours !==
-            this.durationHoursFormControl.value
-        ) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
-            durationHours: this.durationHoursFormControl.value,
-          };
-          shouldUpdate = true;
-        }
-        break;
-      case 'isPublished':
-        if (
-          this.eventTemplate.isPublished !== this.isPublishedFormControl.value
-        ) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
-            isPublished: this.isPublishedFormControl.value,
-          };
-          shouldUpdate = true;
-        }
-        break;
-      case 'useDynamicHost':
-        if (
-          this.eventTemplate.useDynamicHost !==
-          this.useDynamicHostFormControl.value
-        ) {
-          this.eventTemplate = {
-            ...this.eventTemplate,
-            useDynamicHost: this.useDynamicHostFormControl.value,
-          };
-          shouldUpdate = true;
-        }
-        break;
-      default:
-        break;
-    }
-    if (shouldUpdate) {
-      this.eventTemplatesService.update(this.eventTemplate);
     }
   }
 
@@ -368,7 +295,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     };
   }
 
-  get selectedScenarioTemplateName() {
+  get selectedEventTemplateName() {
     return (selectedId) => {
       if (!selectedId) {
         selectedId = this.scenarioTemplateIdFormControl.value;
@@ -391,27 +318,32 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
    * Clone an event template after confirmation
    */
   cloneEventTemplate(): void {
-    this.dialogService
-      .confirm(
-        'Clone Event Template',
-        'Are you sure that you want to create a new Event Template from ' +
-          this.eventTemplate.name +
-          '?'
-      )
-      .subscribe((result) => {
-        if (result['confirm']) {
-          const newEventTemplate = {
-            name: this.eventTemplate.name + ' - clone',
-            description: this.eventTemplate.description,
-            durationHours: this.eventTemplate.durationHours,
-            viewId: this.eventTemplate.viewId,
-            directoryId: this.eventTemplate.directoryId,
-            scenarioTemplateId: this.eventTemplate.scenarioTemplateId,
-          };
-          this.eventTemplatesService.addNew(newEventTemplate);
-          this.closePanel.emit(true);
-        }
+    const newEventTemplate = {
+      name: this.data.eventTemplate.name + ' - clone',
+      description: this.data.eventTemplate.description,
+      durationHours: this.data.eventTemplate.durationHours,
+      viewId: this.data.eventTemplate.viewId,
+      directoryId: this.data.eventTemplate.directoryId,
+      scenarioTemplateId: this.data.eventTemplate.scenarioTemplateId,
+    };
+    this.editComplete.emit({
+      action: 'clone',
+      eventTemplate: newEventTemplate,
+    });
+  }
+
+  /**
+   * Closes the edit screen
+   */
+  handleEditComplete(saveChanges: boolean): void {
+    if (!saveChanges) {
+      this.editComplete.emit({ action: '', eventTemplate: null });
+    } else {
+      this.editComplete.emit({
+        action: 'save',
+        eventTemplate: this.data.eventTemplate,
       });
+    }
   }
 
   ngOnDestroy() {

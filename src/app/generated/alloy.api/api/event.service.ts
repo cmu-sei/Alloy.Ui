@@ -22,9 +22,11 @@ import { HttpClient, HttpHeaders, HttpParams,
 import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
+import { CreateEventCommand } from '../model/models';
 import { Event } from '../model/models';
-import { EventUser } from '../model/models';
 import { ProblemDetails } from '../model/models';
+import { QuestionView } from '../model/models';
+import { VirtualMachine } from '../model/models';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -53,6 +55,7 @@ export class EventService {
         }
         this.encoder = this.configuration.encoder || new CustomHttpParameterCodec();
     }
+
 
 
     private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
@@ -105,11 +108,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -156,27 +160,40 @@ export class EventService {
     }
 
     /**
-     * Creates a new Event from a eventTemplate
-     * Creates a new Event from the specified eventTemplate
+     * Creates a new Event from an Event Template. Legacy endpoint for backwards compatibility. Use createEventFromEventTemplate2 instead.
+     * Creates a new Event from the specified Event Template
      * @param eventTemplateId The ID of the EventTemplate to use to create the Event
+     * @param userId Id of the User that will be the owner of this Event
+     * @param username 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public createEventFromEventTemplate(eventTemplateId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Event>;
-    public createEventFromEventTemplate(eventTemplateId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Event>>;
-    public createEventFromEventTemplate(eventTemplateId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Event>>;
-    public createEventFromEventTemplate(eventTemplateId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+    public createEventFromEventTemplate(eventTemplateId: string, userId?: string, username?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Event>;
+    public createEventFromEventTemplate(eventTemplateId: string, userId?: string, username?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Event>>;
+    public createEventFromEventTemplate(eventTemplateId: string, userId?: string, username?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Event>>;
+    public createEventFromEventTemplate(eventTemplateId: string, userId?: string, username?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
         if (eventTemplateId === null || eventTemplateId === undefined) {
             throw new Error('Required parameter eventTemplateId was null or undefined when calling createEventFromEventTemplate.');
         }
 
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (userId !== undefined && userId !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>userId, 'userId');
+        }
+        if (username !== undefined && username !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>username, 'username');
+        }
+
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -201,6 +218,76 @@ export class EventService {
 
         return this.httpClient.post<Event>(`${this.configuration.basePath}/api/eventtemplates/${encodeURIComponent(String(eventTemplateId))}/events`,
             null,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Creates a new Event from an Event Template
+     * Creates a new Event from the specified Event Template
+     * @param eventTemplateId 
+     * @param createEventCommand 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public createEventFromEventTemplate2(eventTemplateId: string, createEventCommand?: CreateEventCommand, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Event>;
+    public createEventFromEventTemplate2(eventTemplateId: string, createEventCommand?: CreateEventCommand, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Event>>;
+    public createEventFromEventTemplate2(eventTemplateId: string, createEventCommand?: CreateEventCommand, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Event>>;
+    public createEventFromEventTemplate2(eventTemplateId: string, createEventCommand?: CreateEventCommand, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+        if (eventTemplateId === null || eventTemplateId === undefined) {
+            throw new Error('Required parameter eventTemplateId was null or undefined when calling createEventFromEventTemplate2.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (oauth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'text/json',
+            'application/_*+json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.post<Event>(`${this.configuration.basePath}/api/eventtemplates/${encodeURIComponent(String(eventTemplateId))}/events2`,
+            createEventCommand,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
@@ -228,11 +315,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -281,11 +369,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -322,9 +411,9 @@ export class EventService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public enlist(code: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<EventUser>;
-    public enlist(code: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<EventUser>>;
-    public enlist(code: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<EventUser>>;
+    public enlist(code: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Event>;
+    public enlist(code: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Event>>;
+    public enlist(code: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Event>>;
     public enlist(code: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
         if (code === null || code === undefined) {
             throw new Error('Required parameter code was null or undefined when calling enlist.');
@@ -332,11 +421,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -359,7 +449,7 @@ export class EventService {
             responseType = 'text';
         }
 
-        return this.httpClient.post<EventUser>(`${this.configuration.basePath}/api/events/enlist/${encodeURIComponent(String(code))}`,
+        return this.httpClient.post<Event>(`${this.configuration.basePath}/api/events/enlist/${encodeURIComponent(String(code))}`,
             null,
             {
                 responseType: <any>responseType,
@@ -388,11 +478,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -427,6 +518,61 @@ export class EventService {
     }
 
     /**
+     * Gets all questions for an event
+     * @param id 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getEventQuestions(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<QuestionView>>;
+    public getEventQuestions(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<QuestionView>>>;
+    public getEventQuestions(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<QuestionView>>>;
+    public getEventQuestions(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getEventQuestions.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (oauth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<Array<QuestionView>>(`${this.configuration.basePath}/api/events/${encodeURIComponent(String(id))}/questions`,
+            {
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Gets all Events for the indicated EventTemplate
      * Returns a list of all of the Events for the EventTemplate.
      * @param eventTemplateId 
@@ -443,11 +589,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -482,7 +629,62 @@ export class EventService {
     }
 
     /**
-     * Gets all Event in the system
+     * Gets all virtual machines for an event
+     * @param id 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getEventVirtualMachines(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<VirtualMachine>>;
+    public getEventVirtualMachines(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<VirtualMachine>>>;
+    public getEventVirtualMachines(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<VirtualMachine>>>;
+    public getEventVirtualMachines(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getEventVirtualMachines.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (oauth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<Array<VirtualMachine>>(`${this.configuration.basePath}/api/events/${encodeURIComponent(String(id))}/virtual-machines`,
+            {
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Gets all Events in the system
      * Returns a list of all of the Events in the system.  &lt;para /&gt;  Only accessible to a SuperUser
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -494,11 +696,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -536,24 +739,32 @@ export class EventService {
      * Gets the user\&#39;s Events for the indicated EventTemplate
      * Returns a list of the user\&#39;s Events for the EventTemplate.
      * @param eventTemplateId 
+     * @param includeInvites 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getMyEventTemplateEvents(eventTemplateId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<Event>>;
-    public getMyEventTemplateEvents(eventTemplateId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<Event>>>;
-    public getMyEventTemplateEvents(eventTemplateId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<Event>>>;
-    public getMyEventTemplateEvents(eventTemplateId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+    public getMyEventTemplateEvents(eventTemplateId: string, includeInvites?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<Event>>;
+    public getMyEventTemplateEvents(eventTemplateId: string, includeInvites?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<Event>>>;
+    public getMyEventTemplateEvents(eventTemplateId: string, includeInvites?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<Event>>>;
+    public getMyEventTemplateEvents(eventTemplateId: string, includeInvites?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
         if (eventTemplateId === null || eventTemplateId === undefined) {
             throw new Error('Required parameter eventTemplateId was null or undefined when calling getMyEventTemplateEvents.');
         }
 
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (includeInvites !== undefined && includeInvites !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>includeInvites, 'includeInvites');
+        }
+
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -578,6 +789,7 @@ export class EventService {
 
         return this.httpClient.get<Array<Event>>(`${this.configuration.basePath}/api/eventtemplates/${encodeURIComponent(String(eventTemplateId))}/events/mine`,
             {
+                params: queryParameters,
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -599,11 +811,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -641,24 +854,32 @@ export class EventService {
      * Gets the user\&#39;s Events for the indicated Player View Id
      * Returns a list of the user\&#39;s Events for the View.
      * @param viewId 
+     * @param playerViewId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getMyViewEvents(viewId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<Event>>;
-    public getMyViewEvents(viewId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<Event>>>;
-    public getMyViewEvents(viewId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<Event>>>;
-    public getMyViewEvents(viewId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+    public getMyViewEvents(viewId: string, playerViewId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<Event>>;
+    public getMyViewEvents(viewId: string, playerViewId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<Event>>>;
+    public getMyViewEvents(viewId: string, playerViewId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<Event>>>;
+    public getMyViewEvents(viewId: string, playerViewId?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
         if (viewId === null || viewId === undefined) {
             throw new Error('Required parameter viewId was null or undefined when calling getMyViewEvents.');
         }
 
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (playerViewId !== undefined && playerViewId !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>playerViewId, 'playerViewId');
+        }
+
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -682,6 +903,75 @@ export class EventService {
         }
 
         return this.httpClient.get<Array<Event>>(`${this.configuration.basePath}/api/views/${encodeURIComponent(String(viewId))}/events/mine`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Grade an event
+     * @param id 
+     * @param requestBody 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public gradeEvent(id: string, requestBody?: Array<string>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<QuestionView>>;
+    public gradeEvent(id: string, requestBody?: Array<string>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<QuestionView>>>;
+    public gradeEvent(id: string, requestBody?: Array<string>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<QuestionView>>>;
+    public gradeEvent(id: string, requestBody?: Array<string>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling gradeEvent.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (oauth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'text/json',
+            'application/_*+json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.post<Array<QuestionView>>(`${this.configuration.basePath}/api/events/${encodeURIComponent(String(id))}/qrade`,
+            requestBody,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
@@ -708,11 +998,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -764,11 +1055,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -819,11 +1111,12 @@ export class EventService {
 
         let headers = this.defaultHeaders;
 
-        let credential: string | undefined;
         // authentication (oauth2) required
-        credential = this.configuration.lookupCredential('oauth2');
-        if (credential) {
-            headers = headers.set('Authorization', 'Bearer ' + credential);
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
         }
 
         let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;

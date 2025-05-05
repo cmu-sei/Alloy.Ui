@@ -8,12 +8,8 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
-import {
-  ComnAuthQuery,
-  ComnSettingsService,
-  Theme,
-} from '@cmusei/crucible-common';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { ComnSettingsService, Theme } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
 import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
@@ -33,13 +29,16 @@ import { EventStatus } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
-import { EventsService } from 'src/app/services/events/events.service';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
 import { ALLOY_CURRENT_EVENT_STATUS } from 'src/app/shared/models/enums';
-import { SignalRService } from '../../../shared/signalr/signalr.service';
-import { EventTemplatesQuery } from '../../../state/event-templates/event-templates.query';
-import { EventsQuery } from '../../../state/events/events.query';
-import { UserEventsQuery } from '../../../state/user-events/user-events.query';
+import { SignalRService } from 'src/app/shared/signalr/signalr.service';
+import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
+import { EventQuery } from 'src/app/data/event/event.query';
+import { UserDataService } from 'src/app/data/user/user-data.service';
+import { UserEventsQuery } from '../../../data/event/user-events.query';
+import { CurrentUserQuery } from 'src/app/data/user/user.query';
+import { CurrentUserState } from 'src/app/data/user/user.store';
 
 @Component({
   selector: 'app-event-template-info',
@@ -66,8 +65,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public templateId$: Observable<string>;
   public eventTemplate$: Observable<EventTemplate>;
   public events$: Observable<AlloyEvent[]>;
+  public currentEvent: AlloyEvent;
   public currentEvent$: Observable<AlloyEvent>;
   public userEvents$: Observable<AlloyEvent[]>;
+  public userEvents: AlloyEvent[] = [];
+  public currentUserId = '';
   public isLoading$: Observable<boolean>;
   public pollingIntervalMS: number;
   public remainingTime: string;
@@ -77,7 +79,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public failureDate: Date;
   public theme$: Observable<Theme>;
   private failedEvent: AlloyEvent;
-  public inviteHidden: boolean = true;
+  public inviteShown: boolean = false;
   public isOwner: boolean = false;
   public viewId: string;
   public expirationDate: Date;
@@ -88,18 +90,19 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   constructor(
     private settingsService: ComnSettingsService,
     private dialogService: DialogService,
-    public eventTemplatesService: EventTemplatesService,
-    public eventsService: EventsService,
-    private templatesQuery: EventTemplatesQuery,
-    private eventsQuery: EventsQuery,
+    public eventTemplateDataService: EventTemplateDataService,
+    public eventDataService: EventDataService,
+    private eventTemplateQuery: EventTemplateQuery,
+    private eventQuery: EventQuery,
+    private userDataService: UserDataService,
     private userEventsQuery: UserEventsQuery,
-    private authQuery: ComnAuthQuery,
+    private currentUserQuery: CurrentUserQuery,
     private routerQuery: RouterQuery,
     private signalRService: SignalRService,
     private clipboardService: ClipboardService,
     private changeDetector: ChangeDetectorRef
   ) {
-    this.theme$ = this.authQuery.userTheme$;
+    this.theme$ = this.currentUserQuery.userTheme$;
 
     this.impsDataSource = new MatTableDataSource<AlloyEvent>(
       new Array<AlloyEvent>()
@@ -123,12 +126,12 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         switchMap(([id, viewId]) => {
           if (viewId) {
             this.viewId = viewId;
-            this.eventTemplatesService.loadTemplate(id);
-            this.eventsService.loadEvents(id);
-            return this.eventsService.getViewEvents(viewId);
+            this.eventTemplateDataService.loadTemplate(id);
+            this.eventDataService.loadEvents(id);
+            return this.eventDataService.getViewEvents(viewId);
           } else if (id) {
-            this.eventTemplatesService.loadTemplate(id);
-            return this.eventsService.loadEvents(id);
+            this.eventTemplateDataService.loadTemplate(id);
+            return this.eventDataService.loadEvents(id);
           } else {
             return of([]);
           }
@@ -137,12 +140,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.eventTemplate$ = this.templatesQuery.selectLoading().pipe(
+    this.eventTemplate$ = this.eventTemplateQuery.selectLoading().pipe(
       filter((loading) => !loading),
       withLatestFrom(this.routerQuery.selectParams('id')),
       map(([loading, id]) => id),
       switchMap((id) => {
-        return this.templatesQuery.selectEntity(id ? id : this.eventTemplateId);
+        return this.eventTemplateQuery.selectEntity(
+          id ? id : this.eventTemplateId
+        );
       }),
       shareReplay(),
       // share({
@@ -153,11 +158,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
     this.events$ = this.eventTemplate$.pipe(
       switchMap((t) => {
-        return this.eventsQuery
-          .selectEventsByTemplateId$(t.id)
+        return this.eventQuery
+          .selectByEventTemplateId(t.id)
           .pipe(map((events) => events));
       }),
-      tap((events) => (this.impsDataSource.data = events)),
+      tap((events) => {
+        console.log(events.length + 'events$');
+        this.impsDataSource.data = events;
+      }),
       shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
@@ -165,9 +173,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       takeUntil(this.unsubscribe$)
     );
 
-    this.currentEvent$ = this.eventsQuery.selectAll().pipe(
-      withLatestFrom(this.authQuery.user$, this.routerQuery.selectParams('id')),
+    this.userDataService.setCurrentUser();
+    this.currentEvent$ = this.eventQuery.selectAll().pipe(
+      withLatestFrom(
+        this.currentUserQuery.select(),
+        this.routerQuery.selectParams('id')
+      ),
       map(([events, user, id]) => {
+        this.currentUserId = user ? user.id : '';
         if (events.length >= 1) {
           let currentEvent: AlloyEvent = null;
 
@@ -178,14 +191,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           } else {
             currentEvent = events.find(
               (e) =>
-                e.userId === user.profile.sub &&
+                e.userId === user.id &&
                 e.eventTemplateId === id &&
                 this.isEventActive(e.status)
             );
           }
 
           if (currentEvent != null) {
-            this.isOwner = currentEvent.userId === user.profile.sub;
+            this.isOwner = currentEvent.userId === user.id;
 
             this.signalRService.startConnection().then(() => {
               this.signalRService.joinEvent(currentEvent.id);
@@ -196,11 +209,16 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
               currentEvent.expirationDate
             );
             this.inviteLink = this.getInviteLink(currentEvent);
+            console.log(currentEvent.id + ' is the currentEvent$');
+          } else {
+            console.log('currentEvent$ was not found');
           }
-
+          this.currentEvent = currentEvent;
           this.changeDetector.markForCheck();
           return currentEvent;
         } else {
+          this.currentEvent = null;
+          console.log('no events in list to find currentEvent$');
           return null;
         }
       }),
@@ -222,11 +240,13 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       filter((events) => events.length >= 1),
       map((events) => events.filter((e) => this.isEventActive(e.status))),
       tap((events) => {
+        console.log(events.length + ' userEvents$');
         events.forEach((e) => {
           this.signalRService.startConnection().then(() => {
             this.signalRService.joinEvent(e.id);
           });
         });
+        this.userEvents = events.filter((m) => m.createdBy !== this.currentUserId)
       }),
       shareReplay(),
       // share({
@@ -242,6 +262,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       .pipe(
         skip(1),
         tap(([currentEvent, userEvents]) => {
+          const count = userEvents ? userEvents.length : 0;
+          const currentId = currentEvent ? currentEvent.id : 'null';
+          console.log(count + ' userEvents$ and currentEvent$ is ' + currentId);
           if (
             this.viewId != null &&
             (userEvents == null || userEvents.length === 0) &&
@@ -331,7 +354,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     this.failedEvent = undefined;
     this.failureMessage = '';
 
-    this.eventsService
+    this.eventDataService
       .launchEvent(id)
       .pipe(
         tap((event: AlloyEvent) => {
@@ -355,7 +378,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .pipe(take(1))
         .subscribe((result) => {
           if (result['confirm']) {
-            this.eventsService.endEvent(event.id);
+            this.eventDataService.endEvent(event.id);
           }
         });
     }
@@ -372,18 +395,18 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .subscribe((result) => {
           if (result['confirm']) {
             this.redeploying = true;
-            this.eventsService.redeployEvent(event.id);
+            this.eventDataService.redeployEvent(event.id);
           }
         });
     }
   }
 
   inviteEvent(event: AlloyEvent) {
-    this.eventsService
+    this.eventDataService
       .inviteEvent(event.id)
       .pipe(take(1))
       .subscribe(() => {
-        this.inviteHidden = false;
+        this.inviteShown = true;
       });
   }
 

@@ -4,13 +4,18 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
+  Output,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { UntypedFormControl } from '@angular/forms';
+import {
+  MatLegacyPaginator as MatPaginator,
+  LegacyPageEvent as PageEvent,
+} from '@angular/material/legacy-paginator';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -21,15 +26,18 @@ import { Observable, Subject } from 'rxjs';
 import {
   Directory,
   EventTemplate,
-  ScenarioTemplate,
+  SystemPermission,
   View,
 } from 'src/app/generated/alloy.api';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
   selector: 'app-event-template-list',
@@ -53,10 +61,13 @@ export class EventTemplateListComponent
 {
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
-  @Input() scenarioTemplateList: Observable<ScenarioTemplate[]>;
+  @Input() scenarioTemplateList: Observable<EventTemplate[]>;
   @Input() set eventTemplates(value: EventTemplate[]) {
     this.dataSource.data = value;
   }
+  @Input() isLoading: boolean;
+  @Input() adminMode = false;
+  @Output() itemSelected: EventEmitter<string> = new EventEmitter<string>();
 
   @ViewChild(EventTemplateEditComponent, { static: true })
   eventTemplateEditComponent: EventTemplateEditComponent;
@@ -68,7 +79,6 @@ export class EventTemplateListComponent
     'dateCreated',
   ];
   editEventTemplateText = 'Edit Event Template';
-  isLoading = true;
 
   // MatPaginator Output
   defaultPageSize = 10;
@@ -79,16 +89,20 @@ export class EventTemplateListComponent
   topBarTextColor = '#FFFFFF';
   dataSource = new MatTableDataSource<EventTemplate>();
   expandedElementId = null;
-  filterControl = new FormControl();
+  filterControl = new UntypedFormControl();
+  systemPermissions: SystemPermission[] = [];
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
-    public eventTemplatesService: EventTemplatesService,
-    private settingsService: ComnSettingsService
+    public dialog: MatDialog,
+    public dialogService: DialogService,
+    private eventTemplateDataService: EventTemplateDataService,
+    private settingsService: ComnSettingsService,
+    private permissionDataService: PermissionDataService
   ) {
-    this.eventTemplatesService.loadTemplates();
+    this.eventTemplateDataService.loadTemplates();
 
     this.isLoading = false;
     // Set the topbar color from config file
@@ -98,7 +112,22 @@ export class EventTemplateListComponent
     this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
       ? this.settingsService.settings.AppTopBarHexTextColor
       : this.topBarTextColor;
+    // load permissions
+    this.permissionDataService
+      .load()
+      .subscribe(
+        (x) => (this.systemPermissions = this.permissionDataService.permissions)
+      );
   }
+
+  canCreateEventTemplates(): boolean {
+    return this.permissionDataService.canCreateEventTemplates();
+  }
+
+  canCreateEvents(): boolean {
+    return this.permissionDataService.canCreateEvents();
+  }
+
 
   ngOnInit() {
     this.filterControl.valueChanges
@@ -130,10 +159,48 @@ export class EventTemplateListComponent
       description: 'Add description',
     };
 
-    this.eventTemplatesService
+    this.eventTemplateDataService
       .addNew(eventTemplate)
       .pipe(take(1))
       .subscribe((x) => (this.expandedElementId = x.id));
+  }
+
+  editEventTemplate(eventTemplate: EventTemplate) {
+    const dialogRef = this.dialog.open(EventTemplateEditComponent, {
+      width: '800px',
+      data: {
+        eventTemplate: { ...eventTemplate },
+        viewList: this.viewList,
+        directoryList: this.directoryList,
+        scenarioTemplateList: this.scenarioTemplateList,
+        canEdit: this.permissionDataService.canEditEventTemplate(eventTemplate.id),
+        canManage: this.permissionDataService.canManageEventTemplate(eventTemplate.id),
+        canCreate: this.permissionDataService.canCreateEventTemplates()
+      },
+    });
+    dialogRef.componentInstance.editComplete.subscribe((result) => {
+      switch (result.action) {
+        case 'clone':
+          this.eventTemplateDataService
+            .addNew(result.eventTemplate)
+            .pipe(take(1))
+            .subscribe();
+          break;
+        case 'save':
+          this.eventTemplateDataService.update(result.eventTemplate);
+          break;
+        case 'delete':
+          this.eventTemplateDataService.delete(result.eventTemplate.id);
+          break;
+        default:
+          break;
+      }
+      dialogRef.close();
+    });
+  }
+
+  elementSelected(id: string) {
+    this.itemSelected.emit(id);
   }
 
   trackById(item: EventTemplate): string {

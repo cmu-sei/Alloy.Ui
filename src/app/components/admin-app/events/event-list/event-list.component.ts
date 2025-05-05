@@ -1,12 +1,22 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import {
+  MatLegacyPaginator as MatPaginator,
+  LegacyPageEvent as PageEvent,
+} from '@angular/material/legacy-paginator';
 import { MatSort, Sort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { map } from 'rxjs/operators';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { map, take } from 'rxjs/operators';
 import { Subject, Observable, of } from 'rxjs';
 import {
   fromMatPaginator,
@@ -14,10 +24,11 @@ import {
   paginateRows,
   sortRows,
 } from 'src/app/datasource-utils';
-import { Event, EventService } from 'src/app/generated/alloy.api';
+import { Event as AlloyEvent, EventService } from 'src/app/generated/alloy.api';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 export interface Action {
   Value: string;
@@ -30,6 +41,8 @@ export interface Action {
   styleUrls: ['./event-list.component.scss'],
 })
 export class AdminEventListComponent implements OnInit {
+  @Output() itemSelected: EventEmitter<AlloyEvent> =
+    new EventEmitter<AlloyEvent>();
   displayedColumns: string[] = [
     'name',
     'username',
@@ -41,11 +54,11 @@ export class AdminEventListComponent implements OnInit {
   filterString: string;
 
   editEventText = 'Edit Event';
-  eventToEdit: Event;
-  eventDataSource = new MatTableDataSource<Event>(new Array<Event>());
-  activeEvents = new Array<Event>();
-  failedEvents = new Array<Event>();
-  endedEvents = new Array<Event>();
+  eventToEdit: AlloyEvent;
+  eventDataSource = new MatTableDataSource<AlloyEvent>(new Array<AlloyEvent>());
+  activeEvents = new Array<AlloyEvent>();
+  failedEvents = new Array<AlloyEvent>();
+  endedEvents = new Array<AlloyEvent>();
   showActive = true;
   showFailed = false;
   showEnded = false;
@@ -55,7 +68,7 @@ export class AdminEventListComponent implements OnInit {
   defaultPageSize = 10;
   pageEvent: PageEvent;
   isLoading: Boolean;
-  displayedRows$: Observable<Event[]>;
+  displayedRows$: Observable<AlloyEvent[]>;
   totalRows$: Observable<number>;
   sortEvents$: Observable<Sort>;
   pageEvents$: Observable<PageEvent>;
@@ -63,14 +76,13 @@ export class AdminEventListComponent implements OnInit {
   @Input() refresh: Subject<boolean>;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(EventEditComponent, { static: true })
-  eventEditComponent: EventEditComponent;
 
   constructor(
     private eventService: EventService,
     public dialogService: DialogService,
     private dialog: MatDialog,
-    private settingsService: ComnSettingsService
+    private settingsService: ComnSettingsService,
+    private permissionDataService: PermissionDataService
   ) {
     // Set the topbar color from config file
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
@@ -87,9 +99,6 @@ export class AdminEventListComponent implements OnInit {
   ngOnInit() {
     this.sortEvents$ = fromMatSort(this.sort);
     this.pageEvents$ = fromMatPaginator(this.paginator);
-    // this.eventDataSource.filterPredicate = (data: Event, filterString: string) => {
-    //   return this.customEventFilter(data, filterString);
-    // };
     this.refresh.subscribe((shouldRefresh) => {
       if (shouldRefresh) {
         this.refreshEvents();
@@ -97,13 +106,6 @@ export class AdminEventListComponent implements OnInit {
     });
     this.refreshEvents();
   }
-
-  /**
-   * Defines the custom filterPredicate to filter the events
-   */
-  // customEventFilter(data: Event, filterString: string) {
-  //   return data.status.toLowerCase().includes(filterString.toLowerCase());
-  // }
 
   /**
    * Called by UI to add a filter to the viewDataSource
@@ -182,7 +184,7 @@ export class AdminEventListComponent implements OnInit {
    * filters the events by status (active, ended, failed)
    */
   selectEvents() {
-    let selectedEvents = new Array<Event>();
+    let selectedEvents = new Array<AlloyEvent>();
     if (this.showActive) {
       selectedEvents = selectedEvents.concat(this.activeEvents);
     }
@@ -193,40 +195,6 @@ export class AdminEventListComponent implements OnInit {
       selectedEvents = selectedEvents.concat(this.failedEvents);
     }
     return selectedEvents;
-  }
-
-  /**
-   * Executes an action menu item
-   * @param action: action string to case from
-   * @param eventGuid: The guid for event
-   */
-  executeEventAction(action: string, eventGuid: string) {
-    switch (action) {
-      case 'edit': {
-        // Edit event
-        this.eventService.getEvent(eventGuid).subscribe((event) => {
-          const dialogRef = this.dialog.open(EventEditComponent);
-          dialogRef.afterOpened().subscribe((r) => {
-            event.launchDate = new Date(event.launchDate);
-            event.endDate = new Date(event.endDate);
-            dialogRef.componentInstance.event = event;
-          });
-
-          dialogRef.componentInstance.editComplete.subscribe((newEvent) => {
-            dialogRef.close();
-            this.refreshEvents();
-            if (!!newEvent) {
-              this.executeEventAction('edit', event.id);
-            }
-          });
-        });
-        break;
-      }
-      default: {
-        alert('Unknown Action');
-        break;
-      }
-    }
   }
 
   /**
@@ -245,9 +213,65 @@ export class AdminEventListComponent implements OnInit {
       startDate: startDate,
       endDate: endDate,
     };
-    this.eventService.createEvent(<Event>event).subscribe((ex) => {
+    this.eventService.createEvent(<AlloyEvent>event).subscribe((event) => {
       this.refreshEvents();
-      this.executeEventAction('edit', ex.id);
+      this.editEvent(event);
     });
+  }
+
+  editEvent(event: AlloyEvent) {
+    const dialogRef = this.dialog.open(EventEditComponent, {
+      width: '800px',
+      data: {
+        event: { ...event },
+        canEdit: this.canEdit(event.id),
+        canManage: this.canManage(event.id),
+      },
+    });
+    dialogRef.componentInstance.editComplete.subscribe((result) => {
+      switch (result.action) {
+        case 'end':
+          this.eventService
+            .endEvent(result.event.id)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.refreshEvents();
+            });
+          break;
+        case 'save':
+          this.eventService
+            .updateEvent(result.event.id, result.event)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.refreshEvents();
+            });
+          break;
+        case 'delete':
+          this.eventService
+            .deleteEvent(result.event.id)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.refreshEvents();
+            });
+          break;
+        default:
+          break;
+      }
+      dialogRef.close();
+    });
+  }
+
+  canEdit(id: string): boolean {
+    return this.permissionDataService.canEditEvent(id);
+  }
+
+  canManage(id: string): boolean {
+    return this.permissionDataService.canManageEvent(id);
+  }
+
+  eventSelected(item: AlloyEvent) {
+    if (this.permissionDataService.canEditEvent(item.id)) {
+      this.itemSelected.emit(item);
+    }
   }
 }

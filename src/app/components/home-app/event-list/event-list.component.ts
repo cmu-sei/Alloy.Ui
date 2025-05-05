@@ -9,17 +9,18 @@ import {
 } from '@angular/animations';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSort, MatSortable } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import { Router } from '@angular/router';
-import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
+import { Theme } from '@cmusei/crucible-common';
 import { combineQueries } from '@datorama/akita';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 import { filter, share, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
-import { EventTemplatesService } from 'src/app/services/event-templates/event-templates.service';
-import { EventsService } from '../../../services/events/events.service';
-import { EventTemplatesQuery } from '../../../state/event-templates/event-templates.query';
+import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
+import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
+import { CurrentUserQuery } from 'src/app/data/user/user.query';
 
 @Component({
   selector: 'app-event-list',
@@ -51,19 +52,19 @@ export class EventListComponent implements OnInit, OnDestroy {
   ];
 
   public filterString: string;
-  public isLoading$: Observable<Boolean>;
+  public doneLoading = false;
   private unsubscribe$: Subject<null> = new Subject<null>();
   theme$: Observable<Theme>;
 
   constructor(
-    private eventsService: EventsService,
-    private templateService: EventTemplatesService,
-    private TemplatesQuery: EventTemplatesQuery,
+    private eventDataService: EventDataService,
+    private templateDataService: EventTemplateDataService,
+    private eventTemplateQuery: EventTemplateQuery,
     private router: Router,
     private routerQuery: RouterQuery,
-    private authQuery: ComnAuthQuery
+    private currentUserQuery: CurrentUserQuery
   ) {
-    this.theme$ = this.authQuery.userTheme$;
+    this.theme$ = this.currentUserQuery.userTheme$;
 
     this.eventTemplateDataSource = new MatTableDataSource<EventTemplate>(
       new Array<EventTemplate>()
@@ -72,13 +73,11 @@ export class EventListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.filterString = '';
-
     // Initial datasource
-    this.templateService.loadTemplates();
-
+    this.templateDataService.loadTemplates();
     combineQueries([
-      this.TemplatesQuery.selectLoading(),
-      this.TemplatesQuery.selectAll(),
+      this.eventTemplateQuery.selectLoading(),
+      this.eventTemplateQuery.selectAll(),
     ])
       .pipe(
         filter(([loading]) => !loading),
@@ -89,17 +88,11 @@ export class EventListComponent implements OnInit, OnDestroy {
             start: 'asc',
           });
           this.eventTemplateDataSource.sort = this.eventTemplateSort;
+          this.doneLoading = !loading;
         }),
         takeUntil(this.unsubscribe$)
       )
       .subscribe();
-
-    this.isLoading$ = this.TemplatesQuery.selectLoading().pipe(
-      shareReplay()
-      // share({
-      //   connector: () => new ReplaySubject(),
-      // })
-    );
   }
 
   /**

@@ -17,17 +17,17 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 
 export interface ModelFile { 
-    id?: string | null;
+    id?: string;
     name?: string | null;
-    directoryId?: string | null;
+    directoryId?: string;
     workspaceId?: string | null;
     content?: string | null;
     modifiedById?: string | null;
     modifiedByName?: string | null;
     dateSaved?: Date | null;
-    isDeleted?: boolean | null;
+    isDeleted?: boolean;
     lockedById?: string | null;
     lockedByName?: string | null;
-    readonly administrativelyLocked?: boolean | null;
+    administrativelyLocked?: boolean;
 }
 

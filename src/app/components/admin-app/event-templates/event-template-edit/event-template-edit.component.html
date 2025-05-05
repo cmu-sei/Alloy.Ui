@@ -3,243 +3,132 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 
-<div *ngIf="eventTemplate !== undefined">
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-form-field class="full-width">
-        <input
-          type="text"
-          matInput
-          [formControl]="eventTemplateNameFormControl"
-          placeholder="Name (required)"
-          (blur)="saveEventTemplate('name')"
-          value="{{ eventTemplate.name }}"
-          [errorStateMatcher]="matcher"
-        />
-        <mat-error
-          *ngIf="
-            eventTemplateNameFormControl.hasError('minlength') &&
-            !eventTemplateNameFormControl.hasError('required')
-          "
-        >
-          Must contain 4 or more characters
-        </mat-error>
-        <mat-error *ngIf="eventTemplateNameFormControl.hasError('required')">
-          Name is <strong>required</strong>
-        </mat-error>
-      </mat-form-field>
-    </div>
+<div mat-dialog-container>
+  <div mat-dialog-title>
+    Edit Event Template
+    <button mat-icon-button (click)="handleEditComplete(false)" title="Cancel" class="close-button" tabindex="-1">
+      <mat-icon class="mdi-24px self-center" fontIcon="mdi-close-circle-outline"></mat-icon>
+    </button>
   </div>
-
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-form-field class="full-width">
-        <textarea
-          matInput
-          placeholder="Event Template Description"
-          [formControl]="descriptionFormControl"
-          (blur)="saveEventTemplate('description')"
-          value="{{ eventTemplate.description }}"
-          [errorStateMatcher]="matcher"
-        ></textarea>
-      </mat-form-field>
+  <mat-dialog-content mat-dialog-content *ngIf="data.eventTemplate">
+    <div class="add-margin">
+      <div>
+        <mat-form-field class="full-width">
+          <input type="text" matInput [(ngModel)]="data.eventTemplate.name" placeholder="Name (required)" [disabled]="!data.canEdit" />
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-form-field class="full-width">
-        <input
-          matInput
-          type="number"
-          placeholder="Duration Hours"
-          [formControl]="durationHoursFormControl"
-          (blur)="saveEventTemplate('durationHours')"
-          value="{{ eventTemplate.durationHours }}"
-        />
-        <mat-error *ngIf="durationHoursFormControl.errors?.pattern">
-          Duration Hours must be an <strong>integer</strong>
-        </mat-error>
-      </mat-form-field>
+    <div class="add-margin">
+      <div>
+        <mat-form-field class="full-width">
+          <textarea matInput placeholder="Event Template Description"
+            [(ngModel)]="data.eventTemplate.description" [disabled]="!data.canEdit"></textarea>
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-form-field class="full-width">
-        <input
-          matInput
-          type="text"
-          [formControl]="viewSearchControl"
-          [matAutocomplete]="autoView"
-          placeholder="Player View Template"
-        />
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="eventTemplate.viewId"
-          title="Copy:  {{ eventTemplate.viewId }}"
-        >
-          <mat-icon
-            class="icon-color icon-20px"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
-        </button>
-        <mat-autocomplete
-          #autoView="matAutocomplete"
-          ngDefaultControl
-          [displayWith]="selectedViewName"
-          placeholder="Select a View Template"
-          [(ngModel)]="viewIdFormControl.value"
-          (optionSelected)="saveEventIds($event, 'viewId')"
-          (opened)="filterViews()"
-          (closed)="viewSearchControl.setValue('')"
-        >
-          <mat-option [value]="null">None</mat-option>
-          <mat-option
-            *ngFor="let view of filteredViewList | async"
-            [value]="view.id"
-          >
-            {{ view.name }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
+    <div class="add-margin">
+      <div>
+        <mat-form-field class="full-width">
+          <input matInput type="number" placeholder="Duration Hours" [(ngModel)]="data.eventTemplate.durationHours" [disabled]="!data.canEdit" />
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-form-field class="full-width">
-        <input
-          matInput
-          type="text"
-          [formControl]="directorySearchControl"
-          [matAutocomplete]="autoDirectory"
-          placeholder="Caster Directory"
-        />
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="eventTemplate.directoryId"
-          title="Copy:  {{ eventTemplate.directoryId }}"
-        >
-          <mat-icon
-            class="icon-color icon-20px"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
-        </button>
-        <mat-autocomplete
-          #autoDirectory="matAutocomplete"
-          ngDefaultControl
-          [displayWith]="selectedDirectoryName"
-          placeholder="Select a Directory"
-          [(ngModel)]="directoryIdFormControl.value"
-          (optionSelected)="saveEventIds($event, 'directoryId')"
-          (opened)="filterDirectories()"
-          (closed)="directorySearchControl.setValue('')"
-        >
-          <mat-option [value]="null">None</mat-option>
-          <mat-option
-            *ngFor="let directory of filteredDirectoryList | async"
-            [value]="directory.id"
-          >
-            {{ directory.name }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
+    <div class="add-margin">
+      <div>
+        <mat-form-field class="full-width">
+          <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView"
+            placeholder="Player View Template" [disabled]="!data.canEdit" />
+          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.eventTemplate.viewId"
+            title="Copy:  {{ data.eventTemplate.viewId }}">
+            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          </button>
+          <mat-autocomplete #autoView="matAutocomplete" ngDefaultControl [displayWith]="selectedViewName"
+            placeholder="Select a View Template" [(ngModel)]="data.eventTemplate.viewId"
+            (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()" [disabled]="!data.canEdit">
+            <mat-option [value]="null">None</mat-option>
+            <mat-option *ngFor="let view of filteredViewList | async" [value]="view.id">
+              {{ view.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-form-field class="full-width">
-        <input
-          matInput
-          type="text"
-          [formControl]="scenarioTemplateSearchControl"
-          [matAutocomplete]="autoScenarioTemplate"
-          placeholder="Steamfitter Scenario Template"
-        />
-        <button
-          mat-icon-button
-          matPrefix
-          ngxClipboard
-          [cbContent]="eventTemplate.scenarioTemplateId"
-          title="Copy:  {{ eventTemplate.scenarioTemplateId }}"
-        >
-          <mat-icon
-            class="icon-color icon-20px"
-            svgIcon="ic_clipboard_copy"
-          ></mat-icon>
-        </button>
-        <mat-autocomplete
-          #autoScenarioTemplate="matAutocomplete"
-          ngDefaultControl
-          [displayWith]="selectedScenarioTemplateName"
-          placeholder="Select a Scenario Template"
-          [(ngModel)]="scenarioTemplateIdFormControl.value"
-          (optionSelected)="saveEventIds($event, 'scenarioTemplateId')"
-          (opened)="filterScenarioTemplates()"
-          (closed)="scenarioTemplateSearchControl.setValue('')"
-        >
-          <mat-option [value]="null">None</mat-option>
-          <mat-option
-            *ngFor="
-              let scenarioTemplate of filteredScenarioTemplateList | async
-            "
-            [value]="scenarioTemplate.id"
-          >
-            {{ scenarioTemplate.name }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
+    <div class="add-margin">
+      <div>
+        <mat-form-field class="full-width">
+          <input matInput type="text" [formControl]="directorySearchControl" [matAutocomplete]="autoDirectory"
+            placeholder="Caster Directory" />
+          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.eventTemplate.directoryId"
+            title="Copy:  {{ data.eventTemplate.directoryId }}">
+            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          </button>
+          <mat-autocomplete #autoDirectory="matAutocomplete" ngDefaultControl [displayWith]="selectedDirectoryName"
+            placeholder="Select a Directory" [(ngModel)]="data.eventTemplate.directoryId"
+            (optionSelected)="saveEventIds($event, 'directoryId')" (opened)="filterDirectories()" [disabled]="!data.canEdit">
+            <mat-option [value]="null">None</mat-option>
+            <mat-option *ngFor="let directory of filteredDirectoryList | async" [value]="directory.id">
+              {{ directory.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-checkbox
-        [formControl]="isPublishedFormControl"
-        placeholder="Public"
-        (change)="saveEventTemplate('isPublished')"
-        value="{{ eventTemplate.isPublished }}"
-        >Publish For Use</mat-checkbox
-      >
+    <div class="add-margin">
+      <div>
+        <mat-form-field class="full-width">
+          <input matInput type="text" [formControl]="scenarioTemplateSearchControl"
+            [matAutocomplete]="autoScenarioTemplate" placeholder="Steamfitter Scenario Template" />
+          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
+            title="Copy:  {{ data.eventTemplate.scenarioTemplateId }}">
+            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          </button>
+          <mat-autocomplete #autoScenarioTemplate="matAutocomplete" ngDefaultControl
+            [displayWith]="selectedEventTemplateName" placeholder="Select a Event Template"
+            [(ngModel)]="data.eventTemplate.scenarioTemplateId"
+            (optionSelected)="saveEventIds($event, 'scenarioTemplateId')" (opened)="filterScenarioTemplates()"
+            (closed)="scenarioTemplateSearchControl.setValue('')">
+            <mat-option [value]="null">None</mat-option>
+            <mat-option *ngFor="
+                let scenarioTemplate of filteredScenarioTemplateList | async
+              " [value]="scenarioTemplate.id">
+              {{ scenarioTemplate.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <div fxLayout="row" class="add-margin">
-    <div fxFlex fxFlexOffset="10">
-      <mat-checkbox
-        [formControl]="useDynamicHostFormControl"
-        placeholder="Public"
-        (change)="saveEventTemplate('useDynamicHost')"
-        value="{{ eventTemplate.useDynamicHost }}"
-        >Use Dynamic Host</mat-checkbox
-      >
+    <div class="add-margin">
+      <mat-checkbox [(ngModel)]="data.eventTemplate.isPublished" title="Makes this template available to ALL authenticated users" [disabled]="!data.canEdit">Public</mat-checkbox>
     </div>
-  </div>
+    <div class="add-margin">
+      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost" [disabled]="!data.canEdit">Use Dynamic Host</mat-checkbox>
+    </div>
+  </mat-dialog-content>
 
-  <div fxLayout="row" class="bottom-button">
-    <div fxFlex fxLayoutAlign="left" class="delete-button">
-      <button
-        mat-stroked-button
-        (click)="cloneEventTemplate()"
-        class="clone-button"
-      >
-        Clone this Event Template
+  <div class="cssLayoutRowStartCenter bottom-button">
+    <div class="delete-button">
+      <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template" [disabled]="!data.canEdit">Save</button>
+    </div>
+    <div class="delete-button">
+      <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
+    </div>
+    <div class="delete-button">
+      <button mat-stroked-button (click)="cloneEventTemplate()" class="clone-button" title="Clone this event template"
+        style="margin-left: 80px;" [disabled]="!data.canCreate">
+        Clone
       </button>
     </div>
-    <div fxFlex fxLayoutAlign="center" class="delete-button">
-      <button mat-stroked-button (click)="closePanel.emit(true)">Done</button>
-    </div>
-    <div fxFlex fxLayoutAlign="end" class="delete-button">
-      <button mat-stroked-button (click)="deleteEventTemplate()">
-        Delete this Event Template
+    <div class="delete-button">
+      <button mat-stroked-button (click)="deleteEventTemplate()" title="Delete this event template"
+        style="margin-left: 80px;" [disabled]="!data.canManage">
+        Delete
       </button>
     </div>
   </div>
-  <div>&nbsp;</div>
 </div>

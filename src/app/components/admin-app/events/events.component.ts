@@ -9,9 +9,10 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
+import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { Subject } from 'rxjs';
+import { Event as AlloyEvent } from 'src/app/generated/alloy.api';
 
 @Component({
   selector: 'app-events',
@@ -22,8 +23,9 @@ export class EventsComponent implements OnInit {
   @Input() refresh: Subject<boolean>;
   @Output() editComplete = new EventEmitter<boolean>();
 
-  public matcher = new UserErrorStateMatcher();
-  public isLinear = false;
+  matcher = new UserErrorStateMatcher();
+  isLinear = false;
+  selectedEvent: AlloyEvent = null;
 
   constructor(public zone: NgZone) {}
 
@@ -36,7 +38,7 @@ export class EventsComponent implements OnInit {
 /** Error when invalid control is dirty, touched, or submitted. */
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
-    control: FormControl | null,
+    control: UntypedFormControl | null,
     form: FormGroupDirective | NgForm | null
   ): boolean {
     const isSubmitted = form && form.submitted;

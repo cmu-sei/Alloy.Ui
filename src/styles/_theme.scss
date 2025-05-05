@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-@use '~@angular/material' as mat;
-@import '~@angular/material/theming';
+@use '@angular/material' as mat;
+@import '@angular/material/theming';
 
 $mat-cmu-tartan: (
   50: #ff3838,
@@ -9,7 +9,7 @@ $mat-cmu-tartan: (
   200: #e00,
   300: #d00,
   400: #c00,
-  500: #b00,
+  500: #719F94,
   600: #a00,
   700: #900,
   800: #800,
@@ -18,8 +18,7 @@ $mat-cmu-tartan: (
   A200: #067,
   A400: #247,
   A700: #085,
-  contrast: (
-    50: $dark-primary-text,
+  contrast: (50: $dark-primary-text,
     100: $dark-primary-text,
     200: $dark-primary-text,
     300: $dark-primary-text,
@@ -117,30 +116,25 @@ $custom-colors: (
 );
 
 // Creates a container object for a light theme to be given to individual component theme mixins.
-@function cmu-theme(
-  $primary,
+@function cmu-theme($primary,
   $accent,
   $warn: mat.define-palette(mat.$red-palette),
   $foreground: mat.$light-theme-foreground-palette,
   $background: mat.$dark-theme-background-palette,
   $isDark: false,
-  $custom: null
-) {
-  @return (
-    primary: $primary,
+  $custom: null) {
+  @return (primary: $primary,
     accent: $accent,
     warn: $warn,
     is-dark: $isDark,
     foreground: $foreground,
     background: $background,
-    custom: $custom
-  );
+    custom: $custom );
 }
 
-$custom-typography: mat.define-typography-config(
-  $font-family: '"Open Sans", sans-serif',
-);
-@include mat.all-component-typographies($custom-typography);
+$custom-typography: mat.define-legacy-typography-config($font-family: '"Open Sans", sans-serif',
+  );
+@include mat.all-legacy-component-typographies($custom-typography);
 
 //globals mixin for edge cases.
 @mixin globals($theme) {
@@ -171,6 +165,7 @@ $custom-typography: mat.define-typography-config(
 
   .selected {
     background: mat.get-color-from-palette($primary);
+
     &:hover,
     &:focus {
       background: mat.get-color-from-palette($primary) !important;
@@ -190,6 +185,7 @@ $custom-typography: mat.define-typography-config(
   }
 
   .highlight {
+
     &:hover,
     &:focus {
       background: map-get($background, hover);
@@ -211,6 +207,7 @@ $custom-typography: mat.define-typography-config(
 
   a {
     color: map-get($foreground, text);
+
     &:hover,
     &:focus {
       color: map-get($foreground, disabled);
@@ -222,18 +219,14 @@ $primary: mat.define-palette($mat-cmu-tartan);
 $accent: mat.define-palette($mat-cmu-tartan, A400, A200, A700);
 $warn: mat.define-palette(mat.$red-palette);
 
-$light-theme: cmu-theme(
-  $primary,
-  $accent,
-  $warn,
-  $cmu-light-theme-foreground,
-  $cmu-light-theme-background
-);
-$dark-theme: cmu-theme(
-  $primary,
-  $accent,
-  $warn,
-  $cmu-dark-theme-foreground,
-  $cmu-dark-theme-background,
-  true
-);
+$light-theme: cmu-theme($primary,
+    $accent,
+    $warn,
+    $cmu-light-theme-foreground,
+    $cmu-light-theme-background);
+$dark-theme: cmu-theme($primary,
+    $accent,
+    $warn,
+    $cmu-dark-theme-foreground,
+    $cmu-dark-theme-background,
+    true);

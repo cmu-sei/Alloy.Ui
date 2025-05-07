@@ -208,7 +208,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
               currentEvent.expirationDate
             );
             this.inviteLink = this.getInviteLink(currentEvent);
-          } else {
           }
           this.currentEvent = currentEvent;
           this.changeDetector.markForCheck();

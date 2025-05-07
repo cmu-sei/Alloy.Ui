@@ -163,7 +163,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           .pipe(map((events) => events));
       }),
       tap((events) => {
-        console.log(events.length + 'events$');
         this.impsDataSource.data = events;
       }),
       shareReplay(),
@@ -209,16 +208,13 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
               currentEvent.expirationDate
             );
             this.inviteLink = this.getInviteLink(currentEvent);
-            console.log(currentEvent.id + ' is the currentEvent$');
           } else {
-            console.log('currentEvent$ was not found');
           }
           this.currentEvent = currentEvent;
           this.changeDetector.markForCheck();
           return currentEvent;
         } else {
           this.currentEvent = null;
-          console.log('no events in list to find currentEvent$');
           return null;
         }
       }),
@@ -240,7 +236,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       filter((events) => events.length >= 1),
       map((events) => events.filter((e) => this.isEventActive(e.status))),
       tap((events) => {
-        console.log(events.length + ' userEvents$');
         events.forEach((e) => {
           this.signalRService.startConnection().then(() => {
             this.signalRService.joinEvent(e.id);
@@ -264,7 +259,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         tap(([currentEvent, userEvents]) => {
           const count = userEvents ? userEvents.length : 0;
           const currentId = currentEvent ? currentEvent.id : 'null';
-          console.log(count + ' userEvents$ and currentEvent$ is ' + currentId);
           if (
             this.viewId != null &&
             (userEvents == null || userEvents.length === 0) &&

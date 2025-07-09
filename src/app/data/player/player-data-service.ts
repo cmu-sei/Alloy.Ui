@@ -84,7 +84,7 @@ export class PlayerDataService {
       .pipe(take(1))
       .subscribe(
         (views) => {
-          this.updateViews(views.filter((x) => x.status === 'Inactive'));
+          this.updateViews(views.filter((x) => x.isTemplate));
         },
         (error) => {
           this.updateViews([]);

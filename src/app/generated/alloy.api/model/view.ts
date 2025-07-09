@@ -22,7 +22,7 @@ export interface View {
     name?: string | null;
     description?: string | null;
     status?: ViewStatus;
-    canManage?: boolean;
     parentViewId?: string | null;
+    isTemplate?: boolean;
 }
 

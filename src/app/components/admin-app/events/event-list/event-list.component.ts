@@ -15,7 +15,7 @@ import {
   PageEvent,
 } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { map, take } from 'rxjs/operators';
 import { Subject, Observable, of } from 'rxjs';
 import {

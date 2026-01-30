@@ -52,3 +52,15 @@ Each entry includes:
 - TODO comments added by migration indicate legacy styles can be removed after full migration
 - Monitor for any styling discrepancies during Angular 16 upgrade
 
+## 15→16: Fix MatLegacyTableDataSource Imports
+
+**Change**: Replaced missed MatLegacyTableDataSource imports after build failure
+- Before: `import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/table'`
+- After: `import { MatTableDataSource } from '@angular/material/table'`
+
+**Files**: 15 component files using table data sources
+- All admin-app list components (users, groups, events, event-templates, roles)
+- All home-app list components
+
+**TODOs**: None - build now succeeds
+

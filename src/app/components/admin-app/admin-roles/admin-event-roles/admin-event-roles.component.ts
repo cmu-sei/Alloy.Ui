@@ -4,7 +4,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 */
 
 import { Component, inject, OnInit } from '@angular/core';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { EventPermission, EventRole } from 'src/app/generated/alloy.api';
 import { EventRolesModel } from './admin-event-roles.models';
 import { map } from 'rxjs/operators';

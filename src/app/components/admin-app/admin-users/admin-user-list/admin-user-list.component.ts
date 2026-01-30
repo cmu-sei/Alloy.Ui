@@ -11,10 +11,10 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort, Sort } from '@angular/material/sort';
-import { MatLegacyPaginator as MatPaginator, LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogComponent } from 'src/app/components/shared/confirm-dialog/components/confirm-dialog.component';
 import { User } from 'src/app/generated/alloy.api';
 import { Observable, of } from 'rxjs';
@@ -26,7 +26,7 @@ import {
   paginateRows,
 } from 'src/app/datasource-utils';
 import { RoleDataService } from 'src/app/data/role/role-data.service';
-import { MatLegacySelectChange as MatSelectChange } from '@angular/material/legacy-select';
+import { MatSelectChange } from '@angular/material/select';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 
 const WAS_CANCELLED = 'wasCancelled';

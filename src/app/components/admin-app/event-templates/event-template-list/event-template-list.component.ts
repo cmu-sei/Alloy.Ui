@@ -13,9 +13,9 @@ import {
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import {
-  MatLegacyPaginator as MatPaginator,
-  LegacyPageEvent as PageEvent,
-} from '@angular/material/legacy-paginator';
+  MatPaginator,
+  PageEvent,
+} from '@angular/material/paginator';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -32,8 +32,8 @@ import {
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';

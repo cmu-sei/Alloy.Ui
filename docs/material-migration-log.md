@@ -124,3 +124,22 @@ Each entry includes:
 **TODOs**:
 - None - migration was automatic and build succeeds
 
+## 19→20: Remove Karma, Protractor, and Update Angular 20
+
+**Change**: Removed deprecated testing tools and updated to Angular 20
+- Removed Karma and all karma-* packages from devDependencies
+- Removed Protractor from devDependencies
+- Removed postinstall ngcc script
+- Removed e2e script
+
+**Files**:
+- package.json - Cleaned up deprecated dependencies and scripts
+- tsconfig.json - Updated moduleResolution to 'bundler'
+- angular.json - Updated with new generation defaults
+
+**Material Changes**:
+- None - no Material-specific changes in this version
+
+**TODOs**:
+- None - migration was automatic and build succeeds
+

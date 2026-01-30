@@ -85,3 +85,26 @@ Each entry includes:
 - Visual verification of all components to ensure theming works correctly
 - Monitor for any color/typography inconsistencies
 
+## 17→18: Material M2 Theming Migration
+
+**Change**: Angular Material 18 migration updated theming to use M2 (Material 2) prefixed APIs
+- Before: `mat.$grey-palette`, `mat.define-palette()`, `mat.define-typography-config()`
+- After: `mat.$m2-grey-palette`, `mat.m2-define-palette()`, `mat.m2-define-typography-config()`
+
+**Files**:
+- src/styles/_theme.scss - All palette and theming functions updated with m2- prefix
+
+**Automatic Migrations**:
+- HttpClientModule replaced with provider functions in app.module.ts
+- All generated API service files updated to use new HTTP imports
+
+**Changes**:
+- `mat.$grey-palette` → `mat.$m2-grey-palette`
+- `mat.$red-palette` → `mat.$m2-red-palette`
+- `mat.define-palette()` → `mat.m2-define-palette()`
+- `mat.define-typography-config()` → `mat.m2-define-typography-config()`
+- `mat.get-color-from-palette()` → `mat.m2-get-color-from-palette()`
+
+**TODOs**:
+- None - migration was automatic and build succeeds
+

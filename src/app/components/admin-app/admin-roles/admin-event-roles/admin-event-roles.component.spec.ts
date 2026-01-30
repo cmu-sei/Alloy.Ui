@@ -5,18 +5,18 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EventRolesComponent } from './event-roles.component';
+import { AdminEventRolesComponent } from './admin-event-roles.component';
 
-describe('EventRolesComponent', () => {
-  let component: EventRolesComponent;
-  let fixture: ComponentFixture<EventRolesComponent>;
+describe('AdminEventRolesComponent', () => {
+  let component: AdminEventRolesComponent;
+  let fixture: ComponentFixture<AdminEventRolesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EventRolesComponent],
+      declarations: [AdminEventRolesComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EventRolesComponent);
+    fixture = TestBed.createComponent(AdminEventRolesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

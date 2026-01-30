@@ -32,3 +32,23 @@ Each entry includes:
 
 **TODOs**: None - all replacements maintain existing class names via aliases
 
+## 15→16: Material MDC Migration
+
+**Change**: Ran `ng generate @angular/material:mdc-migration` to add MDC (Material Design Components) styles
+- Before: Only legacy Material component styles loaded
+- After: Both legacy and MDC styles loaded (transitional state)
+
+**Files**:
+- src/styles/_theme.scss - Added `mat.all-component-typographies()` and changed typography config to non-legacy
+- src/styles/styles.scss - Added `mat.core()`, `mat.all-component-typographies()`, and `mat.all-component-themes()` for both themes
+
+**Changes**:
+- Typography: Added `mat.define-typography-config()` alongside legacy version
+- Core: Added `mat.core()` alongside `mat.legacy-core()`
+- Themes: Added `mat.all-component-themes()` for light-theme and dark-theme
+
+**TODOs**:
+- Visual verification of all Material components (forms, dialogs, tables, etc.)
+- TODO comments added by migration indicate legacy styles can be removed after full migration
+- Monitor for any styling discrepancies during Angular 16 upgrade
+

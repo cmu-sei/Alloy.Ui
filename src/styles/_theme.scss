@@ -132,9 +132,11 @@ $custom-colors: (
     custom: $custom );
 }
 
-$custom-typography: mat.define-legacy-typography-config($font-family: '"Open Sans", sans-serif',
+$custom-typography: mat.define-typography-config($font-family: '"Open Sans", sans-serif',
   );
+/* TODO(mdc-migration): Remove all-legacy-component-typographies once all legacy components are migrated*/
 @include mat.all-legacy-component-typographies($custom-typography);
+@include mat.all-component-typographies($custom-typography);
 
 //globals mixin for edge cases.
 @mixin globals($theme) {

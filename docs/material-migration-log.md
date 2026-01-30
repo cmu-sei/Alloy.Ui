@@ -64,3 +64,24 @@ Each entry includes:
 
 **TODOs**: None - build now succeeds
 
+## 16→17: Remove All Legacy Material Components
+
+**Change**: Removed all legacy Material component references as they no longer exist in Angular Material 17
+- Removed: `mat.all-legacy-component-typographies()`
+- Removed: `mat.all-legacy-component-themes()`
+- Removed: `mat.legacy-core()`
+- Removed: `@import '@angular/material/theming'` (no longer available)
+
+**Files**:
+- src/styles/styles.scss - Removed legacy typography, core, and theme includes
+- src/styles/_theme.scss - Removed legacy theming import and typography includes
+
+**New Approach**:
+- Added manual definitions for Material theming variables ($dark-primary-text, $light-primary-text, etc.)
+- Now using only `mat.all-component-typographies()`, `mat.core()`, and `mat.all-component-themes()`
+- Theming variables that were previously exported now defined locally
+
+**TODOs**:
+- Visual verification of all components to ensure theming works correctly
+- Monitor for any color/typography inconsistencies
+

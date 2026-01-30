@@ -11,18 +11,13 @@
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
 //    `@include mat.legacy-typography-hierarchy(mat.define-typography-config());`
-/* TODO(mdc-migration): Remove all-legacy-component-typographies once all legacy components are migrated*/
-@include mat.all-legacy-component-typographies();
 @include mat.all-component-typographies();
-/* TODO(mdc-migration): Remove legacy-core once all legacy components are migrated*/
-@include mat.legacy-core();
 @include mat.core();
 $mdi-font-path: '~@mdi/font/fonts';
 @import '@mdi/font/scss/materialdesignicons';
 @import '~material-design-icons/iconfont/material-icons.css';
 
 @import '~@fortawesome/fontawesome-free/css/all.css';
-@include mat.core();
 /* END VENDER IMPORTS */
 
 /* BOOTSTRAP IMPORTS */
@@ -42,15 +37,11 @@ $mdi-font-path: '~@mdi/font/fonts';
 /* END LOCAL IMPORTS */
 
 .light-theme {
-  /* TODO(mdc-migration): Remove all-legacy-component-themes once all legacy components are migrated*/
-  @include mat.all-legacy-component-themes($light-theme);
   @include mat.all-component-themes($light-theme);
   @include globals($light-theme);
 }
 
 .dark-theme {
-  /* TODO(mdc-migration): Remove all-legacy-component-themes once all legacy components are migrated*/
-  @include mat.all-legacy-component-themes($dark-theme);
   @include mat.all-component-themes($dark-theme);
   @include globals($dark-theme);
 }

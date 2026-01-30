@@ -20,10 +20,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { EventMembership, Group, User } from 'src/app/generated/alloy.api';
 
 @Component({
-  selector: 'app-event-membership-list',
-  templateUrl: './event-membership-list.component.html',
-  styleUrls: ['./event-membership-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-event-membership-list',
+    templateUrl: './event-membership-list.component.html',
+    styleUrls: ['./event-membership-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class EventMembershipListComponent implements OnInit, OnChanges {
   @Input()

@@ -108,3 +108,19 @@ Each entry includes:
 **TODOs**:
 - None - migration was automatic and build succeeds
 
+## 18→19: Component Standalone Status Migration
+
+**Change**: Angular 19 migration added explicit `standalone: false` to all non-standalone components
+- 33 component files updated with `standalone: false` decorator property
+- Prepares codebase for eventual migration to standalone components
+
+**Files**:
+- All component files across admin-app, home-app, and shared directories
+- src/app/app.component.ts and other root components
+
+**Material Changes**:
+- Minor style updates in src/styles/styles.scss (automatic migration)
+
+**TODOs**:
+- None - migration was automatic and build succeeds
+

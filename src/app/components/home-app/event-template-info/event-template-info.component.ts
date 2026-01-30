@@ -41,9 +41,10 @@ import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
 
 @Component({
-  selector: 'app-event-template-info',
-  templateUrl: './event-template-info.component.html',
-  styleUrls: ['./event-template-info.component.scss'],
+    selector: 'app-event-template-info',
+    templateUrl: './event-template-info.component.html',
+    styleUrls: ['./event-template-info.component.scss'],
+    standalone: false
 })
 export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   @Input() eventTemplateId: string;

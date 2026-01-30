@@ -42,9 +42,10 @@ export class UserErrorStateMatcher implements ErrorStateMatcher {
 }
 
 @Component({
-  selector: 'app-event-template-edit',
-  templateUrl: './event-template-edit.component.html',
-  styleUrls: ['./event-template-edit.component.scss'],
+    selector: 'app-event-template-edit',
+    templateUrl: './event-template-edit.component.html',
+    styleUrls: ['./event-template-edit.component.scss'],
+    standalone: false
 })
 export class EventTemplateEditComponent implements OnInit, OnDestroy {
   @Output() editComplete = new EventEmitter<any>();

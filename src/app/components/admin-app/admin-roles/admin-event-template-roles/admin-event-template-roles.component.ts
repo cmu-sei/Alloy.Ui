@@ -14,9 +14,10 @@ import { map } from 'rxjs/operators';
 import { EventTemplateRoleDataService } from 'src/app/data/event-template/event-template-role-data.service';
 
 @Component({
-  selector: 'app-admin-event-template-roles',
-  templateUrl: './admin-event-template-roles.component.html',
-  styleUrls: ['./admin-event-template-roles.component.scss'],
+    selector: 'app-admin-event-template-roles',
+    templateUrl: './admin-event-template-roles.component.html',
+    styleUrls: ['./admin-event-template-roles.component.scss'],
+    standalone: false
 })
 export class AdminEventTemplateRolesComponent implements OnInit {
   public allPermission = 'All';

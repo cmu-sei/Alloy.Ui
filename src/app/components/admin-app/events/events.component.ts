@@ -15,9 +15,10 @@ import { Subject } from 'rxjs';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api';
 
 @Component({
-  selector: 'app-events',
-  templateUrl: './events.component.html',
-  styleUrls: ['./events.component.scss'],
+    selector: 'app-events',
+    templateUrl: './events.component.html',
+    styleUrls: ['./events.component.scss'],
+    standalone: false
 })
 export class EventsComponent implements OnInit {
   @Input() refresh: Subject<boolean>;

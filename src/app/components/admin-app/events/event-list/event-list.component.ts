@@ -36,9 +36,10 @@ export interface Action {
 }
 
 @Component({
-  selector: 'app-admin-event-list',
-  templateUrl: './event-list.component.html',
-  styleUrls: ['./event-list.component.scss'],
+    selector: 'app-admin-event-list',
+    templateUrl: './event-list.component.html',
+    styleUrls: ['./event-list.component.scss'],
+    standalone: false
 })
 export class AdminEventListComponent implements OnInit {
   @Output() itemSelected: EventEmitter<AlloyEvent> =

@@ -25,9 +25,10 @@ import {
 } from 'src/app/generated/alloy.api';
 
 @Component({
-  selector: 'app-event-template-member-list',
-  templateUrl: './event-template-member-list.component.html',
-  styleUrls: ['./event-template-member-list.component.scss'],
+    selector: 'app-event-template-member-list',
+    templateUrl: './event-template-member-list.component.html',
+    styleUrls: ['./event-template-member-list.component.scss'],
+    standalone: false
 })
 export class EventTemplateMemberListComponent implements OnInit, OnChanges {
   @Input()

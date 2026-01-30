@@ -24,9 +24,10 @@ import {
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 
 @Component({
-  selector: 'app-event-edit',
-  templateUrl: './event-edit.component.html',
-  styleUrls: ['./event-edit.component.scss'],
+    selector: 'app-event-edit',
+    templateUrl: './event-edit.component.html',
+    styleUrls: ['./event-edit.component.scss'],
+    standalone: false
 })
 export class EventEditComponent implements OnInit {
   @Output() editComplete = new EventEmitter<any>();

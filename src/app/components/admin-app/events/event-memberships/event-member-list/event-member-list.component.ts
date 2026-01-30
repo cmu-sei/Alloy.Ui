@@ -25,9 +25,10 @@ import {
 } from 'src/app/generated/alloy.api';
 
 @Component({
-  selector: 'app-event-member-list',
-  templateUrl: './event-member-list.component.html',
-  styleUrls: ['./event-member-list.component.scss'],
+    selector: 'app-event-member-list',
+    templateUrl: './event-member-list.component.html',
+    styleUrls: ['./event-member-list.component.scss'],
+    standalone: false
 })
 export class EventMemberListComponent
   implements OnInit, OnChanges, AfterViewInit

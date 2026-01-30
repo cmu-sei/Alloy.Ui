@@ -143,3 +143,24 @@ Each entry includes:
 **TODOs**:
 - None - migration was automatic and build succeeds
 
+
+## 20→21: Update to Angular 21 and Block Control Flow Migration
+
+**Change**: Updated to Angular 21 with automatic migration to modern control flow syntax
+- Updated all Angular packages to 21.1.2
+- Converted 28 template files from *ngIf/*ngFor to @if/@for block syntax
+- Updated TypeScript target to es2022
+
+**Files**:
+- 28 component template files migrated to block control flow syntax
+- src/main.ts - Migrated bootstrap options to providers
+- tsconfig.json - Updated to es2022
+
+**Material Changes**:
+- Angular Material 21.1.2 installed
+- No Material Design 3 specific style changes needed - project already uses compatible theming
+
+**TODOs**:
+- Visual verification of all templates using new @if/@for syntax
+- Test all conditional rendering and loops
+

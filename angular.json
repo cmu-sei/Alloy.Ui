@@ -67,19 +67,19 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "alloy:build",
-            "port": 4403
+            "port": 4403,
+            "buildTarget": "alloy:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "alloy:build:production"
+              "buildTarget": "alloy:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "alloy:build"
+            "buildTarget": "alloy:build"
           }
         },
         "test": {

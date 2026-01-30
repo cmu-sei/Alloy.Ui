@@ -5,90 +5,92 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <mat-sidenav-container class="appcontent-container" autosize>
   <mat-sidenav class="appbarmenu-container" #sidenav mode="side" [(opened)]="isSidebarOpen">
-    <mat-list *ngIf="permissions" class="list-container">
-      <mat-list-item class="appslist">
-        <a class="nolink" [routerLink]="['/']">
-          <div class="cssLayoutRowStartCenter">
-            <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy" [ngStyle]="{ color: topBarColor }"></mat-icon>
-            <h2 class="icon-text">Administration</h2>
+    @if (permissions) {
+      <mat-list class="list-container">
+        <mat-list-item class="appslist">
+          <a class="nolink" [routerLink]="['/']">
+            <div class="cssLayoutRowStartCenter">
+              <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy" [ngStyle]="{ color: topBarColor }"></mat-icon>
+              <h2 class="icon-text">Administration</h2>
+            </div>
+          </a>
+          <mat-divider></mat-divider>
+        </mat-list-item>
+        <mat-list-item>
+          <div class="showhand" id="wrapper" (click)="adminGotoEventTemplates()" title="Show Event Templates">
+            <div id="lefticon">
+              <mat-icon class="mdi-24px" fontIcon="mdi-clipboard"></mat-icon>
+            </div>
+            <div id="content">{{ eventTemplatesText }}</div>
+            <div class="pull-right" id="rightcontext">
+              <button mat-icon-button>
+                <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
+              </button>
+            </div>
           </div>
-        </a>
-        <mat-divider></mat-divider>
-      </mat-list-item>
-      <mat-list-item>
-        <div class="showhand" id="wrapper" (click)="adminGotoEventTemplates()" title="Show Event Templates">
-          <div id="lefticon">
-            <mat-icon class="mdi-24px" fontIcon="mdi-clipboard"></mat-icon>
+        </mat-list-item>
+        <mat-list-item>
+          <div class="showhand" id="wrapper" (click)="adminGotoEvents()" title="Show Events">
+            <div id="lefticon">
+              <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play"></mat-icon>
+            </div>
+            <div id="content">
+              {{ eventsText }}
+            </div>
+            <div class="pull-right" id="rightcontext">
+              <button mat-icon-button>
+                <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
+              </button>
+            </div>
           </div>
-          <div id="content">{{ eventTemplatesText }}</div>
-          <div class="pull-right" id="rightcontext">
-            <button mat-icon-button>
-              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-list-item>
-      <mat-list-item>
-        <div class="showhand" id="wrapper" (click)="adminGotoEvents()" title="Show Events">
-          <div id="lefticon">
-            <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play"></mat-icon>
-          </div>
-          <div id="content">
-            {{ eventsText }}
-          </div>
-          <div class="pull-right" id="rightcontext">
-            <button mat-icon-button>
-              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-list-item>
-      <mat-list-item *ngIf="permissions.includes(SystemPermission.ViewRoles)">
-        <div class="showhand" id="wrapper" (click)="adminGotoRoles()">
-          <div id="lefticon">
-            <mat-icon class="mdi-24px" fontIcon="mdi-lock"></mat-icon>
-          </div>
-
-          <div id="content">{{ rolesText }}</div>
-
-          <div class="pull-right" id="rightcontext">
-            <button mat-icon-button style="outline: none">
-              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-list-item>
-      <mat-list-item *ngIf="permissions.includes(SystemPermission.ViewGroups)">
-        <div class="showhand" id="wrapper" (click)="adminGotoGroups()">
-          <div id="lefticon">
-            <mat-icon class="mdi-24px" fontIcon="mdi-account-group"></mat-icon>
-          </div>
-
-          <div id="content">{{ groupsText }}</div>
-
-          <div class="pull-right" id="rightcontext">
-            <button mat-icon-button style="outline: none">
-              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-list-item>
-      <mat-list-item *ngIf="permissions.includes(SystemPermission.ViewUsers)">
-        <div class="showhand" id="wrapper" (click)="adminGotoUsers()">
-          <div id="lefticon">
-            <mat-icon class="mdi-24px" fontIcon="mdi-account-multiple"></mat-icon>
-          </div>
-
-          <div id="content">{{ usersText }}</div>
-
-          <div class="pull-right" id="rightcontext">
-            <button mat-icon-button style="outline: none">
-              <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-list-item>
-    </mat-list>
+        </mat-list-item>
+        @if (permissions.includes(SystemPermission.ViewRoles)) {
+          <mat-list-item>
+            <div class="showhand" id="wrapper" (click)="adminGotoRoles()">
+              <div id="lefticon">
+                <mat-icon class="mdi-24px" fontIcon="mdi-lock"></mat-icon>
+              </div>
+              <div id="content">{{ rolesText }}</div>
+              <div class="pull-right" id="rightcontext">
+                <button mat-icon-button style="outline: none">
+                  <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-list-item>
+        }
+        @if (permissions.includes(SystemPermission.ViewGroups)) {
+          <mat-list-item>
+            <div class="showhand" id="wrapper" (click)="adminGotoGroups()">
+              <div id="lefticon">
+                <mat-icon class="mdi-24px" fontIcon="mdi-account-group"></mat-icon>
+              </div>
+              <div id="content">{{ groupsText }}</div>
+              <div class="pull-right" id="rightcontext">
+                <button mat-icon-button style="outline: none">
+                  <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-list-item>
+        }
+        @if (permissions.includes(SystemPermission.ViewUsers)) {
+          <mat-list-item>
+            <div class="showhand" id="wrapper" (click)="adminGotoUsers()">
+              <div id="lefticon">
+                <mat-icon class="mdi-24px" fontIcon="mdi-account-multiple"></mat-icon>
+              </div>
+              <div id="content">{{ usersText }}</div>
+              <div class="pull-right" id="rightcontext">
+                <button mat-icon-button style="outline: none">
+                  <mat-icon class="mdi-24px" fontIcon="mdi-menu-right"></mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-list-item>
+        }
+      </mat-list>
+    }
     <img class="crucible-logo" [src]="
         (theme$ | async) === 'light-theme'
           ? 'assets/img/crucible-logo-light.png'
@@ -97,22 +99,34 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </mat-sidenav>
   <mat-sidenav-content>
     <app-topbar [title]="showStatus" [topbarColor]="topBarColor" [topbarTextColor]="topBarTextColor"
-      [topbarView]="TopbarView.ALLOY_ADMIN"></app-topbar>
-    <span *ngIf="permissions">
-      <app-event-templates *ngIf="showStatus === eventTemplatesText"></app-event-templates>
-      <app-events *ngIf="showStatus === eventsText" [refresh]="shouldUpdateEvents"></app-events>
-      <app-admin-roles *ngIf="
+    [topbarView]="TopbarView.ALLOY_ADMIN"></app-topbar>
+    @if (permissions) {
+      <span>
+        @if (showStatus === eventTemplatesText) {
+          <app-event-templates></app-event-templates>
+        }
+        @if (showStatus === eventsText) {
+          <app-events [refresh]="shouldUpdateEvents"></app-events>
+        }
+        @if (
           showStatus === rolesText &&
           permissions.includes(SystemPermission.ViewRoles)
-        "></app-admin-roles>
-      <app-admin-groups *ngIf="
+          ) {
+          <app-admin-roles></app-admin-roles>
+        }
+        @if (
           showStatus === groupsText &&
           permissions.includes(SystemPermission.ViewGroups)
-        "></app-admin-groups>
-      <app-admin-users *ngIf="
+          ) {
+          <app-admin-groups></app-admin-groups>
+        }
+        @if (
           showStatus === usersText &&
           permissions.includes(SystemPermission.ViewUsers)
-        "></app-admin-users>
-    </span>
+          ) {
+          <app-admin-users></app-admin-users>
+        }
+      </span>
+    }
   </mat-sidenav-content>
 </mat-sidenav-container>

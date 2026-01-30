@@ -2,12 +2,13 @@
 Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
-<app-topbar
-  *ngIf="!isIframe()"
-  [title]="titleText"
-  [topbarView]="TopbarView.ALLOY_HOME"
-  [topbarColor]="topBarColor"
-  [topbarTextColor]="topBarTextColor"
->
-</app-topbar>
+@if (!isIframe()) {
+  <app-topbar
+    [title]="titleText"
+    [topbarView]="TopbarView.ALLOY_HOME"
+    [topbarColor]="topBarColor"
+    [topbarTextColor]="topBarTextColor"
+    >
+  </app-topbar>
+}
 <router-outlet> </router-outlet>

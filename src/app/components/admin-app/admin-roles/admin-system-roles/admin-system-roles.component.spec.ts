@@ -5,18 +5,18 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SystemRolesComponent } from './system-roles.component';
+import { AdminSystemRolesComponent } from './admin-system-roles.component';
 
-describe('SystemRolesComponent', () => {
-  let component: SystemRolesComponent;
-  let fixture: ComponentFixture<SystemRolesComponent>;
+describe('AdminSystemRolesComponent', () => {
+  let component: AdminSystemRolesComponent;
+  let fixture: ComponentFixture<AdminSystemRolesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SystemRolesComponent],
+      declarations: [AdminSystemRolesComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SystemRolesComponent);
+    fixture = TestBed.createComponent(AdminSystemRolesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

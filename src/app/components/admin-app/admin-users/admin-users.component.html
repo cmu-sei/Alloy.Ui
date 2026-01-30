@@ -6,8 +6,10 @@ project root for license information or contact permission@sei.cmu.edu for full 
 
 <div class="component-container mat-elevation-z8">
   <div class="add-margin">
-    <app-admin-user-list *ngIf="!!users$ && !!isLoading$" [users]="users$ | async" [isLoading]="isLoading$ | async"
-      [canEdit]="canEdit" (create)="create($event)" (delete)="deleteUser($event)">
-    </app-admin-user-list>
+    @if (!!users$ && !!isLoading$) {
+      <app-admin-user-list [users]="users$ | async" [isLoading]="isLoading$ | async"
+        [canEdit]="canEdit" (create)="create($event)" (delete)="deleteUser($event)">
+      </app-admin-user-list>
+    }
   </div>
 </div>

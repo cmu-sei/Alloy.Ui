@@ -6,57 +6,73 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   [style.color]="topbarTextColor ? topbarTextColor : null">
   <mat-toolbar-row>
     <span class="margin-auto">
-      <button *ngIf="sidenav && sidenav?.opened" (click)="sidenavToggleFn()" color="primary" mat-icon-button
-        matTooltip="Close Sidebar">
-        <mat-icon svgIcon="ic_chevron_left" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
-      </button>
-      <button *ngIf="sidenav && !sidenav?.opened" (click)="sidenavToggleFn()" color="primary" mat-icon-button
-        matTooltip="Open Sidebar">
-        <mat-icon svgIcon="ic_chevron_right" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
-      </button>
+      @if (sidenav && sidenav?.opened) {
+        <button (click)="sidenavToggleFn()" color="primary" mat-icon-button
+          matTooltip="Close Sidebar">
+          <mat-icon svgIcon="ic_chevron_left" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
+        </button>
+      }
+      @if (sidenav && !sidenav?.opened) {
+        <button (click)="sidenavToggleFn()" color="primary" mat-icon-button
+          matTooltip="Open Sidebar">
+          <mat-icon svgIcon="ic_chevron_right" [style.color]="topbarTextColor ? topbarTextColor : null"></mat-icon>
+        </button>
+      }
     </span>
     <a [routerLink]="['/']">
       <div fxLayout="row" fxLayoutAlign="start center">
         <span class="view-text">{{ title }}</span>
       </div>
     </a>
-    <ng-container *ngIf="teams && team && teams.length > 0">
+    @if (teams && team && teams.length > 0) {
       <div class="team-text">Team:</div>
       <b class="team-text">{{ team.name }}</b>
-      <div *ngIf="teams.length > 1" fxLayout="row" fxLayoutAlign="start center">
-        <button mat-button [matMenuTriggerFor]="teamMenu" style="outline: none">
+      @if (teams.length > 1) {
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <button mat-button [matMenuTriggerFor]="teamMenu" style="outline: none">
+            <mat-icon svgIcon="ic_expand_more_white_24px"></mat-icon>
+          </button>
+          <mat-menu #teamMenu="matMenu" [overlapTrigger]="false">
+            @for (val of teams; track val) {
+              <button mat-menu-item (click)="setTeamFn(val.id)">
+                {{ val.name }}
+              </button>
+            }
+          </mat-menu>
+        </div>
+      }
+    }
+    <span class="spacer"></span>
+    @if (currentUser$ | async; as currentUser) {
+      <div class="user-text">
+        <button mat-button [matMenuTriggerFor]="menu" style="outline: none">
+          <strong>{{ currentUser.name }}</strong>
           <mat-icon svgIcon="ic_expand_more_white_24px"></mat-icon>
         </button>
-        <mat-menu #teamMenu="matMenu" [overlapTrigger]="false">
-          <button *ngFor="let val of teams" mat-menu-item (click)="setTeamFn(val.id)">
-            {{ val.name }}
-          </button>
+        <mat-menu #menu="matMenu" [overlapTrigger]="false">
+          @if (team && team.canManage) {
+            <button (click)="editFn($event)" mat-menu-item>
+              Edit View
+            </button>
+          }
+          @if (topbarView === TopbarView.ALLOY_ADMIN) {
+            <button [routerLink]="['/']" mat-menu-item>
+              Exit Administration
+            </button>
+          }
+          @if (topbarView !== TopbarView.ALLOY_ADMIN) {
+            <button [routerLink]="['/admin']" mat-menu-item>
+              Administration
+            </button>
+          }
+          <button mat-menu-item (click)="logout()">Logout</button>
+          <mat-slide-toggle class="mat-menu-item" color="primary"
+            [checked]="(theme$ | async) === 'dark-theme' ? true : false" (click)="$event.stopPropagation()"
+            (change)="themeFn($event)">
+            Dark Theme
+          </mat-slide-toggle>
         </mat-menu>
       </div>
-    </ng-container>
-    <span class="spacer"></span>
-    <div class="user-text" *ngIf="currentUser$ | async as currentUser">
-      <button mat-button [matMenuTriggerFor]="menu" style="outline: none">
-        <strong>{{ currentUser.name }}</strong>
-        <mat-icon svgIcon="ic_expand_more_white_24px"></mat-icon>
-      </button>
-      <mat-menu #menu="matMenu" [overlapTrigger]="false">
-        <button *ngIf="team && team.canManage" (click)="editFn($event)" mat-menu-item>
-          Edit View
-        </button>
-        <button *ngIf="topbarView === TopbarView.ALLOY_ADMIN" [routerLink]="['/']" mat-menu-item>
-          Exit Administration
-        </button>
-        <button *ngIf="topbarView !== TopbarView.ALLOY_ADMIN" [routerLink]="['/admin']" mat-menu-item>
-          Administration
-        </button>
-        <button mat-menu-item (click)="logout()">Logout</button>
-        <mat-slide-toggle class="mat-menu-item" color="primary"
-          [checked]="(theme$ | async) === 'dark-theme' ? true : false" (click)="$event.stopPropagation()"
-          (change)="themeFn($event)">
-          Dark Theme
-        </mat-slide-toggle>
-      </mat-menu>
-    </div>
+    }
   </mat-toolbar-row>
 </mat-toolbar>

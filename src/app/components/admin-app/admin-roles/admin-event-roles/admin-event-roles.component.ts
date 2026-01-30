@@ -4,16 +4,17 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 */
 
 import { Component, inject, OnInit } from '@angular/core';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { EventPermission, EventRole } from 'src/app/generated/alloy.api';
 import { EventRolesModel } from './admin-event-roles.models';
 import { map } from 'rxjs/operators';
 import { EventRoleDataService } from 'src/app/data/event/event-role-data.service';
 
 @Component({
-  selector: 'app-admin-event-roles',
-  templateUrl: './admin-event-roles.component.html',
-  styleUrls: ['./admin-event-roles.component.scss'],
+    selector: 'app-admin-event-roles',
+    templateUrl: './admin-event-roles.component.html',
+    styleUrls: ['./admin-event-roles.component.scss'],
+    standalone: false
 })
 export class AdminEventRolesComponent implements OnInit {
   public allPermission = 'All';

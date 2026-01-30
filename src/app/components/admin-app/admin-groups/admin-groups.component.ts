@@ -8,9 +8,9 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Group, SystemPermission } from 'src/app/generated/alloy.api';
@@ -24,10 +24,11 @@ const WAS_CANCELLED = 'wasCancelled';
 const NAME_VALUE = 'nameValue';
 
 @Component({
-  selector: 'app-admin-groups',
-  templateUrl: './admin-groups.component.html',
-  styleUrls: ['./admin-groups.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-admin-groups',
+    templateUrl: './admin-groups.component.html',
+    styleUrls: ['./admin-groups.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class AdminGroupsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;

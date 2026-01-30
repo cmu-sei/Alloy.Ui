@@ -1,13 +1,14 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 
 @Component({
-  selector: 'confirm-dialog',
-  templateUrl: './confirm-dialog.component.html',
-  styleUrls: ['./confirm-dialog.component.scss'],
+    selector: 'confirm-dialog',
+    templateUrl: './confirm-dialog.component.html',
+    styleUrls: ['./confirm-dialog.component.scss'],
+    standalone: false
 })
 export class ConfirmDialogComponent {
   public title: string;

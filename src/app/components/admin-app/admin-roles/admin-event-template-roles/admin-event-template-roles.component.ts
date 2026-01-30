@@ -4,7 +4,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 */
 
 import { Component, inject, OnInit } from '@angular/core';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import {
   EventTemplatePermission,
   EventTemplateRole,
@@ -14,9 +14,10 @@ import { map } from 'rxjs/operators';
 import { EventTemplateRoleDataService } from 'src/app/data/event-template/event-template-role-data.service';
 
 @Component({
-  selector: 'app-admin-event-template-roles',
-  templateUrl: './admin-event-template-roles.component.html',
-  styleUrls: ['./admin-event-template-roles.component.scss'],
+    selector: 'app-admin-event-template-roles',
+    templateUrl: './admin-event-template-roles.component.html',
+    styleUrls: ['./admin-event-template-roles.component.scss'],
+    standalone: false
 })
 export class AdminEventTemplateRolesComponent implements OnInit {
   public allPermission = 'All';

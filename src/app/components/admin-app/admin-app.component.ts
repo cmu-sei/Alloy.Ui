@@ -18,9 +18,10 @@ import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { SignalRService } from 'src/app/shared/signalr/signalr.service';
 @Component({
-  selector: 'app-admin-app',
-  templateUrl: './admin-app.component.html',
-  styleUrls: ['./admin-app.component.scss'],
+    selector: 'app-admin-app',
+    templateUrl: './admin-app.component.html',
+    styleUrls: ['./admin-app.component.scss'],
+    standalone: false
 })
 export class AdminAppComponent implements OnInit {
   username: string;

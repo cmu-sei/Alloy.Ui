@@ -6,7 +6,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 <div class="cssLayoutRowStartCenter">
   <div class="sp-icon">
     <mat-icon class="mdi-24px" fontIcon="mdi-clipboard" [ngStyle]="{ color: topBarColor }"
-      alt="Event Templates"></mat-icon>
+    alt="Event Templates"></mat-icon>
   </div>
   <div class="cssLayoutRowStartCenter">
     <mat-icon class="text icon-24px search-icon" svgIcon="ic_magnify_search"></mat-icon>
@@ -20,20 +20,24 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </div>
   </div>
   <div>
-    <button mat-stroked-button (click)="addNewEventTemplate()" *ngIf="canCreateEventTemplates()">
-      Add New Event Template
-    </button>
+    @if (canCreateEventTemplates()) {
+      <button mat-stroked-button (click)="addNewEventTemplate()">
+        Add New Event Template
+      </button>
+    }
   </div>
   <div>
     <mat-paginator #paginator [length]="dataSource.data.length" [pageIndex]="0" [pageSize]="20"
-      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
+    [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
   </div>
 </div>
 
-<mat-card *ngIf="isLoading" class="spinner">
-  <mat-progress-spinner color="primary" mode="indeterminate">
-  </mat-progress-spinner>
-</mat-card>
+@if (isLoading) {
+  <mat-card class="spinner">
+    <mat-progress-spinner color="primary" mode="indeterminate">
+    </mat-progress-spinner>
+  </mat-card>
+}
 
 <table mat-table [dataSource]="dataSource" multiTemplateDataRows matSort matSortActive="dateCreated"
   matSortDirection="desc" class="mat-elevation-z8" [trackBy]="trackById">
@@ -64,7 +68,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         element.description && element.description.length > 80
         ? element.description.slice(0, 80) + ' ...'
         : element.description
-        }}</span>
+      }}</span>
     </td>
   </ng-container>
 
@@ -86,5 +90,5 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let element; columns: displayedColumns" class="example-element-row"
-    (click)="elementSelected(element.id)"></tr>
+  (click)="elementSelected(element.id)"></tr>
 </table>

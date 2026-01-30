@@ -23,10 +23,11 @@ import { CurrentUserState } from 'src/app/data/user/user.store';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { TopbarView } from './topbar.models';
 @Component({
-  selector: 'app-topbar',
-  templateUrl: './topbar.component.html',
-  styleUrls: ['./topbar.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-topbar',
+    templateUrl: './topbar.component.html',
+    styleUrls: ['./topbar.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TopbarComponent implements OnInit, OnDestroy {
   @Input() title?: string;

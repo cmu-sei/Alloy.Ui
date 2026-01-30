@@ -30,31 +30,37 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         " />
     </div>
   </div>
-  <mat-card *ngIf="!doneLoading" class="spinner">
-    <mat-progress-spinner color="primary" mode="indeterminate">
-    </mat-progress-spinner>
-  </mat-card>
+  @if (!doneLoading) {
+    <mat-card class="spinner">
+      <mat-progress-spinner color="primary" mode="indeterminate">
+      </mat-progress-spinner>
+    </mat-card>
+  }
   <!-- Event Templates-->
   <mat-table #sortTemplate="matSort" [dataSource]="eventTemplateDataSource" matSort>
-    <ng-container *ngFor="let col of eventTemplateDisplayedColumns; let i = index" matColumnDef="{{ col }}">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>{{ col }}
-      </mat-header-cell>
-      <mat-cell *matCellDef="let element">
-        <!-- Only Show Open button if its the first element-->
-        <ng-container *ngIf="i === 0">
-          <button mat-stroked-button (click)="openEvent(element.id)">
-            Open
-          </button>
-        </ng-container>
-        {{ element[col] }}
-      </mat-cell>
-    </ng-container>
+    @for (col of eventTemplateDisplayedColumns; track col; let i = $index) {
+      <ng-container matColumnDef="{{ col }}">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ col }}
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <!-- Only Show Open button if its the first element-->
+          @if (i === 0) {
+            <button mat-stroked-button (click)="openEvent(element.id)">
+              Open
+            </button>
+          }
+          {{ element[col] }}
+        </mat-cell>
+      </ng-container>
+    }
 
     <mat-header-row *matHeaderRowDef="eventTemplateDisplayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: eventTemplateDisplayedColumns"></mat-row>
   </mat-table>
 
-  <div *ngIf="eventTemplateDataSource.filteredData.length === 0">
-    No results found
-  </div>
+  @if (eventTemplateDataSource.filteredData.length === 0) {
+    <div>
+      No results found
+    </div>
+  }
 </div>

@@ -25,9 +25,10 @@ import { GroupDataService } from 'src/app/data/group/group-data.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
-  selector: 'app-event-memberships',
-  templateUrl: './event-memberships.component.html',
-  styleUrls: ['./event-memberships.component.scss'],
+    selector: 'app-event-memberships',
+    templateUrl: './event-memberships.component.html',
+    styleUrls: ['./event-memberships.component.scss'],
+    standalone: false
 })
 export class EventMembershipsComponent implements OnInit, OnChanges {
   @Input() embedded: boolean;

@@ -8,9 +8,10 @@ import { ActivatedRoute } from '@angular/router';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
-  selector: 'app-event-memberships-page',
-  templateUrl: './event-memberships-page.component.html',
-  styleUrls: ['./event-memberships-page.component.scss'],
+    selector: 'app-event-memberships-page',
+    templateUrl: './event-memberships-page.component.html',
+    styleUrls: ['./event-memberships-page.component.scss'],
+    standalone: false
 })
 export class EventMembershipsPageComponent implements OnInit {
   eventId: string;

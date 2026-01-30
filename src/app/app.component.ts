@@ -15,9 +15,10 @@ import { takeUntil } from 'rxjs/operators';
 import { TopbarView } from './components/shared/top-bar/topbar.models';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    standalone: false
 })
 export class AppComponent implements OnDestroy {
   @HostBinding('class') componentCssClass: string;

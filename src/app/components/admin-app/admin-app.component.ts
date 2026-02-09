@@ -27,8 +27,6 @@ export class AdminAppComponent implements OnInit {
   username: string;
   titleText: string;
   hideTopbar = false;
-  topBarColor = '#719F94';
-  topBarTextColor = '#FFFFFF';
   eventTemplateId = '';
   isSidebarOpen = true;
   eventTemplatesText = 'Event Templates';
@@ -60,9 +58,7 @@ export class AdminAppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Set the topbar color from config file
-    this.topBarColor = this.settingsService.settings.AppTopBarHexColor;
-    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor;
+    this.hideTopbar = this.inIframe();
     // Set the page title from configuration file
     this.titleText = this.settingsService.settings.AppTopBarText;
     this.titleService.setTitle(this.settingsService.settings.AppTitle);
@@ -143,11 +139,23 @@ export class AdminAppComponent implements OnInit {
     this.navigateToSection(this.groupsText);
   }
 
+  getSelectedClass(section: string) {
+    return section === this.showStatus ? 'selected-item' : '';
+  }
+
   private navigateToSection(sectionName: string) {
     this.router.navigate([], {
       queryParams: { section: sectionName },
       queryParamsHandling: 'merge',
     });
+  }
+
+  inIframe() {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
   }
 
   ngOnDestroy() {

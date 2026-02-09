@@ -42,12 +42,12 @@ tr.example-detail-row {
 }
 
 tr.example-element-row:not(.example-expanded-row):hover {
-  background: whitesmoke;
+  background: var(--mat-sys-surface-variant);
   cursor: pointer;
 }
 
 tr.example-element-row:not(.example-expanded-row):active {
-  background: #efefef;
+  background: var(--mat-sys-outline-variant);
 }
 
 .example-element-row td {

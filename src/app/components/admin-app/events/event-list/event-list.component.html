@@ -5,10 +5,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <div class="cssLayoutRowStartCenter">
   <div class="sp-icon">
-    <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play" [ngStyle]="{ color: topBarColor }" alt="Events"></mat-icon>
+    <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play" [ngStyle]="{ color: 'var(--mat-sys-primary)' }"
+      alt="Events"></mat-icon>
   </div>
   <div class="cssLayoutRowStartCenter">
-    <mat-icon class="text icon-24px search-icon" svgIcon="ic_magnify_search"></mat-icon>
     <mat-form-field class="search-field">
       <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
     </mat-form-field>
@@ -20,22 +20,22 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </div>
   <div class="status-selection">
     <input type="checkbox" [(ngModel)]="showActive" (change)="filterAndSort()" /><span
-  class="status-text">Active</span><br />
-  <input type="checkbox" [(ngModel)]="showEnded" (change)="filterAndSort()" /><span
-class="status-text">Ended</span><br />
-<input type="checkbox" [(ngModel)]="showFailed" (change)="filterAndSort()" /><span class="status-text">Failed</span>
-</div>
-<div class="button-end">
-  <mat-paginator #paginator [length]="totalRows$ | async" [pageIndex]="0" [pageSize]="20"
-  [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
-</div>
+      class="status-text">Active</span><br />
+    <input type="checkbox" [(ngModel)]="showEnded" (change)="filterAndSort()" /><span
+      class="status-text">Ended</span><br />
+    <input type="checkbox" [(ngModel)]="showFailed" (change)="filterAndSort()" /><span class="status-text">Failed</span>
+  </div>
+  <div class="button-end">
+    <mat-paginator #paginator [length]="totalRows$ | async" [pageIndex]="0" [pageSize]="20"
+      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
+  </div>
 </div>
 
 @if (isLoading) {
-  <mat-card class="spinner">
-    <mat-progress-spinner color="primary" mode="indeterminate">
-    </mat-progress-spinner>
-  </mat-card>
+<mat-card class="spinner">
+  <mat-progress-spinner color="primary" mode="indeterminate">
+  </mat-progress-spinner>
+</mat-card>
 }
 
 <mat-accordion displayMode="flat" multi class="mat-table">
@@ -49,32 +49,32 @@ class="status-text">Ended</span><br />
   </section>
 
   @for (item of displayedRows$ | async; track item) {
-    <mat-expansion-panel [disabled]="!(canEdit(item.id) || canManage(item.id))">
-      <mat-expansion-panel-header class="mat-row" (click)="eventSelected(item)">
-        <span class="mat-cell">
-          <button mat-icon-button (click)="editEvent(item); $event.stopPropagation()" title="Edit event">
-            <mat-icon class="mdi-24px" fontIcon="mdi-pencil-outline"></mat-icon>
-          </button>
-          <button mat-icon-button ngxClipboard [cbContent]="item.id" (click)="$event.stopPropagation()"
-            title="Copy:  {{ item.id }}">
-            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
-          {{ item.name }}
-        </span>
-        <span class="mat-cell detail-cell">{{ item.username }}</span>
-        <span class="mat-cell detail-cell">{{ item.status }}</span>
-        <span class="mat-cell detail-cell">{{
-          !!item.statusDate ? (item.statusDate | date: 'yyyy-MM-dd HH:mm') : ' '
+  <mat-expansion-panel [disabled]="!(canEdit(item.id) || canManage(item.id))">
+    <mat-expansion-panel-header class="mat-row" (click)="eventSelected(item)">
+      <span class="mat-cell">
+        <button mat-icon-button (click)="editEvent(item); $event.stopPropagation()" title="Edit event">
+          <mat-icon class="mdi-24px" fontIcon="mdi-pencil-outline"></mat-icon>
+        </button>
+        <button mat-icon-button ngxClipboard [cbContent]="item.id" (click)="$event.stopPropagation()"
+          title="Copy:  {{ item.id }}">
+          <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+        </button>
+        {{ item.name }}
+      </span>
+      <span class="mat-cell detail-cell">{{ item.username }}</span>
+      <span class="mat-cell detail-cell">{{ item.status }}</span>
+      <span class="mat-cell detail-cell">{{
+        !!item.statusDate ? (item.statusDate | date: 'yyyy-MM-dd HH:mm') : ' '
         }}</span>
-        <span class="mat-cell detail-cell">{{
-          !!item.launchDate ? (item.launchDate | date: 'yyyy-MM-dd HH:mm') : ' '
+      <span class="mat-cell detail-cell">{{
+        !!item.launchDate ? (item.launchDate | date: 'yyyy-MM-dd HH:mm') : ' '
         }}</span>
-        <span class="mat-cell detail-cell">{{
-          !!item.expirationDate
-          ? (item.expirationDate | date: 'yyyy-MM-dd HH:mm')
-          : ' '
+      <span class="mat-cell detail-cell">{{
+        !!item.expirationDate
+        ? (item.expirationDate | date: 'yyyy-MM-dd HH:mm')
+        : ' '
         }}</span>
-      </mat-expansion-panel-header>
-    </mat-expansion-panel>
+    </mat-expansion-panel-header>
+  </mat-expansion-panel>
   }
 </mat-accordion>

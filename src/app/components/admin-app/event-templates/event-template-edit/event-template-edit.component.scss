@@ -18,7 +18,7 @@
 
 ::ng-deep .mat-autocomplete-panel {
   border-style: solid;
-  border-color: gray;
+  border-color: var(--mat-sys-outline);
   border-width: 1px;
 }
 

@@ -8,16 +8,14 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play" [ngStyle]="{ color: 'var(--mat-sys-primary)' }"
       alt="Events"></mat-icon>
   </div>
-  <div class="cssLayoutRowStartCenter">
-    <mat-form-field class="search-field">
-      <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
-    </mat-form-field>
-    <div class="clear-search">
-      <button mat-icon-button (click)="clearFilter()" title="Clear Search">
-        <mat-icon class="text icon-20px" svgIcon="ic_cancel_circle"></mat-icon>
-      </button>
-    </div>
-  </div>
+  <mat-form-field class="search-field">
+    <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
+    @if (filterString) {
+    <button mat-icon-button matSuffix (click)="clearFilter()" title="Clear Search">
+      <mat-icon style="transform: scale(0.85)" fontIcon="mdi-close-circle-outline"></mat-icon>
+    </button>
+    }
+  </mat-form-field>
   <div class="status-selection">
     <input type="checkbox" [(ngModel)]="showActive" (change)="filterAndSort()" /><span
       class="status-text">Active</span><br />

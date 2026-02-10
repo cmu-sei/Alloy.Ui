@@ -1,12 +1,11 @@
-FROM node:22-alpine as builder
+FROM node:24-alpine AS builder
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 
 # Storing node modules on a separate layer will prevent unnecessary npm install at each build
 RUN npm set progress=false && \
   npm config set depth 0 && \
-  npm cache clean --force && \
-  npm config set unsafe-perm true
+  npm cache clean --force
 
 RUN npm ci && mkdir -p /ng-app/dist && cp -R ./node_modules ./ng-app
 
@@ -14,7 +13,7 @@ WORKDIR /ng-app
 
 COPY . .
 
-RUN npx ng build --resources-output-path=assets/fonts --configuration production
+RUN npx ng build
 
 ### Stage 2: Setup ###
 
@@ -24,7 +23,7 @@ USER root
 RUN rm -rf /usr/share/nginx/html/*
 COPY default.conf /etc/nginx/conf.d/default.conf
 COPY nginx-basehref.sh /docker-entrypoint.d/90-basehref.sh
-COPY --from=builder /ng-app/dist /usr/share/nginx/html
+COPY --from=builder /ng-app/dist/browser /usr/share/nginx/html
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
   chmod +x /docker-entrypoint.d/90-basehref.sh
 USER nginx
@@ -33,4 +32,3 @@ EXPOSE 8080
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
-

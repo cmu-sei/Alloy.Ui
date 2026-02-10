@@ -1,4 +1,4 @@
-FROM node:16-alpine  as builder
+FROM node:22-alpine as builder
 
 COPY package.json package-lock.json ./
 
@@ -14,7 +14,7 @@ WORKDIR /ng-app
 
 COPY . .
 
-RUN $(npm bin)/ng build --resources-output-path=assets/fonts --aot --configuration production 
+RUN npx ng build --resources-output-path=assets/fonts --configuration production
 
 ### Stage 2: Setup ###
 

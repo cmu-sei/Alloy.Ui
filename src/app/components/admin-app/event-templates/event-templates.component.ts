@@ -23,7 +23,6 @@ export class EventTemplatesComponent {
   public scenarioTemplateList =
     this.steamfitterDataService.scenarioTemplateList;
   public directoryList = this.casterDataService.directoryList;
-  selectedEventTemplateId: string;
   loading$ = this.eventTemplateQuery.selectLoading();
 
   constructor(

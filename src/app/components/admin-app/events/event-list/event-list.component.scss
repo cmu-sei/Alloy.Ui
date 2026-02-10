@@ -1,79 +1,83 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-.mat-table {
-  display: block;
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.form-field-density(-5);
 }
 
-.mat-header-row {
+.search-field {
+  min-width: 100px;
+  margin-left: 10px;
+}
+
+.header-row {
   min-height: 56px;
 }
 
-.mat-row {
+.row {
   min-height: 48px;
 }
 
-.mat-row,
-.mat-header-row {
+.row,
+.header-row {
   display: flex;
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
   align-items: center;
+  justify-content: center;
   padding: 0 24px;
-  box-sizing: border-box;
+  font-weight: 400;
 }
 
-.mat-cell,
-.mat-header-cell {
-  flex: 1;
+.cell,
+.header-cell {
   overflow: hidden;
   word-wrap: break-word;
-}
-
-.detail-cell {
-  margin-top: 10px;
-}
-
-.button-end {
-  margin-left: 100px;
 }
 
 .sp-icon {
   margin-left: 10px;
 }
 
-.mat-accordion .mat-header-row {
+.mat-accordion .header-row {
   padding-left: 1.5rem;
   padding-right: 2rem;
   border-bottom: none;
 }
 
-.mat-expansion-panel-header.mat-row {
-  border-bottom: none;
+.mat-expansion-panel {
+  text-align: left;
+  --mat-expansion-header-disabled-state-text-color: var(--mat-sys-on-surface);
 }
 
-.search-icon {
-  margin-left: 50px;
-  margin-right: 5px;
+.nator-div {
+  min-width: 220px;
 }
 
-.search-field {
-  width: 320px;
+.first-cell {
+  flex: 1;
+  align-self: center;
+  min-width: 80px;
+  max-width: 100px;
 }
 
-.clear-search {
-  width: 50px;
+.name-cell {
+  flex: 3;
+  min-width: 120px;
 }
 
-.add-new-button {
-  width: 100px;
-  margin-left: 50px;
+.one-cell {
+  flex: 1;
+  min-width: 70px;
 }
 
-.spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.date-cell {
+  flex: 2;
+  min-width: 75px;
+}
+
+.center-self {
+  align-self: center;
 }
 
 .status-selection {
@@ -83,4 +87,25 @@
 
 .status-text {
   font-size: 0.8em;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.memberships-container {
+  width: 90%;
+  margin: 1rem auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.memberships-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }

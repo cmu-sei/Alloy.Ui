@@ -9,83 +9,73 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       alt="Event Templates"></mat-icon>
   </div>
   <mat-form-field class="search-field">
-    <input matInput [formControl]="filterControl" type="text" placeholder="Search" />
+    <input matInput [formControl]="filterControl" placeholder="Search" />
     @if (filterControl.value) {
     <button mat-icon-button matSuffix (click)="clearFilter()" title="Clear Search">
       <mat-icon style="transform: scale(0.85)" fontIcon="mdi-close-circle-outline"></mat-icon>
     </button>
     }
   </mat-form-field>
-  <div>
-    @if (canCreateEventTemplates()) {
-    <button mat-stroked-button (click)="addNewEventTemplate()">
-      Add New Event Template
-    </button>
-    }
-  </div>
-  <div>
-    <mat-paginator #paginator [length]="dataSource.data.length" [pageIndex]="0" [pageSize]="20"
-      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
+  <div class="nator-div">
+    <mat-paginator #paginator [length]="filteredEventTemplateList.length" [pageIndex]="pageIndex"
+      [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"
+      (page)="paginatorEvent($event)"></mat-paginator>
   </div>
 </div>
+<mat-accordion displayMode="flat">
+  <section matSort (matSortChange)="sortList($event)" class="header-row">
+    <div class="header-cell first-cell">
+      @if (canCreateEventTemplates()) {
+      <button mat-icon-button (click)="addNewEventTemplate()" style="outline: none; margin-left: 20px;"
+        title="Add Event Template">
+        <mat-icon class="mdi-24px self-center" fontIcon="mdi-plus-circle"></mat-icon>
+      </button>
+      }
+    </div>
+    <div class="header-cell name-cell" mat-sort-header="name">Name</div>
+    <div class="header-cell description-cell">Description</div>
+    <div class="header-cell duration-cell">Duration</div>
+    <div class="header-cell date-cell" mat-sort-header="dateCreated">Created</div>
+  </section>
 
-@if (isLoading) {
-<mat-card class="spinner">
-  <mat-progress-spinner color="primary" mode="indeterminate">
-  </mat-progress-spinner>
-</mat-card>
-}
-
-<table mat-table [dataSource]="dataSource" multiTemplateDataRows matSort matSortActive="dateCreated"
-  matSortDirection="desc" class="mat-elevation-z8" [trackBy]="trackById">
-  <!-- Name Column -->
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-    <td mat-cell *matCellDef="let element">
-      <span>
+  @for (element of displayedEventTemplates; track element.id) {
+  <mat-expansion-panel>
+    <mat-expansion-panel-header class="row">
+      <div class="cell first-cell">
         <button mat-icon-button (click)="editEventTemplate(element); $event.stopPropagation()"
-          title="Edit:  {{ element.name }}" class="copy-button">
-          <mat-icon class="mdi-24px" fontIcon="mdi-pencil-outline"></mat-icon>
+          title="Edit: {{ element.name }}">
+          <mat-icon class="mdi-18px" fontIcon="mdi-square-edit-outline"></mat-icon>
         </button>
         <button mat-icon-button ngxClipboard [cbContent]="element.id" (click)="$event.stopPropagation()"
-          title="Copy:  {{ element.id }}" class="copy-button">
-          <mat-icon class="icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          title="Copy: {{ element.id }}">
+          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
         </button>
-        {{ element.name }}
-      </span>
-    </td>
-  </ng-container>
-
-  <!-- Description Column -->
-  <ng-container matColumnDef="description">
-    <th mat-header-cell *matHeaderCellDef>Description</th>
-    <td mat-cell *matCellDef="let element">
-      <span title="{{ element.description }}">
+      </div>
+      <div class="cell name-cell center-self">{{ element.name }}</div>
+      <div class="cell description-cell center-self" title="{{ element.description }}">
         {{
         element.description && element.description.length > 80
         ? element.description.slice(0, 80) + ' ...'
         : element.description
-        }}</span>
-    </td>
-  </ng-container>
+        }}
+      </div>
+      <div class="cell duration-cell center-self">{{ element.durationHours }}</div>
+      <div class="cell date-cell center-self">{{ element.dateCreated | date: 'yyyy-MM-dd' }}</div>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div class="memberships-container">
+        <label class="memberships-label">Memberships</label>
+        <app-event-template-memberships [eventTemplateId]="element.id"
+          [showHeader]="false"></app-event-template-memberships>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
+  }
+</mat-accordion>
 
-  <!-- Duration Column -->
-  <ng-container matColumnDef="durationHours">
-    <th mat-header-cell *matHeaderCellDef>Duration</th>
-    <td mat-cell *matCellDef="let element">
-      <span> {{ element.durationHours }}</span>
-    </td>
-  </ng-container>
-
-  <!-- Created Column -->
-  <ng-container matColumnDef="dateCreated">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
-    <td mat-cell *matCellDef="let element">
-      <span>{{ element.dateCreated | date: 'yyyy-MM-dd' }}</span>
-    </td>
-  </ng-container>
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let element; columns: displayedColumns" class="example-element-row"
-    (click)="elementSelected(element.id)"></tr>
-</table>
+@if (isLoading) {
+<mat-card appearance="outlined" style="display: flex; justify-content: center; align-items: center;">
+  <mat-progress-spinner color="primary" mode="indeterminate">
+  </mat-progress-spinner>
+</mat-card>
+}

@@ -98,6 +98,10 @@ export class EventMemberListComponent
   }
 
   buildModel() {
+    if (!this.memberships || !this.users || !this.groups || !this.roles) {
+      return;
+    }
+
     this.dataSource.data = this.memberships
       .map((x) => {
         const user = this.users.find((u) => u.id === x.userId);

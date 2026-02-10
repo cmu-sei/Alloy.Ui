@@ -3,9 +3,7 @@
 
 import {
   Component,
-  EventEmitter,
   Input,
-  Output,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -42,8 +40,6 @@ export interface Action {
     standalone: false
 })
 export class AdminEventListComponent implements OnInit {
-  @Output() itemSelected: EventEmitter<AlloyEvent> =
-    new EventEmitter<AlloyEvent>();
   displayedColumns: string[] = [
     'name',
     'username',
@@ -270,9 +266,4 @@ export class AdminEventListComponent implements OnInit {
     return this.permissionDataService.canManageEvent(id);
   }
 
-  eventSelected(item: AlloyEvent) {
-    if (this.permissionDataService.canEditEvent(item.id)) {
-      this.itemSelected.emit(item);
-    }
-  }
 }

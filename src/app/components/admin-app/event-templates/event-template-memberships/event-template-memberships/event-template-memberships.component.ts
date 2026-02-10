@@ -36,6 +36,7 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
   @Input() embedded: boolean;
   @Input() eventTemplateId: string;
+  @Input() showHeader = true;
   @Output() goBack = new EventEmitter();
 
   eventTemplate$: Observable<EventTemplate>;

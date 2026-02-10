@@ -75,6 +75,10 @@ export class EventMembershipListComponent implements OnInit, OnChanges {
   }
 
   buildModel(): EventMemberModel[] {
+    if (!this.users || !this.groups) {
+      return [];
+    }
+
     const eventMemberModels = [] as EventMemberModel[];
 
     this.users.forEach((x) => {

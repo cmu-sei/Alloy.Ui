@@ -2,6 +2,8 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 .margin-auto {
   margin: auto;
+  display: flex;
+  align-items: center;
 }
 
 .spacer {
@@ -9,8 +11,15 @@
 }
 
 .toolbar {
-  max-height: 38px;
-  min-height: 38px;
+  max-height: 46px;
+  min-height: 46px;
+}
+
+.no-sidenav {
+  height: 32px;
+  width: 32px;
+  margin-top: 3px;
+  cursor: pointer;
 }
 
 .user-text {
@@ -22,6 +31,10 @@
   font-size: 110%;
   margin-left: 50px;
   margin-right: 40px;
+}
+
+.menu-trigger {
+  color: var(--mat-sys-on-primary);
 }
 
 a,

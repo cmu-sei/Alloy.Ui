@@ -4,10 +4,5 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 -->
 
 <div class="component-container mat-elevation-z8">
-  <!-- <app-admin-event-list [refresh]="refresh"></app-admin-event-list> -->
-  <app-admin-event-list *ngIf="!selectedEvent" [refresh]="refresh"
-    (itemSelected)="selectedEvent = $event"></app-admin-event-list>
-
-  <app-event-memberships *ngIf="selectedEvent" [event]="selectedEvent" [embedded]="true"
-    (goBack)="selectedEvent = null"></app-event-memberships>
+  <app-admin-event-list [refresh]="refresh"></app-admin-event-list>
 </div>

@@ -13,10 +13,10 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import {
   EventTemplateMembership,
   Group,
@@ -24,10 +24,11 @@ import {
 } from 'src/app/generated/alloy.api';
 
 @Component({
-  selector: 'app-event-template-membership-list',
-  templateUrl: './event-template-membership-list.component.html',
-  styleUrls: ['./event-template-membership-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-event-template-membership-list',
+    templateUrl: './event-template-membership-list.component.html',
+    styleUrls: ['./event-template-membership-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class EventTemplateMembershipListComponent implements OnInit, OnChanges {
   @Input()
@@ -81,6 +82,10 @@ export class EventTemplateMembershipListComponent implements OnInit, OnChanges {
   }
 
   buildModel(): EventTemplateMemberModel[] {
+    if (!this.users || !this.groups) {
+      return [];
+    }
+
     const eventTemplateMemberModels = [] as EventTemplateMemberModel[];
 
     this.users.forEach((x) => {

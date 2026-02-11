@@ -5,72 +5,83 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <div class="cssLayoutRowStartCenter">
   <div class="sp-icon">
-    <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play" [ngStyle]="{ color: topBarColor }" alt="Events"></mat-icon>
+    <mat-icon class="mdi-24px" fontIcon="mdi-clipboard-play" [ngStyle]="{ color: 'var(--mat-sys-primary)' }"
+      alt="Events"></mat-icon>
   </div>
-  <div class="cssLayoutRowStartCenter">
-    <mat-icon class="text icon-24px search-icon" svgIcon="ic_magnify_search"></mat-icon>
-    <mat-form-field class="search-field">
-      <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
-    </mat-form-field>
-    <div class="clear-search">
-      <button mat-icon-button (click)="clearFilter()" title="Clear Search">
-        <mat-icon class="text icon-20px" svgIcon="ic_cancel_circle"></mat-icon>
-      </button>
-    </div>
-  </div>
+  <mat-form-field class="search-field">
+    <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
+    @if (filterString) {
+    <button mat-icon-button matSuffix (click)="clearFilter()" title="Clear Search">
+      <mat-icon style="transform: scale(0.85)" fontIcon="mdi-close-circle-outline"></mat-icon>
+    </button>
+    }
+  </mat-form-field>
   <div class="status-selection">
     <input type="checkbox" [(ngModel)]="showActive" (change)="filterAndSort()" /><span
       class="status-text">Active</span><br />
     <input type="checkbox" [(ngModel)]="showEnded" (change)="filterAndSort()" /><span
       class="status-text">Ended</span><br />
-    <input type="checkbox" [(ngModel)]="showFailed" (change)="filterAndSort()" /><span class="status-text">Failed</span>
+    <input type="checkbox" [(ngModel)]="showFailed" (change)="filterAndSort()" /><span
+      class="status-text">Failed</span>
   </div>
-  <div class="button-end">
+  <div class="nator-div">
     <mat-paginator #paginator [length]="totalRows$ | async" [pageIndex]="0" [pageSize]="20"
       [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
   </div>
 </div>
 
-<mat-card *ngIf="isLoading" class="spinner">
+@if (isLoading) {
+<mat-card appearance="outlined" style="display: flex; justify-content: center; align-items: center;">
   <mat-progress-spinner color="primary" mode="indeterminate">
   </mat-progress-spinner>
 </mat-card>
+}
 
-<mat-accordion displayMode="flat" multi class="mat-table">
-  <section matSort class="mat-elevation-z2 mat-header-row">
-    <span class="mat-header-cell" mat-sort-header="name">Name</span>
-    <span class="mat-header-cell" mat-sort-header="username">User</span>
-    <span class="mat-header-cell" mat-sort-header="status">Status</span>
-    <span class="mat-header-cell" mat-sort-header="statusDate">Status Date</span>
-    <span class="mat-header-cell" mat-sort-header="launchDate">Launch Date</span>
-    <span class="mat-header-cell" mat-sort-header="expirationDate">Expiration Date</span>
+<mat-accordion displayMode="flat">
+  <section matSort class="header-row">
+    <div class="header-cell first-cell">&nbsp;</div>
+    <div class="header-cell name-cell" mat-sort-header="name">Name</div>
+    <div class="header-cell one-cell" mat-sort-header="username">User</div>
+    <div class="header-cell one-cell" mat-sort-header="status">Status</div>
+    <div class="header-cell date-cell" mat-sort-header="statusDate">Status Date</div>
+    <div class="header-cell date-cell" mat-sort-header="launchDate">Launch Date</div>
+    <div class="header-cell date-cell" mat-sort-header="expirationDate">Expiration Date</div>
   </section>
 
-  <mat-expansion-panel *ngFor="let item of displayedRows$ | async" [disabled]="!(canEdit(item.id) || canManage(item.id))">
-    <mat-expansion-panel-header class="mat-row" (click)="eventSelected(item)">
-      <span class="mat-cell">
-        <button mat-icon-button (click)="editEvent(item); $event.stopPropagation()" title="Edit event">
-          <mat-icon class="mdi-24px" fontIcon="mdi-pencil-outline"></mat-icon>
+  @for (item of displayedRows$ | async; track item) {
+  <mat-expansion-panel>
+    <mat-expansion-panel-header class="row">
+      <div class="cell first-cell">
+        <button mat-icon-button (click)="editEvent(item); $event.stopPropagation()" title="Edit event"
+          [disabled]="!(canEdit(item.id) || canManage(item.id))">
+          <mat-icon class="mdi-18px" fontIcon="mdi-square-edit-outline"></mat-icon>
         </button>
         <button mat-icon-button ngxClipboard [cbContent]="item.id" (click)="$event.stopPropagation()"
-          title="Copy:  {{ item.id }}">
-          <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          title="Copy: {{ item.id }}">
+          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
         </button>
-        {{ item.name }}
-      </span>
-      <span class="mat-cell detail-cell">{{ item.username }}</span>
-      <span class="mat-cell detail-cell">{{ item.status }}</span>
-      <span class="mat-cell detail-cell">{{
+      </div>
+      <div class="cell name-cell center-self">{{ item.name }}</div>
+      <div class="cell one-cell center-self">{{ item.username }}</div>
+      <div class="cell one-cell center-self">{{ item.status }}</div>
+      <div class="cell date-cell center-self">{{
         !!item.statusDate ? (item.statusDate | date: 'yyyy-MM-dd HH:mm') : ' '
-        }}</span>
-      <span class="mat-cell detail-cell">{{
+        }}</div>
+      <div class="cell date-cell center-self">{{
         !!item.launchDate ? (item.launchDate | date: 'yyyy-MM-dd HH:mm') : ' '
-        }}</span>
-      <span class="mat-cell detail-cell">{{
+        }}</div>
+      <div class="cell date-cell center-self">{{
         !!item.expirationDate
         ? (item.expirationDate | date: 'yyyy-MM-dd HH:mm')
         : ' '
-        }}</span>
+        }}</div>
     </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div class="memberships-container">
+        <label class="memberships-label">Memberships</label>
+        <app-event-memberships [event]="item" [embedded]="false"></app-event-memberships>
+      </div>
+    </ng-template>
   </mat-expansion-panel>
+  }
 </mat-accordion>

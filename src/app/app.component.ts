@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { Component, HostBinding, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
@@ -13,20 +13,20 @@ import {
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TopbarView } from './components/shared/top-bar/topbar.models';
+import { DynamicThemeService } from './services/dynamic-theme.service';
+import { FaviconService } from './services/favicon.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    standalone: false
 })
 export class AppComponent implements OnDestroy {
-  @HostBinding('class') componentCssClass: string;
   theme$: Observable<Theme> = this.authQuery.userTheme$;
   unsubscribe$: Subject<null> = new Subject<null>();
 
   titleText: string;
-  topBarColor = '#719F94';
-  topBarTextColor = '#FFFFFF';
   TopbarView = TopbarView;
 
   constructor(
@@ -34,16 +34,11 @@ export class AppComponent implements OnDestroy {
     sanitizer: DomSanitizer,
     private overlayContainer: OverlayContainer,
     private authQuery: ComnAuthQuery,
-    private settingsService: ComnSettingsService
+    private settingsService: ComnSettingsService,
+    private themeService: DynamicThemeService,
+    private faviconService: FaviconService
   ) {
     iconRegistry.setDefaultFontSetClass('mdi');
-
-    this.topBarColor = this.settingsService.settings.AppTopBarHexColor
-      ? this.settingsService.settings.AppTopBarHexColor
-      : this.topBarColor;
-    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
-      ? this.settingsService.settings.AppTopBarHexTextColor
-      : this.topBarTextColor;
 
     // Set the page title from configuration file
     this.titleText = this.settingsService.settings.AppTopBarText;
@@ -134,16 +129,21 @@ export class AppComponent implements OnDestroy {
 
   setTheme(theme: Theme) {
     const classList = this.overlayContainer.getContainerElement().classList;
+    const hexColor = this.settingsService.settings.AppPrimaryThemeColor || '#E81717';
+
     switch (theme) {
       case Theme.LIGHT:
-        this.componentCssClass = theme;
-        classList.add(theme);
-        classList.remove(Theme.DARK);
+        document.body.classList.toggle('darkMode', false);
+        classList.remove('darkMode');
+        this.themeService.applyLightTheme(hexColor);
+        this.faviconService.updateFavicon(hexColor);
         break;
       case Theme.DARK:
-        this.componentCssClass = theme;
-        classList.add(theme);
-        classList.remove(Theme.LIGHT);
+        document.body.classList.toggle('darkMode', true);
+        classList.add('darkMode');
+        this.themeService.applyDarkTheme(hexColor);
+        this.faviconService.updateFavicon(hexColor);
+        break;
     }
   }
 

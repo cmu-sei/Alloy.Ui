@@ -13,10 +13,10 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
-import { MatLegacySelectChange as MatSelectChange } from '@angular/material/legacy-select';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSelectChange } from '@angular/material/select';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import {
   Group,
   EventMembership,
@@ -25,9 +25,10 @@ import {
 } from 'src/app/generated/alloy.api';
 
 @Component({
-  selector: 'app-event-member-list',
-  templateUrl: './event-member-list.component.html',
-  styleUrls: ['./event-member-list.component.scss'],
+    selector: 'app-event-member-list',
+    templateUrl: './event-member-list.component.html',
+    styleUrls: ['./event-member-list.component.scss'],
+    standalone: false
 })
 export class EventMemberListComponent
   implements OnInit, OnChanges, AfterViewInit
@@ -97,6 +98,10 @@ export class EventMemberListComponent
   }
 
   buildModel() {
+    if (!this.memberships || !this.users || !this.groups || !this.roles) {
+      return;
+    }
+
     this.dataSource.data = this.memberships
       .map((x) => {
         const user = this.users.find((u) => u.id === x.userId);

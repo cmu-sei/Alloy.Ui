@@ -10,9 +10,10 @@ import { SteamfitterDataService } from 'src/app/data/steamfitter/steamfitter-dat
 import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
 
 @Component({
-  selector: 'app-event-templates',
-  templateUrl: './event-templates.component.html',
-  styleUrls: ['./event-templates.component.scss'],
+    selector: 'app-event-templates',
+    templateUrl: './event-templates.component.html',
+    styleUrls: ['./event-templates.component.scss'],
+    standalone: false
 })
 export class EventTemplatesComponent {
   public matcher = new UserErrorStateMatcher();
@@ -22,7 +23,6 @@ export class EventTemplatesComponent {
   public scenarioTemplateList =
     this.steamfitterDataService.scenarioTemplateList;
   public directoryList = this.casterDataService.directoryList;
-  selectedEventTemplateId: string;
   loading$ = this.eventTemplateQuery.selectLoading();
 
   constructor(

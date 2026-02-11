@@ -1,12 +1,11 @@
-FROM node:16-alpine  as builder
+FROM node:24-alpine AS builder
 
 COPY package.json package-lock.json ./
 
 # Storing node modules on a separate layer will prevent unnecessary npm install at each build
 RUN npm set progress=false && \
   npm config set depth 0 && \
-  npm cache clean --force && \
-  npm config set unsafe-perm true
+  npm cache clean --force
 
 RUN npm ci && mkdir -p /ng-app/dist && cp -R ./node_modules ./ng-app
 
@@ -14,7 +13,7 @@ WORKDIR /ng-app
 
 COPY . .
 
-RUN $(npm bin)/ng build --resources-output-path=assets/fonts --aot --configuration production 
+RUN npx ng build
 
 ### Stage 2: Setup ###
 
@@ -33,4 +32,3 @@ EXPOSE 8080
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
-

@@ -10,194 +10,196 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-icon class="mdi-24px self-center" fontIcon="mdi-close-circle-outline"></mat-icon>
     </button>
   </div>
-  <mat-dialog-content mat-dialog-content *ngIf="data.event">
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input type="text" matInput [formControl]="eventNameFormControl" placeholder="Name (required)"
-            (blur)="saveEvent('name')" value="{{ data.event.name }}" [errorStateMatcher]="matcher" />
-          <mat-error *ngIf="
+  @if (data.event) {
+    <mat-dialog-content mat-dialog-content>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input type="text" matInput [formControl]="eventNameFormControl" placeholder="Name (required)"
+              (blur)="saveEvent('name')" value="{{ data.event.name }}" [errorStateMatcher]="matcher" />
+            @if (
               eventNameFormControl.hasError('minlength') &&
               !eventNameFormControl.hasError('required')
-            ">
-            Must contain 4 or more characters
-          </mat-error>
-          <mat-error *ngIf="eventNameFormControl.hasError('required')">
-            Name is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
+              ) {
+              <mat-error>
+                Must contain 4 or more characters
+              </mat-error>
+            }
+            @if (eventNameFormControl.hasError('required')) {
+              <mat-error>
+                Name is <strong>required</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <textarea matInput placeholder="Description" [formControl]="descriptionFormControl"
-            (blur)="saveEvent('description')" value="{{ data.event.description }}"
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <textarea matInput placeholder="Description" [formControl]="descriptionFormControl"
+              (blur)="saveEvent('description')" value="{{ data.event.description }}"
             [errorStateMatcher]="matcher"></textarea>
-        </mat-form-field>
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input matInput placeholder="Username" [formControl]="usernameFormControl" (blur)="saveEvent('username')"
-            value="{{ data.event.username }}" [errorStateMatcher]="matcher" />
-          <mat-error *ngIf="usernameFormControl.hasError('required')">
-            Username is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Username" [formControl]="usernameFormControl" (blur)="saveEvent('username')"
+              value="{{ data.event.username }}" [errorStateMatcher]="matcher" />
+            @if (usernameFormControl.hasError('required')) {
+              <mat-error>
+                Username is <strong>required</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input matInput placeholder="Status" [formControl]="statusFormControl" (blur)="saveEvent('status')"
-            value="{{ data.event.status }}" [errorStateMatcher]="matcher" />
-          <mat-error *ngIf="statusFormControl.hasError('required')">
-            Status is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Status" [formControl]="statusFormControl" (blur)="saveEvent('status')"
+              value="{{ data.event.status }}" [errorStateMatcher]="matcher" />
+            @if (statusFormControl.hasError('required')) {
+              <mat-error>
+                Status is <strong>required</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input matInput placeholder="Internal Status" [formControl]="internalStatusFormControl"
-            (blur)="saveEvent('internalStatus')" value="{{ data.event.internalStatus }}"
-            [errorStateMatcher]="matcher" />
-          <mat-error *ngIf="internalStatusFormControl.hasError('required')">
-            Internal Status is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Internal Status" [formControl]="internalStatusFormControl"
+              (blur)="saveEvent('internalStatus')" value="{{ data.event.internalStatus }}"
+              [errorStateMatcher]="matcher" />
+            @if (internalStatusFormControl.hasError('required')) {
+              <mat-error>
+                Internal Status is <strong>required</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.userId"
-            title="Copy:  {{ data.event.userId }}" style="margin-top: -15px">
-            <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
-          <input matInput placeholder="User ID" [formControl]="userIdFormControl" (blur)="saveEvent('userId')"
-            value="{{ data.event.userId }}" [errorStateMatcher]="matcher" />
-          <mat-error *ngIf="userIdFormControl.hasError('required')">
-            User ID is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.userId"
+              title="Copy:  {{ data.event.userId }}" style="margin-top: -15px">
+              <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
+            </button>
+            <input matInput placeholder="User ID" [formControl]="userIdFormControl" (blur)="saveEvent('userId')"
+              value="{{ data.event.userId }}" [errorStateMatcher]="matcher" />
+            @if (userIdFormControl.hasError('required')) {
+              <mat-error>
+                User ID is <strong>required</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.eventTemplateId"
-            title="Copy:  {{ data.event.eventTemplateId }}" style="margin-top: -15px">
-            <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
-          <input matInput placeholder="Event Template ID" [formControl]="eventTemplateIdFormControl"
-            (blur)="saveEvent('eventTemplateId')" value="{{ data.event.eventTemplateId }}"
-            [errorStateMatcher]="matcher" />
-          <mat-error *ngIf="eventTemplateIdFormControl.hasError('required')">
-            Event Template ID is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.eventTemplateId"
+              title="Copy:  {{ data.event.eventTemplateId }}" style="margin-top: -15px">
+              <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
+            </button>
+            <input matInput placeholder="Event Template ID" [formControl]="eventTemplateIdFormControl"
+              (blur)="saveEvent('eventTemplateId')" value="{{ data.event.eventTemplateId }}"
+              [errorStateMatcher]="matcher" />
+            @if (eventTemplateIdFormControl.hasError('required')) {
+              <mat-error>
+                Event Template ID is <strong>required</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.viewId"
-            title="Copy:  {{ data.event.viewId }}" style="margin-top: -15px">
-            <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
-          <input matInput placeholder="View ID" [formControl]="viewIdFormControl" (blur)="saveEvent('viewId')"
-            value="{{ data.event.viewId }}" [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.viewId"
+              title="Copy:  {{ data.event.viewId }}" style="margin-top: -15px">
+              <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
+            </button>
+            <input matInput placeholder="View ID" [formControl]="viewIdFormControl" (blur)="saveEvent('viewId')"
+              value="{{ data.event.viewId }}" [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.workspaceId"
-            title="Copy:  {{ data.event.workspaceId }}" style="margin-top: -15px">
-            <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
-          <input matInput placeholder="Workspace ID" [formControl]="workspaceIdFormControl"
-            (blur)="saveEvent('workspaceId')" value="{{ data.event.workspaceId }}" [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.workspaceId"
+              title="Copy:  {{ data.event.workspaceId }}" style="margin-top: -15px">
+              <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
+            </button>
+            <input matInput placeholder="Workspace ID" [formControl]="workspaceIdFormControl"
+              (blur)="saveEvent('workspaceId')" value="{{ data.event.workspaceId }}" [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.runId"
-            title="Copy:  {{ data.event.runId }}" style="margin-top: -15px">
-            <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
-          <input matInput placeholder="Run ID" [formControl]="runIdFormControl" (blur)="saveEvent('runId')"
-            value="{{ data.event.runId }}" [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.runId"
+              title="Copy:  {{ data.event.runId }}" style="margin-top: -15px">
+              <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
+            </button>
+            <input matInput placeholder="Run ID" [formControl]="runIdFormControl" (blur)="saveEvent('runId')"
+              value="{{ data.event.runId }}" [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.scenarioId"
-            title="Copy:  {{ data.event.scenarioId }}" style="margin-top: -15px">
-            <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
-          <input matInput placeholder="Scenario ID" [formControl]="scenarioIdFormControl" (blur)="saveEvent('eventId')"
-            value="{{ data.event.scenarioId }}" [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.scenarioId"
+              title="Copy:  {{ data.event.scenarioId }}" style="margin-top: -15px">
+              <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
+            </button>
+            <input matInput placeholder="Scenario ID" [formControl]="scenarioIdFormControl" (blur)="saveEvent('eventId')"
+              value="{{ data.event.scenarioId }}" [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input matInput placeholder="Launch Date" [formControl]="launchDateFormControl"
-            (blur)="saveEvent('launchDate')" value="{{ data.event.launchDate }}" [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Launch Date" [formControl]="launchDateFormControl"
+              (blur)="saveEvent('launchDate')" value="{{ data.event.launchDate }}" [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input matInput placeholder="End Date" [formControl]="endDateFormControl" (blur)="saveEvent('endDate')"
-            value="{{ data.event.endDate }}" [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input matInput placeholder="End Date" [formControl]="endDateFormControl" (blur)="saveEvent('endDate')"
+              value="{{ data.event.endDate }}" [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input matInput placeholder="Expiration Date" [formControl]="expirationDateFormControl"
-            (blur)="saveEvent('expirationDate')" value="{{ data.event.expirationDate }}"
-            [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Expiration Date" [formControl]="expirationDateFormControl"
+              (blur)="saveEvent('expirationDate')" value="{{ data.event.expirationDate }}"
+              [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-
-    <div class="add-margin">
-      <div>
-        <mat-form-field class="full-width">
-          <input matInput placeholder="Status Date" [formControl]="statusDateFormControl"
-            (blur)="saveEvent('statusDate')" value="{{ data.event.statusDate }}" [errorStateMatcher]="matcher" />
-        </mat-form-field>
+      <div class="add-margin">
+        <div>
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Status Date" [formControl]="statusDateFormControl"
+              (blur)="saveEvent('statusDate')" value="{{ data.event.statusDate }}" [errorStateMatcher]="matcher" />
+          </mat-form-field>
+        </div>
       </div>
-    </div>
-  </mat-dialog-content>
+    </mat-dialog-content>
+  }
   <div class="bottom-button cssLayoutRowCenterCenter">
     <div class="delete-button">
       <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template" [disabled]="!data.canEdit">Save</button>
@@ -206,9 +208,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
     </div>
     <div class="delete-button">
-      <button mat-stroked-button (click)="endEvent()" style="margin-left: 80px" *ngIf="data.event.status !== 'Ended'" [disabled]="!data.canManage">
-        End Event Now
-      </button>
+      @if (data.event.status !== 'Ended') {
+        <button mat-stroked-button (click)="endEvent()" style="margin-left: 80px" [disabled]="!data.canManage">
+          End Event Now
+        </button>
+      }
     </div>
     <div class="delete-button">
       <button mat-stroked-button (click)="deleteEvent()" style="margin-left: 80px" [disabled]="!data.canManage">Delete Event</button>

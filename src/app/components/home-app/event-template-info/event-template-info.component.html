@@ -3,7 +3,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 <div class="cssLayoutRowCenterCenter">
-  <div class="event-info-container mat-elevation-z8">
+  <div class="event-info-container elevate">
     <div class="cssLayoutRowStartCenter full-width">
       <div class="sp-icon">
         <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy"></mat-icon>
@@ -20,13 +20,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       </div>
     </div>
 
-    <mat-card *ngIf="isLoading$ | async" class="spinner-container">
+    @if (isLoading$ | async) {
+    <mat-card class="spinner-container">
       <mat-progress-spinner color="primary" mode="indeterminate">
       </mat-progress-spinner>
     </mat-card>
+    }
 
-    <div *ngIf="eventTemplate$ | async as eventTemplate">
-      <mat-divider [inset]="true"></mat-divider>
+    @if (eventTemplate$ | async; as eventTemplate) {
+    <div>
+      <mat-divider></mat-divider>
       <mat-card>
         <mat-card-header>
           <mat-card-title>
@@ -41,183 +44,215 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             {{ eventTemplate.description }}
           </div>
         </mat-card-content>
-        <ng-container *ngIf="!currentEvent">
-          <div class="cssLayoutColumnSpaceCenter">
-            <div class="cssLayoutRowCenterCenter">
-              <div *ngIf="userEvents.length > 0">
-                <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
-                  Join
-                  <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
-                </button>
-                <mat-menu #join="matMenu" [overlapTrigger]="false">
-                  <ng-container *ngFor="let element of userEvents">
-                    <button mat-menu-item (click)="rejoinEvent(element)">
-                      Invited By: {{ element.username }}
-                    </button>
-                  </ng-container>
-                </mat-menu>
-              </div>
-              <button *ngIf="!isIFrame" class="event-button-end" mat-raised-button color="warn"
-                (click)="launchEvent(eventTemplate.id)">
-                Launch
+        @if (!currentEvent) {
+        <div class="cssLayoutColumnSpaceCenter">
+          <div class="cssLayoutRowCenterCenter">
+            @if (userEvents.length > 0) {
+            <div>
+              <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
+                Join
+                <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
               </button>
+              <mat-menu #join="matMenu" [overlapTrigger]="false">
+                @for (element of userEvents; track element) {
+                <button mat-menu-item (click)="rejoinEvent(element)">
+                  Invited By: {{ element.username }}
+                </button>
+                }
+              </mat-menu>
             </div>
-            <label class="duration-label">Duration: {{ eventTemplate.durationHours }} hours</label>
+            }
+            @if (!isIFrame) {
+            <button class="event-button-end" matButton="filled" (click)="launchEvent(eventTemplate.id)">
+              Launch
+            </button>
+            }
           </div>
-        </ng-container>
-        <ng-container *ngIf="currentEvent">
-          <ng-container [ngSwitch]="determineEventStatus(currentEvent)">
-            <!-- FAILED EVENT -->
-            <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.FAILED">
-              Event Failed
-              <div *ngIf="failureMessage !== ''">
-                <div class="failure-text">Failure: {{ failureMessage }}</div>
-                <div>
-                  Event ended. Please try again later or contact an
-                  administrator.
-                </div>
-              </div>
-            </ng-container>
-            <!-- ACTIVE EVENT -->
-            <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.LAUNCHED">
-              <div class="cssLayoutColumnSpaceCenter">
-                <div class="cssLayoutRowSpaceCenter">
-                  <div *ngIf="userEvents.length > 0">
-                    <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
-                      Join
-                      <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
-                    </button>
-                    <mat-menu #join="matMenu" [overlapTrigger]="false">
-                      <ng-container *ngFor="let element of userEvents">
-                        <button mat-menu-item (click)="rejoinEvent(element)">
-                          Invited By: {{ element.username }}
-                        </button>
-                      </ng-container>
-                    </mat-menu>
-                  </div>
-                  <button *ngIf="!isIFrame" class="event-button-end" mat-raised-button color="accent"
-                    (click)="rejoinEvent(currentEvent)">
-                    Open Event
-                  </button>
-                  <ng-container *ngIf="isOwner">
-                    <button class="event-button-end" mat-raised-button color="warn" (click)="endEvent(currentEvent)">
-                      End Event
-                    </button>
-                    <div style="display: inline-block" matTooltip="Create An Invite Link">
-                      <button mat-raised-button [matMenuTriggerFor]="invite" class="event-button-end">
-                        Invite
-                        <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
-                      </button>
-                      <mat-menu #invite="matMenu" [overlapTrigger]="false">
-                        <button *ngIf="!currentEvent?.shareCode" mat-menu-item (click)="inviteEvent(currentEvent)">
-                          Generate Link
-                        </button>
-                        <button *ngIf="currentEvent?.shareCode" mat-menu-item ngxClipboard
-                          (click)="copyInviteLink(currentEvent)" title="Copy:  {{ inviteLink }}" class="copy-button">
-                          <mat-icon class="icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-                          Copy Link
-                        </button>
-                        <mat-slide-toggle *ngIf="currentEvent?.shareCode" class="mat-menu-item" color="primary"
-                          [(ngModel)]="inviteShown">
-                          Show Link
-                        </mat-slide-toggle>
-                      </mat-menu>
-                    </div>
-                    <button *ngIf="false" class="event-button-end" mat-raised-button color="warn"
-                      (click)="redeployEvent(currentEvent)" [disabled]="redeploying">
-                      <div *ngIf="redeploying">Redeploying...</div>
-                      <div *ngIf="!redeploying">Redeploy Event</div>
-                    </button>
-                  </ng-container>
-                </div>
-                <label *ngIf="!timeRunningLow" class="duration-label">{{
-                  remainingTime
-                  }}</label>
-                <label *ngIf="timeRunningLow" class="duration-label-warn">{{
-                  remainingTime
-                  }}</label>
-                <div [hidden]="!inviteShown">
-                  {{ inviteLink }}
-                </div>
-              </div>
-            </ng-container>
-            <!-- LAUNCHING -->
-            <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.LAUNCHING">
-              <div class="cssLayoutColumnSpaceCenter">
-                <h2>Please wait!</h2>
-                <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
-                <h3 *ngIf="currentEvent !== undefined">
-                  Status: {{ currentEvent.status }}
-                </h3>
-                <h3 *ngIf="currentEvent === undefined">Status: -</h3>
-              </div>
-            </ng-container>
-            <!-- ENDING -->
-            <ng-container *ngSwitchCase="ALLOY_CURRENT_EVENT_STATUS.ENDING">
-              <div class="cssLayoutColumnSpaceCenter">
-                <h2>Please wait!</h2>
-                <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
-                <h3 *ngIf="currentEvent !== undefined">
-                  Status: {{ currentEvent.status }}
-                </h3>
-                <h3 *ngIf="currentEvent === undefined">Status: -</h3>
-              </div>
-            </ng-container>
-          </ng-container>
-        </ng-container>
+          <label class="duration-label">Duration: {{ eventTemplate.durationHours }} hours</label>
+        </div>
+        }
+        @if (currentEvent) {
+        @switch (determineEventStatus(currentEvent)) {
+        <!-- FAILED EVENT -->
+        @case (ALLOY_CURRENT_EVENT_STATUS.FAILED) {
+        Event Failed
+        @if (failureMessage !== '') {
+        <div>
+          <div class="failure-text">Failure: {{ failureMessage }}</div>
+          <div>
+            Event ended. Please try again later or contact an
+            administrator.
+          </div>
+        </div>
+        }
+        }
+        <!-- ACTIVE EVENT -->
+        @case (ALLOY_CURRENT_EVENT_STATUS.LAUNCHED) {
+        <div class="cssLayoutColumnSpaceCenter">
+          <div class="cssLayoutRowSpaceCenter">
+            @if (userEvents.length > 0) {
+            <div>
+              <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
+                Join
+                <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+              </button>
+              <mat-menu #join="matMenu" [overlapTrigger]="false">
+                @for (element of userEvents; track element) {
+                <button mat-menu-item (click)="rejoinEvent(element)">
+                  Invited By: {{ element.username }}
+                </button>
+                }
+              </mat-menu>
+            </div>
+            }
+            @if (!isIFrame) {
+            <button class="event-button-end" matButton="tonal" (click)="rejoinEvent(currentEvent)">
+              Open Event
+            </button>
+            }
+            @if (isOwner) {
+            <button class="event-button-end" matButton="tonal" (click)="endEvent(currentEvent)">
+              End Event
+            </button>
+            <div style="display: inline-block" matTooltip="Create An Invite Link">
+              <button matButton="tonal" [matMenuTriggerFor]="invite" class="event-button-end">
+                Invite
+                <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+              </button>
+              <mat-menu #invite="matMenu" [overlapTrigger]="false">
+                @if (!currentEvent?.shareCode) {
+                <button mat-menu-item (click)="inviteEvent(currentEvent)">
+                  Generate Link
+                </button>
+                }
+                @if (currentEvent?.shareCode) {
+                <button mat-menu-item ngxClipboard (click)="copyInviteLink(currentEvent)"
+                  title="Copy:  {{ inviteLink }}" class="copy-button">
+                  <mat-icon class="icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+                  Copy Link
+                </button>
+                }
+                @if (currentEvent?.shareCode) {
+                <mat-slide-toggle class="mat-menu-item" color="primary" [(ngModel)]="inviteShown">
+                  Show Link
+                </mat-slide-toggle>
+                }
+              </mat-menu>
+            </div>
+            @if (false) {
+            <button class="event-button-end" mat-raised-button color="warn" (click)="redeployEvent(currentEvent)"
+              [disabled]="redeploying">
+              @if (redeploying) {
+              <div>Redeploying...</div>
+              }
+              @if (!redeploying) {
+              <div>Redeploy Event</div>
+              }
+            </button>
+            }
+            }
+          </div>
+          @if (!timeRunningLow) {
+          <label class="duration-label">{{
+            remainingTime
+            }}</label>
+          }
+          @if (timeRunningLow) {
+          <label class="duration-label-warn">{{
+            remainingTime
+            }}</label>
+          }
+          <div [hidden]="!inviteShown">
+            {{ inviteLink }}
+          </div>
+        </div>
+        }
+        <!-- LAUNCHING -->
+        @case (ALLOY_CURRENT_EVENT_STATUS.LAUNCHING) {
+        <div class="cssLayoutColumnSpaceCenter">
+          <h2>Please wait!</h2>
+          <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+          @if (currentEvent !== undefined) {
+          <h3>
+            Status: {{ currentEvent.status }}
+          </h3>
+          }
+          @if (currentEvent === undefined) {
+          <h3>Status: -</h3>
+          }
+        </div>
+        }
+        <!-- ENDING -->
+        @case (ALLOY_CURRENT_EVENT_STATUS.ENDING) {
+        <div class="cssLayoutColumnSpaceCenter">
+          <h2>Please wait!</h2>
+          <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+          @if (currentEvent !== undefined) {
+          <h3>
+            Status: {{ currentEvent.status }}
+          </h3>
+          }
+          @if (currentEvent === undefined) {
+          <h3>Status: -</h3>
+          }
+        </div>
+        }
+        }
+        }
       </mat-card>
       <mat-divider [inset]="true"></mat-divider>
-      <mat-accordion *ngIf="events$ | async as events">
+      @if (events$ | async; as events) {
+      <mat-accordion>
         <mat-expansion-panel>
           <mat-expansion-panel-header>
             <mat-panel-title> History </mat-panel-title>
           </mat-expansion-panel-header>
-
           <div>
             <mat-table class="history-table" [dataSource]="impsDataSource" matSort>
               <!--- Note that these columns can be defined in any order.
-                          The actual rendered columns are set as a property on the row eventTemplate" -->
-
+                  The actual rendered columns are set as a property on the row eventTemplate" -->
               <ng-container matColumnDef="username">
                 <mat-header-cell *matHeaderCellDef> User </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   {{ element.username }}
                 </mat-cell>
               </ng-container>
-
               <ng-container matColumnDef="status">
                 <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">{{ element?.status }}</div>
-                  <div *ngIf="element.status === EventStatus.Failed" class="small-font">
+                  @if (element.status === EventStatus.Failed) {
+                  <div class="small-font">
                     &nbsp;{{ element.internalStatus }}
                   </div>
+                  }
                 </mat-cell>
               </ng-container>
-
               <ng-container matColumnDef="lastLaunchStatus">
                 <mat-header-cell *matHeaderCellDef>
                   Last Launch
                 </mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                  <div *ngIf="element.lastLaunchStatus" class="small-font">
+                  @if (element.lastLaunchStatus) {
+                  <div class="small-font">
                     {{ element.lastLaunchStatus }}
                     {{ element.lastLaunchInternalStatus }}
                   </div>
+                  }
                 </mat-cell>
               </ng-container>
-
               <ng-container matColumnDef="lastEndStatus">
                 <mat-header-cell *matHeaderCellDef>
                   Last End Status</mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                  <div *ngIf="element.lastEndStatus" class="small-font">
+                  @if (element.lastEndStatus) {
+                  <div class="small-font">
                     {{ element.lastEndStatus }}
                     {{ element.lastEndInternalStatus }}
                   </div>
+                  }
                 </mat-cell>
               </ng-container>
-
               <ng-container matColumnDef="dateCreated">
                 <mat-header-cell *matHeaderCellDef>
                   Start Date Status</mat-header-cell>
@@ -227,7 +262,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                   </div>
                 </mat-cell>
               </ng-container>
-
               <ng-container matColumnDef="endDate">
                 <mat-header-cell *matHeaderCellDef> End Date </mat-header-cell>
                 <mat-cell *matCellDef="let element">
@@ -236,27 +270,31 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                   </div>
                 </mat-cell>
               </ng-container>
-
               <ng-container matColumnDef="statusDate">
                 <mat-header-cell *matHeaderCellDef>
                   Last Status Date
                 </mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                  <div *ngIf="element.status === 'Failed'" class="small-font">
+                  @if (element.status === 'Failed') {
+                  <div class="small-font">
                     {{ element.statusDate | date: 'long' }}
                   </div>
+                  }
                 </mat-cell>
               </ng-container>
-
               <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
               <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
             </mat-table>
-            <div *ngIf="impsDataSource.filteredData.length === 0">
+            @if (impsDataSource.filteredData.length === 0) {
+            <div>
               No results found
             </div>
+            }
           </div>
         </mat-expansion-panel>
       </mat-accordion>
+      }
     </div>
+    }
   </div>
 </div>

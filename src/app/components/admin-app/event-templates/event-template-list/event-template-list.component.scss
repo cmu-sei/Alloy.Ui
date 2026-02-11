@@ -1,30 +1,88 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-.button-end {
-  margin-left: 100px;
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.form-field-density(-5);
+}
+
+.search-field {
+  min-width: 100px;
+  margin-left: 10px;
+}
+
+.header-row {
+  min-height: 56px;
+}
+
+.row {
+  min-height: 48px;
+}
+
+.row,
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  font-weight: 400;
+}
+
+.cell,
+.header-cell {
+  overflow: hidden;
+  word-wrap: break-word;
 }
 
 .sp-icon {
   margin-left: 10px;
 }
 
-.search-icon {
-  margin-left: 50px;
-  margin-right: 5px;
+.mat-accordion .header-row {
+  padding-left: 1.5rem;
+  padding-right: 2rem;
+  border-bottom: none;
 }
 
-.search-field {
-  width: 320px;
+.mat-expansion-panel {
+  text-align: left;
+  --mat-expansion-header-disabled-state-text-color: var(--mat-sys-on-surface);
 }
 
-.clear-search {
-  width: 50px;
+.nator-div {
+  min-width: 220px;
 }
 
-.add-new-button {
-  width: 100px;
-  margin-left: 50px;
+.first-cell {
+  flex: 1;
+  align-self: center;
+  min-width: 80px;
+  max-width: 100px;
+}
+
+.name-cell {
+  flex: 3;
+  min-width: 120px;
+}
+
+.description-cell {
+  flex: 5;
+  min-width: 150px;
+}
+
+.duration-cell {
+  flex: 1;
+  min-width: 70px;
+}
+
+.date-cell {
+  flex: 2;
+  min-width: 75px;
+}
+
+.center-self {
+  align-self: center;
 }
 
 .spinner {
@@ -33,24 +91,17 @@
   align-items: center;
 }
 
-table {
-  width: 100%;
+.memberships-container {
+  width: 90%;
+  margin: 1rem auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+  padding: 1rem;
+  overflow: hidden;
 }
 
-tr.example-detail-row {
-  height: 0;
-}
-
-tr.example-element-row:not(.example-expanded-row):hover {
-  background: whitesmoke;
-  cursor: pointer;
-}
-
-tr.example-element-row:not(.example-expanded-row):active {
-  background: #efefef;
-}
-
-.example-element-row td {
-  border-bottom-width: 0;
-  cursor: pointer;
+.memberships-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }

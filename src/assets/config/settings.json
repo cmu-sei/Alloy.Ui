@@ -12,8 +12,7 @@
   },
   "AppTitle": "Alloy",
   "AppTopBarText": "Alloy",
-  "AppTopBarHexColor": "#719F94",
-  "AppTopBarHexTextColor": "#FFFFFF",
+  "AppPrimaryThemeColor": "#E81717",
   "PlayerUIAddress": "http://localhost:4301",
   "PollingIntervalMS": "3500",
   "UseLocalAuthStorage": false

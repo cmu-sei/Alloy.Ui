@@ -25,9 +25,9 @@ import {
   View,
 } from 'src/app/generated/alloy.api';
 import {
-  MatLegacyDialogRef as MatDialogRef,
-  MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA,
-} from '@angular/material/legacy-dialog';
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -42,9 +42,10 @@ export class UserErrorStateMatcher implements ErrorStateMatcher {
 }
 
 @Component({
-  selector: 'app-event-template-edit',
-  templateUrl: './event-template-edit.component.html',
-  styleUrls: ['./event-template-edit.component.scss'],
+    selector: 'app-event-template-edit',
+    templateUrl: './event-template-edit.component.html',
+    styleUrls: ['./event-template-edit.component.scss'],
+    standalone: false
 })
 export class EventTemplateEditComponent implements OnInit, OnDestroy {
   @Output() editComplete = new EventEmitter<any>();

@@ -3,22 +3,22 @@
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { UserListComponent } from './user-list.component';
+import { AdminUserListComponent } from './admin-user-list.component';
 
-describe('UserListComponent', () => {
-  let component: UserListComponent;
-  let fixture: ComponentFixture<UserListComponent>;
+describe('AdminUserListComponent', () => {
+  let component: AdminUserListComponent;
+  let fixture: ComponentFixture<AdminUserListComponent>;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        declarations: [UserListComponent],
+        declarations: [AdminUserListComponent],
       }).compileComponents();
     })
   );
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(UserListComponent);
+    fixture = TestBed.createComponent(AdminUserListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -4,10 +4,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 -->
 
 <div class="component-container mat-elevation-z8">
-  <app-event-template-list *ngIf="!selectedEventTemplateId" [viewList]="viewList" [directoryList]="directoryList"
-    [scenarioTemplateList]="scenarioTemplateList" [eventTemplates]="eventTemplates$ | async"
-    (itemSelected)="selectedEventTemplateId = $event"></app-event-template-list>
-
-  <app-event-template-memberships *ngIf="selectedEventTemplateId" [eventTemplateId]="selectedEventTemplateId"
-    [embedded]="true" (goBack)="selectedEventTemplateId = null"></app-event-template-memberships>
+  <app-event-template-list [viewList]="viewList" [directoryList]="directoryList"
+    [scenarioTemplateList]="scenarioTemplateList"
+    [eventTemplates]="eventTemplates$ | async"></app-event-template-list>
 </div>

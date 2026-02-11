@@ -2,20 +2,14 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import {
-  AfterViewInit,
   Component,
-  EventEmitter,
   Input,
-  Output,
   OnDestroy,
   OnInit,
-  ViewChild,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
-import {
-  MatLegacyPaginator as MatPaginator,
-  LegacyPageEvent as PageEvent,
-} from '@angular/material/legacy-paginator';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -32,68 +26,37 @@ import {
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
-import { animate, style, transition, trigger } from '@angular/animations';
-import { MatSort } from '@angular/material/sort';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
-  selector: 'app-event-template-list',
-  templateUrl: './event-template-list.component.html',
-  styleUrls: ['./event-template-list.component.scss'],
-  animations: [
-    trigger('expand', [
-      transition(':enter', [
-        style({ height: 0, opacity: 0 }),
-        animate('0.3s ease-out', style({ height: '*', opacity: 1 })),
-      ]),
-      transition(':leave', [
-        style({ height: '*', opacity: 1 }),
-        animate('0.3s ease-in', style({ height: 0, opacity: 0 })),
-      ]),
-    ]),
-  ],
+    selector: 'app-event-template-list',
+    templateUrl: './event-template-list.component.html',
+    styleUrls: ['./event-template-list.component.scss'],
+    standalone: false
 })
-export class EventTemplateListComponent
-  implements OnDestroy, AfterViewInit, OnInit
-{
+export class EventTemplateListComponent implements OnDestroy, OnInit {
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
   @Input() scenarioTemplateList: Observable<EventTemplate[]>;
   @Input() set eventTemplates(value: EventTemplate[]) {
-    this.dataSource.data = value;
+    this._eventTemplates = value || [];
+    this.applyFilter();
   }
   @Input() isLoading: boolean;
   @Input() adminMode = false;
-  @Output() itemSelected: EventEmitter<string> = new EventEmitter<string>();
 
-  @ViewChild(EventTemplateEditComponent, { static: true })
-  eventTemplateEditComponent: EventTemplateEditComponent;
-
-  displayedColumns: string[] = [
-    'name',
-    'description',
-    'durationHours',
-    'dateCreated',
-  ];
-  editEventTemplateText = 'Edit Event Template';
-
-  // MatPaginator Output
-  defaultPageSize = 10;
-  pageEvent: PageEvent;
-  pageEvents$: Observable<PageEvent>;
-  private unsubscribe$ = new Subject();
-  topBarColor = '#719F94';
-  topBarTextColor = '#FFFFFF';
-  dataSource = new MatTableDataSource<EventTemplate>();
-  expandedElementId = null;
   filterControl = new UntypedFormControl();
+  filterString = '';
+  filteredEventTemplateList: EventTemplate[] = [];
+  displayedEventTemplates: EventTemplate[] = [];
+  pageIndex = 0;
+  pageSize = 20;
+  sort: Sort = { active: 'dateCreated', direction: 'desc' };
   systemPermissions: SystemPermission[] = [];
-
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  private _eventTemplates: EventTemplate[] = [];
+  private unsubscribe$ = new Subject();
 
   constructor(
     public dialog: MatDialog,
@@ -103,16 +66,7 @@ export class EventTemplateListComponent
     private permissionDataService: PermissionDataService
   ) {
     this.eventTemplateDataService.loadTemplates();
-
     this.isLoading = false;
-    // Set the topbar color from config file
-    this.topBarColor = this.settingsService.settings.AppTopBarHexColor
-      ? this.settingsService.settings.AppTopBarHexColor
-      : this.topBarColor;
-    this.topBarTextColor = this.settingsService.settings.AppTopBarHexTextColor
-      ? this.settingsService.settings.AppTopBarHexTextColor
-      : this.topBarTextColor;
-    // load permissions
     this.permissionDataService
       .load()
       .subscribe(
@@ -128,7 +82,6 @@ export class EventTemplateListComponent
     return this.permissionDataService.canCreateEvents();
   }
 
-
   ngOnInit() {
     this.filterControl.valueChanges
       .pipe(
@@ -136,12 +89,10 @@ export class EventTemplateListComponent
         distinctUntilChanged(),
         takeUntil(this.unsubscribe$)
       )
-      .subscribe((filter) => this.onFilterChanged(filter));
-  }
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+      .subscribe((term) => {
+        this.filterString = term.trim().toLowerCase();
+        this.applyFilter();
+      });
   }
 
   ngOnDestroy() {
@@ -150,7 +101,47 @@ export class EventTemplateListComponent
   }
 
   clearFilter() {
-    this.applyFilter('');
+    this.filterControl.setValue('');
+  }
+
+  applyFilter() {
+    this.filteredEventTemplateList = this._eventTemplates.filter(et =>
+      !this.filterString ||
+      et.name?.toLowerCase().includes(this.filterString) ||
+      et.description?.toLowerCase().includes(this.filterString)
+    );
+    this.sortList(this.sort);
+  }
+
+  sortList(sort: Sort) {
+    this.sort = sort;
+    this.filteredEventTemplateList.sort((a, b) => this.sortEventTemplates(a, b, sort.active, sort.direction));
+    this.applyPagination();
+  }
+
+  private sortEventTemplates(a: EventTemplate, b: EventTemplate, column: string, direction: string) {
+    const isAsc = direction !== 'desc';
+    switch (column) {
+      case 'name':
+        return ((a.name?.toLowerCase() ?? '') < (b.name?.toLowerCase() ?? '') ? -1 : 1) * (isAsc ? 1 : -1);
+      case 'description':
+        return ((a.description?.toLowerCase() ?? '') < (b.description?.toLowerCase() ?? '') ? -1 : 1) * (isAsc ? 1 : -1);
+      case 'dateCreated':
+        return ((a.dateCreated ?? '') < (b.dateCreated ?? '') ? -1 : 1) * (isAsc ? 1 : -1);
+      default:
+        return 0;
+    }
+  }
+
+  paginatorEvent(page: PageEvent) {
+    this.pageIndex = page.pageIndex;
+    this.pageSize = page.pageSize;
+    this.applyPagination();
+  }
+
+  applyPagination() {
+    const startIndex = this.pageIndex * this.pageSize;
+    this.displayedEventTemplates = this.filteredEventTemplateList.slice(startIndex, startIndex + this.pageSize);
   }
 
   addNewEventTemplate() {
@@ -162,7 +153,7 @@ export class EventTemplateListComponent
     this.eventTemplateDataService
       .addNew(eventTemplate)
       .pipe(take(1))
-      .subscribe((x) => (this.expandedElementId = x.id));
+      .subscribe();
   }
 
   editEventTemplate(eventTemplate: EventTemplate) {
@@ -199,23 +190,4 @@ export class EventTemplateListComponent
     });
   }
 
-  elementSelected(id: string) {
-    this.itemSelected.emit(id);
-  }
-
-  trackById(item: EventTemplate): string {
-    return item.id;
-  }
-
-  onFilterChanged(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  applyFilter(filterValue: string) {
-    this.filterControl.setValue(filterValue);
-  }
 }

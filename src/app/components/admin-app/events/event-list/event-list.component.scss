@@ -51,6 +51,7 @@
 }
 
 .nator-div {
+  margin-left: auto;
   min-width: 220px;
 }
 
@@ -81,11 +82,9 @@
 }
 
 .status-selection {
-  width: 70px;
   margin-left: 40px;
-}
-
-.status-text {
+  display: flex;
+  gap: 8px;
   font-size: 0.8em;
 }
 

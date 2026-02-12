@@ -24,11 +24,11 @@ const WAS_CANCELLED = 'wasCancelled';
 const NAME_VALUE = 'nameValue';
 
 @Component({
-    selector: 'app-admin-groups',
-    templateUrl: './admin-groups.component.html',
-    styleUrls: ['./admin-groups.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-admin-groups',
+  templateUrl: './admin-groups.component.html',
+  styleUrls: ['./admin-groups.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class AdminGroupsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
@@ -42,7 +42,7 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
     private userDataService: UserDataService,
     private dialog: MatDialog,
     private permissionDataService: PermissionDataService
-  ) {}
+  ) { }
 
   dataSource$ = this.groupDataService.groups$.pipe(
     map((x) => {
@@ -115,6 +115,8 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
     data?: any
   ): Observable<boolean> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '100vw',
+      width: 'auto',
       data: data || {},
     });
     dialogRef.componentInstance.title = title;
@@ -125,6 +127,8 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
 
   nameDialog(title: string, message: string, data?: any): Observable<boolean> {
     const dialogRef = this.dialog.open(NameDialogComponent, {
+      maxWidth: '100vw',
+      width: 'auto',
       data: data || {},
     });
     dialogRef.componentInstance.title = title;

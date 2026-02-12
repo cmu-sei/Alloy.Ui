@@ -20,10 +20,10 @@ import { SignalRService } from 'src/app/shared/signalr/signalr.service';
 const NAME_VALUE = 'nameValue';
 
 @Component({
-    selector: 'app-admin-system-roles',
-    templateUrl: './admin-system-roles.component.html',
-    styleUrls: ['./admin-system-roles.component.scss'],
-    standalone: false
+  selector: 'app-admin-system-roles',
+  templateUrl: './admin-system-roles.component.html',
+  styleUrls: ['./admin-system-roles.component.scss'],
+  standalone: false
 })
 export class AdminSystemRolesComponent implements OnInit {
   public canEdit = this.permissionDataService.hasPermission(
@@ -65,7 +65,7 @@ export class AdminSystemRolesComponent implements OnInit {
     private confirmService: ConfirmDialogService,
     private permissionDataService: PermissionDataService,
     private signalRService: SignalRService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.roleService.getRoles().subscribe();
@@ -147,6 +147,8 @@ export class AdminSystemRolesComponent implements OnInit {
 
   nameDialog(title: string, message: string, data?: any): Observable<boolean> {
     const dialogRef = this.dialog.open(NameDialogComponent, {
+      maxWidth: '100vw',
+      width: 'auto',
       data: data || {},
     });
     dialogRef.componentInstance.title = title;

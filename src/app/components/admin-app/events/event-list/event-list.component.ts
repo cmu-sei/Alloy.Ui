@@ -34,10 +34,10 @@ export interface Action {
 }
 
 @Component({
-    selector: 'app-admin-event-list',
-    templateUrl: './event-list.component.html',
-    styleUrls: ['./event-list.component.scss'],
-    standalone: false
+  selector: 'app-admin-event-list',
+  templateUrl: './event-list.component.html',
+  styleUrls: ['./event-list.component.scss'],
+  standalone: false
 })
 export class AdminEventListComponent implements OnInit {
   displayedColumns: string[] = [
@@ -218,7 +218,8 @@ export class AdminEventListComponent implements OnInit {
 
   editEvent(event: AlloyEvent) {
     const dialogRef = this.dialog.open(EventEditComponent, {
-      width: '800px',
+      maxWidth: '100vw',
+      width: 'auto',
       data: {
         event: { ...event },
         canEdit: this.canEdit(event.id),

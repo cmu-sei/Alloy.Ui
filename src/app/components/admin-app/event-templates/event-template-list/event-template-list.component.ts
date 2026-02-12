@@ -31,10 +31,10 @@ import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
-    selector: 'app-event-template-list',
-    templateUrl: './event-template-list.component.html',
-    styleUrls: ['./event-template-list.component.scss'],
-    standalone: false
+  selector: 'app-event-template-list',
+  templateUrl: './event-template-list.component.html',
+  styleUrls: ['./event-template-list.component.scss'],
+  standalone: false
 })
 export class EventTemplateListComponent implements OnDestroy, OnInit {
   @Input() viewList: Observable<View[]>;
@@ -80,6 +80,14 @@ export class EventTemplateListComponent implements OnDestroy, OnInit {
 
   canCreateEvents(): boolean {
     return this.permissionDataService.canCreateEvents();
+  }
+
+  canEditEventTemplate(id: string): boolean {
+    return this.permissionDataService.canEditEventTemplate(id);
+  }
+
+  canManageEventTemplate(id: string): boolean {
+    return this.permissionDataService.canManageEventTemplate(id);
   }
 
   ngOnInit() {
@@ -158,7 +166,8 @@ export class EventTemplateListComponent implements OnDestroy, OnInit {
 
   editEventTemplate(eventTemplate: EventTemplate) {
     const dialogRef = this.dialog.open(EventTemplateEditComponent, {
-      width: '800px',
+      maxWidth: '100vw',
+      width: 'auto',
       data: {
         eventTemplate: { ...eventTemplate },
         viewList: this.viewList,

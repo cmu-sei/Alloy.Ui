@@ -61,7 +61,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             }
           </mat-autocomplete>
           } @else {
-          <input matInput type="text" [value]="viewSearchControl.value" placeholder="Steamfitter Scenario Template"
+          <input matInput type="text" [value]="viewSearchControl.value" placeholder="Player View Template"
             [disabled]="true" />
           }
         </mat-form-field>
@@ -88,7 +88,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             }
           </mat-autocomplete>
           } @else {
-          <input matInput type="text" [value]="directorySearchControl.value" placeholder="Steamfitter Scenario Template"
+          <input matInput type="text" [value]="directorySearchControl.value" placeholder="Caster Directory"
             [disabled]="true" />
           }
         </mat-form-field>
@@ -105,7 +105,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
           </button>
           <mat-autocomplete #autoScenarioTemplate="matAutocomplete" ngDefaultControl
-            [displayWith]="selectedEventTemplateName" placeholder="Select a Event Template"
+            [displayWith]="selectedEventTemplateName" placeholder="Select a Scenario Template"
             [(ngModel)]="data.eventTemplate.scenarioTemplateId"
             (optionSelected)="saveEventIds($event, 'scenarioTemplateId')" (opened)="filterScenarioTemplates()"
             (closed)="scenarioTemplateSearchControl.setValue('')">

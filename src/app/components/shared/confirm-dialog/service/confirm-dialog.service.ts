@@ -12,10 +12,12 @@ import { Observable } from 'rxjs';
 export class ConfirmDialogService {
   public WAS_CANCELLED = 'wasCancelled';
 
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog) { }
 
   confirmDialog(title: string, message: string, data?: any): Observable<any> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '100vw',
+      width: 'auto',
       data: data || {},
     });
     dialogRef.componentInstance.title = title;

@@ -37,10 +37,10 @@ export interface Action {
 }
 
 @Component({
-    selector: 'app-admin-user-list',
-    templateUrl: './admin-user-list.component.html',
-    styleUrls: ['./admin-user-list.component.scss'],
-    standalone: false
+  selector: 'app-admin-user-list',
+  templateUrl: './admin-user-list.component.html',
+  styleUrls: ['./admin-user-list.component.scss'],
+  standalone: false
 })
 export class AdminUserListComponent implements OnInit, OnChanges {
   displayedColumns: string[] = ['id', 'name'];
@@ -71,7 +71,7 @@ export class AdminUserListComponent implements OnInit, OnChanges {
     private dialog: MatDialog,
     private roleDataService: RoleDataService,
     private userDataService: UserDataService
-  ) {}
+  ) { }
 
   /**
    * Initialization
@@ -147,6 +147,8 @@ export class AdminUserListComponent implements OnInit, OnChanges {
     data?: any
   ): Observable<boolean> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '100vw',
+      width: 'auto',
       data: data || {},
     });
     dialogRef.componentInstance.title = title;

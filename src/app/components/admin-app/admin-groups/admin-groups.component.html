@@ -41,10 +41,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <mat-expansion-panel-header>
             <div class="row-button-cell">
               <button mat-icon-button matTooltip="Delete {{ element.name }}"
-                (click)="$event.stopPropagation(); deleteGroup(element)">
+                (click)="$event.stopPropagation(); deleteGroup(element)" [disabled]="!canEdit">
                 <mat-icon class="mdi-18px" color="primary" fontIcon="mdi-trash-can"></mat-icon>
               </button>
-              <button mat-icon-button matTooltip="Rename">
+              <button mat-icon-button matTooltip="Rename" [disabled]="!canEdit">
                 <mat-icon class="mdi-18px" color="primary" fontIcon="mdi-square-edit-outline"
                   (click)="$event.stopPropagation(); updateGroup(element)"></mat-icon>
               </button>

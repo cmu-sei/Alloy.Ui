@@ -52,7 +52,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           Exit Administration
         </button>
         }
-        @if (topbarView !== TopbarView.ALLOY_ADMIN) {
+        @if (topbarView !== TopbarView.ALLOY_ADMIN && canViewAdmin) {
         <button [routerLink]="['/admin']" mat-menu-item>
           Administration
         </button>

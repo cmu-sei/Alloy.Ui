@@ -43,8 +43,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <mat-expansion-panel-header class="row">
       <div class="cell first-cell">
         <button mat-icon-button (click)="editEventTemplate(element); $event.stopPropagation()"
-          title="Edit: {{ element.name }}">
-          <mat-icon class="mdi-18px" fontIcon="mdi-square-edit-outline"></mat-icon>
+          title="{{ (canEditEventTemplate(element.id) || canManageEventTemplate(element.id)) ? 'Edit' : 'View' }}: {{ element.name }}">
+          <mat-icon class="mdi-18px" [fontIcon]="(canEditEventTemplate(element.id) || canManageEventTemplate(element.id)) ? 'mdi-square-edit-outline' : 'mdi-eye-outline'"></mat-icon>
         </button>
         <button mat-icon-button ngxClipboard [cbContent]="element.id" (click)="$event.stopPropagation()"
           title="Copy: {{ element.id }}">

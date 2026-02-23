@@ -11,6 +11,8 @@ import { EventDataService } from 'src/app/data/event/event-data.service';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from '../shared/top-bar/topbar.models';
 import { Router } from '@angular/router';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { SystemPermission } from 'src/app/generated/alloy.api';
 
 @Component({
     selector: 'app-home-app',
@@ -27,6 +29,8 @@ export class HomeAppComponent implements OnInit, OnDestroy {
   viewId = '';
   TopbarView = TopbarView;
   unsubscribe$: Subject<null> = new Subject<null>();
+  permissions: SystemPermission[] = [];
+  canViewAdministration = false;
 
   constructor(
     private settingsService: ComnSettingsService,
@@ -34,7 +38,8 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     private eventDataService: EventDataService,
     private routerQuery: RouterQuery,
     private router: Router,
-    private userDataService: UserDataService
+    private userDataService: UserDataService,
+    private permissionDataService: PermissionDataService
   ) {
     // Set the page title from configuration file
     this.titleText = this.settingsService.settings.AppTopBarText;
@@ -46,6 +51,17 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     this.username = '';
     this.userDataService.setCurrentUser();
     this.hideTopbar = this.inIframe();
+
+    // Load permissions
+    this.permissionDataService
+      .load()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        (x) => {
+          this.permissions = this.permissionDataService.permissions;
+          this.canViewAdministration = this.permissions.some((y) => y.startsWith('View'));
+        }
+      );
 
     // Get the event GUID from the URL that the user is entering the web page on
     this.routerQuery

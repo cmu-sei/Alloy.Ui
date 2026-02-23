@@ -9,5 +9,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   fxLayoutAlign="center stretch"
   fxFlexFill
 >
+  @if (!hideTopbar) {
+  <app-topbar
+    [title]="titleText"
+    [topbarView]="TopbarView.ALLOY_HOME"
+    >
+  </app-topbar>
+  }
   <app-event-list></app-event-list>
 </div>

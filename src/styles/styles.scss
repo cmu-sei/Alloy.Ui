@@ -37,39 +37,17 @@ $mdi-font-path: '~@mdi/font/fonts';
 
 /* Material 3 Theme Application */
 html {
-  @include mat.theme((
-      color: theme.$primary-palette,
+  @include mat.theme((color: theme.$primary-palette,
       typography: '"Open Sans", sans-serif',
-    ),
-    $overrides: ((
-        background: #f1f1f2,
-        surface: var(--mat-sys-background),
-        surface-variant: var(--mat-sys-background),
-        icon: var(--mat-sys-primary),
-      )));
-  @include mat.icon-button-overrides((icon-color: var(--mat-sys-primary)));
+    ));
 }
 
 .darkMode {
-  @include mat.theme((
-      color: (
-        primary: theme.$primary-palette,
+  @include mat.theme((color: (primary: theme.$primary-palette,
         typography: '"Open Sans", sans-serif',
         theme-type: dark,
       ),
-    ),
-    $overrides: ((
-        background: #373739,
-        surface: var(--mat-sys-background),
-        surface-variant: var(--mat-sys-background),
-        icon: var(--mat-sys-primary),
-      )));
-  @include mat.icon-button-overrides((icon-color: var(--mat-sys-primary)));
-}
-
-/* Override the disabled icon color specifically for mat-icon-button */
-.mat-mdc-icon-button[disabled] .mat-icon {
-  --mat-icon-color-disabled: var(--mat-sys-outline-variant);
+    ));
 }
 
 /* Global Theme Styles */
@@ -140,6 +118,11 @@ a {
   &:focus {
     color: var(--mat-sys-outline);
   }
+}
+
+// default all icons to the primary theme color
+mat-icon, .mat-icon {
+  --mat-icon-color: var(--mat-sys-primary);
 }
 
 // remove the border around paginator items per page selection

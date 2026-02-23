@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import {
+  ComnAuthQuery,
   ComnAuthService,
   ComnSettingsService,
   Theme,
@@ -52,9 +53,10 @@ export class AdminAppComponent implements OnInit {
     private userDataService: UserDataService,
     private permissionDataService: PermissionDataService,
     private signalRService: SignalRService,
-    private currentUserQuery: CurrentUserQuery
+    private currentUserQuery: CurrentUserQuery,
+    private authQuery: ComnAuthQuery
   ) {
-    this.theme$ = this.currentUserQuery.userTheme$;
+    this.theme$ = this.authQuery.userTheme$;
   }
 
   ngOnInit() {

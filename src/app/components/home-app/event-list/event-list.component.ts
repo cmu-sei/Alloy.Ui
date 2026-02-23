@@ -11,7 +11,7 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { Theme } from '@cmusei/crucible-common';
+import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
 import { combineQueries } from '@datorama/akita';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
@@ -20,7 +20,6 @@ import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
-import { CurrentUserQuery } from 'src/app/data/user/user.query';
 
 @Component({
     selector: 'app-event-list',
@@ -57,9 +56,9 @@ export class EventListComponent implements OnInit, OnDestroy {
     private eventTemplateQuery: EventTemplateQuery,
     private router: Router,
     private routerQuery: RouterQuery,
-    private currentUserQuery: CurrentUserQuery
+    private authQuery: ComnAuthQuery
   ) {
-    this.theme$ = this.currentUserQuery.userTheme$;
+    this.theme$ = this.authQuery.userTheme$;
 
     this.eventTemplateDataSource = new MatTableDataSource<EventTemplate>(
       new Array<EventTemplate>()

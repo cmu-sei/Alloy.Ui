@@ -3,7 +3,6 @@
 
 @use "@angular/material" as mat;
 @include mat.elevation-classes();
-@include mat.app-background();
 
 .elevate {
   @include mat.elevation(2);
@@ -125,4 +124,8 @@
 .link-text {
   text-align: left;
   font-size: large;
+
+  a {
+    color: var(--mat-sys-primary);
+  }
 }

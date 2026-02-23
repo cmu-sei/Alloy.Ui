@@ -12,7 +12,7 @@
   },
   "AppTitle": "Alloy",
   "AppTopBarText": "Alloy",
-  "AppPrimaryThemeColor": "#E81717",
+  "AppPrimaryThemeColor": "#006B6D",
   "PlayerUIAddress": "http://localhost:4301",
   "PollingIntervalMS": "3500",
   "UseLocalAuthStorage": false

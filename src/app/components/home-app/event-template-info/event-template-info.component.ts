@@ -9,7 +9,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { ComnSettingsService, Theme } from '@cmusei/crucible-common';
+import { ComnAuthQuery, ComnSettingsService, Theme } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
 import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
@@ -97,13 +97,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private eventQuery: EventQuery,
     private userDataService: UserDataService,
     private userEventsQuery: UserEventsQuery,
+    private authQuery: ComnAuthQuery,
     private currentUserQuery: CurrentUserQuery,
     private routerQuery: RouterQuery,
     private signalRService: SignalRService,
     private clipboardService: ClipboardService,
     private changeDetector: ChangeDetectorRef
   ) {
-    this.theme$ = this.currentUserQuery.userTheme$;
+    this.theme$ = this.authQuery.userTheme$;
 
     this.impsDataSource = new MatTableDataSource<AlloyEvent>(
       new Array<AlloyEvent>()

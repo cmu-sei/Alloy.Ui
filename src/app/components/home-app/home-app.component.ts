@@ -20,7 +20,8 @@ import { Router } from '@angular/router';
 })
 export class HomeAppComponent implements OnInit, OnDestroy {
   username: string;
-
+  titleText: string;
+  hideTopbar = false;
   isSuperUser: Boolean;
   eventTemplateId;
   viewId = '';
@@ -34,13 +35,17 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     private routerQuery: RouterQuery,
     private router: Router,
     private userDataService: UserDataService
-  ) {}
+  ) {
+    // Set the page title from configuration file
+    this.titleText = this.settingsService.settings.AppTopBarText;
+  }
 
   ngOnInit() {
     // Set the topbar color from config file
     this.titleService.setTitle(this.settingsService.settings.AppTitle);
     this.username = '';
     this.userDataService.setCurrentUser();
+    this.hideTopbar = this.inIframe();
 
     // Get the event GUID from the URL that the user is entering the web page on
     this.routerQuery
@@ -78,6 +83,15 @@ export class HomeAppComponent implements OnInit, OnDestroy {
       )
       .subscribe();
   }
+
+  inIframe() {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
+  }
+
   ngOnDestroy() {
     this.unsubscribe$.next(null);
     this.unsubscribe$.complete();

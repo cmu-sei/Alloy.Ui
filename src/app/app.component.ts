@@ -11,7 +11,6 @@ import {
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { TopbarView } from './components/shared/top-bar/topbar.models';
 
 @Component({
     selector: 'app-root',
@@ -23,9 +22,6 @@ export class AppComponent implements OnDestroy {
   theme$: Observable<Theme> = this.authQuery.userTheme$;
   unsubscribe$: Subject<null> = new Subject<null>();
 
-  titleText: string;
-  TopbarView = TopbarView;
-
   constructor(
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer,
@@ -33,9 +29,6 @@ export class AppComponent implements OnDestroy {
     private settingsService: ComnSettingsService,
   ) {
     iconRegistry.setDefaultFontSetClass('mdi');
-
-    // Set the page title from configuration file
-    this.titleText = this.settingsService.settings.AppTopBarText;
 
     iconRegistry.addSvgIcon(
       'ic_apps_white_24px',
@@ -146,16 +139,6 @@ export class AppComponent implements OnDestroy {
         const blob = new Blob([colored], { type: 'image/svg+xml' });
         link.href = URL.createObjectURL(blob);
       });
-  }
-
-  isIframe(): boolean {
-    if (window.location !== window.parent.location) {
-      // The page is in an iframe
-      return true;
-    } else {
-      // The page is not in an iframe
-      return false;
-    }
   }
 
   ngOnDestroy() {

@@ -2,6 +2,13 @@
 Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
+@if (!isIFrame) {
+<app-topbar
+  [title]="titleText"
+  [topbarView]="TopbarView.ALLOY_HOME"
+  >
+</app-topbar>
+}
 <div class="cssLayoutRowCenterCenter">
   <div class="event-info-container elevate">
     <div class="cssLayoutRowStartCenter full-width">

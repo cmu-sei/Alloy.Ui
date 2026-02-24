@@ -46,10 +46,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           @if (data.canEdit) {
           <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView"
             placeholder="Player View Template" />
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.eventTemplate.viewId"
-            title="Copy:  {{ data.eventTemplate.viewId }}">
-            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
           <mat-autocomplete #autoView="matAutocomplete" ngDefaultControl [displayWith]="selectedViewName"
             placeholder="Select a View Template" [(ngModel)]="data.eventTemplate.viewId"
             (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()">
@@ -64,6 +60,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <input matInput type="text" [value]="viewSearchControl.value" placeholder="Player View Template"
             [disabled]="true" />
           }
+          <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.viewId"
+            title="Copy:  {{ data.eventTemplate.viewId }}">
+            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          </button>
         </mat-form-field>
       </div>
     </div>
@@ -73,10 +73,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           @if (data.canEdit) {
           <input matInput type="text" [formControl]="directorySearchControl" [matAutocomplete]="autoDirectory"
             placeholder="Caster Directory" />
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.eventTemplate.directoryId"
-            title="Copy:  {{ data.eventTemplate.directoryId }}">
-            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
           <mat-autocomplete #autoDirectory="matAutocomplete" ngDefaultControl [displayWith]="selectedDirectoryName"
             placeholder="Select a Directory" [(ngModel)]="data.eventTemplate.directoryId"
             (optionSelected)="saveEventIds($event, 'directoryId')" (opened)="filterDirectories()">
@@ -91,6 +87,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <input matInput type="text" [value]="directorySearchControl.value" placeholder="Caster Directory"
             [disabled]="true" />
           }
+          <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.directoryId"
+            title="Copy:  {{ data.eventTemplate.directoryId }}">
+            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          </button>
         </mat-form-field>
       </div>
     </div>
@@ -100,10 +100,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           @if (data.canEdit) {
           <input matInput type="text" [formControl]="scenarioTemplateSearchControl"
             [matAutocomplete]="autoScenarioTemplate" placeholder="Steamfitter Scenario Template" />
-          <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
-            title="Copy:  {{ data.eventTemplate.scenarioTemplateId }}">
-            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
           <mat-autocomplete #autoScenarioTemplate="matAutocomplete" ngDefaultControl
             [displayWith]="selectedEventTemplateName" placeholder="Select a Scenario Template"
             [(ngModel)]="data.eventTemplate.scenarioTemplateId"
@@ -123,6 +119,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <input matInput type="text" [value]="scenarioTemplateSearchControl.value"
             placeholder="Steamfitter Scenario Template" [disabled]="true" />
           }
+          <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
+            title="Copy:  {{ data.eventTemplate.scenarioTemplateId }}">
+            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
+          </button>
         </mat-form-field>
       </div>
     </div>

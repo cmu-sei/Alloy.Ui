@@ -39,6 +39,7 @@ import { UserDataService } from 'src/app/data/user/user-data.service';
 import { UserEventsQuery } from '../../../data/event/user-events.query';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
+import { TopbarView } from '../../shared/top-bar/topbar.models';
 
 @Component({
     selector: 'app-event-template-info',
@@ -50,6 +51,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   @Input() eventTemplateId: string;
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
+  public TopbarView = TopbarView;
+  public titleText: string;
 
   readonly ONE_HOUR = 1000 * 3600;
 
@@ -104,6 +107,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private clipboardService: ClipboardService,
     private changeDetector: ChangeDetectorRef
   ) {
+    this.titleText = this.settingsService.settings.AppTopBarText;
     this.theme$ = this.authQuery.userTheme$;
 
     this.impsDataSource = new MatTableDataSource<AlloyEvent>(

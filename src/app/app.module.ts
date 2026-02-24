@@ -85,7 +85,6 @@ import { TopbarComponent } from './components/shared/top-bar/topbar.component';
 import { BASE_PATH } from './generated/alloy.api';
 import { ApiModule as SwaggerCodegenApiModule } from './generated/alloy.api/api.module';
 import { DialogService } from './services/dialog/dialog.service';
-import { FaviconService } from './services/favicon.service';
 import { SignalRService } from './shared/signalr/signalr.service';
 
 const settings: ComnSettingsConfig = {
@@ -187,7 +186,6 @@ export class AngularMaterialModule {}
             deps: [ComnSettingsService],
         },
         DialogService,
-        FaviconService,
         provideHttpClient(withInterceptorsFromDi()),
     ] })
 export class AppModule {}

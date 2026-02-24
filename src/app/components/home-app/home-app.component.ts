@@ -11,6 +11,8 @@ import { EventDataService } from 'src/app/data/event/event-data.service';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from '../shared/top-bar/topbar.models';
 import { Router } from '@angular/router';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { SystemPermission } from 'src/app/generated/alloy.api';
 
 @Component({
     selector: 'app-home-app',
@@ -20,12 +22,15 @@ import { Router } from '@angular/router';
 })
 export class HomeAppComponent implements OnInit, OnDestroy {
   username: string;
-
+  titleText: string;
+  hideTopbar = false;
   isSuperUser: Boolean;
   eventTemplateId;
   viewId = '';
   TopbarView = TopbarView;
   unsubscribe$: Subject<null> = new Subject<null>();
+  permissions: SystemPermission[] = [];
+  canViewAdministration = false;
 
   constructor(
     private settingsService: ComnSettingsService,
@@ -33,14 +38,30 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     private eventDataService: EventDataService,
     private routerQuery: RouterQuery,
     private router: Router,
-    private userDataService: UserDataService
-  ) {}
+    private userDataService: UserDataService,
+    private permissionDataService: PermissionDataService
+  ) {
+    // Set the page title from configuration file
+    this.titleText = this.settingsService.settings.AppTopBarText;
+  }
 
   ngOnInit() {
     // Set the topbar color from config file
     this.titleService.setTitle(this.settingsService.settings.AppTitle);
     this.username = '';
     this.userDataService.setCurrentUser();
+    this.hideTopbar = this.inIframe();
+
+    // Load permissions
+    this.permissionDataService
+      .load()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        (x) => {
+          this.permissions = this.permissionDataService.permissions;
+          this.canViewAdministration = this.permissions.some((y) => y.startsWith('View'));
+        }
+      );
 
     // Get the event GUID from the URL that the user is entering the web page on
     this.routerQuery
@@ -78,6 +99,15 @@ export class HomeAppComponent implements OnInit, OnDestroy {
       )
       .subscribe();
   }
+
+  inIframe() {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
+  }
+
   ngOnDestroy() {
     this.unsubscribe$.next(null);
     this.unsubscribe$.complete();

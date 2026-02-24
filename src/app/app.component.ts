@@ -1,7 +1,6 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { OverlayContainer } from '@angular/cdk/overlay';
 import { Component, OnDestroy } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -12,9 +11,6 @@ import {
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { TopbarView } from './components/shared/top-bar/topbar.models';
-import { DynamicThemeService } from './services/dynamic-theme.service';
-import { FaviconService } from './services/favicon.service';
 
 @Component({
     selector: 'app-root',
@@ -26,22 +22,13 @@ export class AppComponent implements OnDestroy {
   theme$: Observable<Theme> = this.authQuery.userTheme$;
   unsubscribe$: Subject<null> = new Subject<null>();
 
-  titleText: string;
-  TopbarView = TopbarView;
-
   constructor(
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer,
-    private overlayContainer: OverlayContainer,
     private authQuery: ComnAuthQuery,
     private settingsService: ComnSettingsService,
-    private themeService: DynamicThemeService,
-    private faviconService: FaviconService
   ) {
     iconRegistry.setDefaultFontSetClass('mdi');
-
-    // Set the page title from configuration file
-    this.titleText = this.settingsService.settings.AppTopBarText;
 
     iconRegistry.addSvgIcon(
       'ic_apps_white_24px',
@@ -128,33 +115,30 @@ export class AppComponent implements OnDestroy {
   }
 
   setTheme(theme: Theme) {
-    const classList = this.overlayContainer.getContainerElement().classList;
-    const hexColor = this.settingsService.settings.AppPrimaryThemeColor || '#E81717';
-
-    switch (theme) {
-      case Theme.LIGHT:
-        document.body.classList.toggle('darkMode', false);
-        classList.remove('darkMode');
-        this.themeService.applyLightTheme(hexColor);
-        this.faviconService.updateFavicon(hexColor);
-        break;
-      case Theme.DARK:
-        document.body.classList.toggle('darkMode', true);
-        classList.add('darkMode');
-        this.themeService.applyDarkTheme(hexColor);
-        this.faviconService.updateFavicon(hexColor);
-        break;
+    document.body.classList.toggle('darkMode', theme === Theme.DARK);
+    const topBarColor = this.settingsService.settings?.AppTopBarHexColor || '#C41230';
+    const topBarTextColor = this.settingsService.settings?.AppTopBarHexTextColor || '#FFFFFF';
+    if (topBarColor) {
+      document.documentElement.style.setProperty('--mat-sys-primary', topBarColor);
+      document.body.style.setProperty('--mat-sys-primary', topBarColor);
+      this.updateFavicon(topBarColor);
+    }
+    if (topBarTextColor) {
+      document.documentElement.style.setProperty('--mat-sys-on-primary', topBarTextColor);
+      document.body.style.setProperty('--mat-sys-on-primary', topBarTextColor);
     }
   }
 
-  isIframe(): boolean {
-    if (window.location !== window.parent.location) {
-      // The page is in an iframe
-      return true;
-    } else {
-      // The page is not in an iframe
-      return false;
-    }
+  private updateFavicon(color: string) {
+    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!link) return;
+    fetch(link.href)
+      .then(res => res.text())
+      .then(svg => {
+        const colored = svg.replace(/\.cls-1\{[^}]*\}/, `.cls-1{fill:${color};}`);
+        const blob = new Blob([colored], { type: 'image/svg+xml' });
+        link.href = URL.createObjectURL(blob);
+      });
   }
 
   ngOnDestroy() {

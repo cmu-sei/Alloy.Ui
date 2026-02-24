@@ -9,5 +9,26 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   fxLayoutAlign="center stretch"
   fxFlexFill
 >
-  <app-event-list></app-event-list>
+  @if (!hideTopbar) {
+  <app-topbar
+    [title]="titleText"
+    [topbarView]="TopbarView.ALLOY_HOME"
+    >
+  </app-topbar>
+  }
+  @if (permissions) {
+  <span>
+    <div class="top-row">
+      <div class="one-cell last-cell">
+        @if (canViewAdministration) {
+        <button aria-label="Show Administration Page" mat-icon-button [routerLink]="['/admin']"
+          style="outline: none;" title="Administration">
+          <mat-icon class="mdi-24px center-self" fontIcon="mdi-cog"></mat-icon>
+        </button>
+        }
+      </div>
+    </div>
+    <app-event-list></app-event-list>
+  </span>
+  }
 </div>

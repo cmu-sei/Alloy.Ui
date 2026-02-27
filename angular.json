@@ -21,6 +21,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets"
+              "src/auth-callback-silent.html",
             ],
             "styles": [
               "src/styles/styles.scss",

@@ -166,7 +166,8 @@ export class EventTemplateListComponent implements OnDestroy, OnInit {
 
   editEventTemplate(eventTemplate: EventTemplate) {
     const dialogRef = this.dialog.open(EventTemplateEditComponent, {
-      maxWidth: '100vw',
+      minWidth: '400px',
+      maxWidth: '90vw',
       width: 'auto',
       data: {
         eventTemplate: { ...eventTemplate },

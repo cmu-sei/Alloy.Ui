@@ -147,7 +147,8 @@ export class AdminSystemRolesComponent implements OnInit {
 
   nameDialog(title: string, message: string, data?: any): Observable<boolean> {
     const dialogRef = this.dialog.open(NameDialogComponent, {
-      maxWidth: '100vw',
+      minWidth: '400px',
+      maxWidth: '90vw',
       width: 'auto',
       data: data || {},
     });

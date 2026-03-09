@@ -94,6 +94,10 @@ html {
   }
 }
 
+.element-row:hover td {
+  background-color: var(--mat-sys-surface-variant);
+}
+
 .mat-tooltip {
   background-color: var(--mat-sys-outline-variant);
   color: var(--mat-sys-on-background);
@@ -123,6 +127,15 @@ mat-paginator {
   --mat-form-field-outlined-hover-outline-color: transparent;
   --mat-form-field-outlined-focus-outline-color: transparent;
   min-width: 200px !important;
+}
+
+// prevent table header rows from scrolling
+.mat-mdc-header-row {
+  z-index: 9 !important;
+}
+
+.mat-mdc-table .mat-mdc-header-cell {
+  background-color: var(--mat-sys-surface) !important;
 }
 
 /* Material Component Overrides */

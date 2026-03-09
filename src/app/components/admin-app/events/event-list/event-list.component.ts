@@ -218,7 +218,8 @@ export class AdminEventListComponent implements OnInit {
 
   editEvent(event: AlloyEvent) {
     const dialogRef = this.dialog.open(EventEditComponent, {
-      maxWidth: '100vw',
+      minWidth: '400px',
+      maxWidth: '90vw',
       width: 'auto',
       data: {
         event: { ...event },

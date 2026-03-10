@@ -2,15 +2,28 @@
 Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
-@if (!isIFrame) {
-<app-topbar
-  [title]="titleText"
-  [topbarView]="TopbarView.ALLOY_HOME"
-  >
-</app-topbar>
-}
-<div class="cssLayoutRowCenterCenter">
-  <div class="event-info-container elevate">
+<div class="page-container">
+  @if (!isIFrame) {
+  <app-topbar
+    [title]="titleText"
+    [topbarView]="TopbarView.ALLOY_HOME"
+    >
+  </app-topbar>
+  }
+  @if (permissions && !isIFrame) {
+  <div class="top-row">
+    <div class="one-cell last-cell">
+      @if (canViewAdministration) {
+      <button aria-label="Show Administration Page" mat-icon-button [routerLink]="['/admin']"
+        style="outline: none;" title="Administration">
+        <mat-icon class="mdi-24px center-self" fontIcon="mdi-cog"></mat-icon>
+      </button>
+      }
+    </div>
+  </div>
+  }
+  <div class="cssLayoutRowCenterCenter">
+    <div class="event-info-container elevate">
     <div class="cssLayoutRowStartCenter full-width">
       <div class="sp-icon">
         <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy"></mat-icon>
@@ -303,5 +316,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       }
     </div>
     }
+  </div>
   </div>
 </div>

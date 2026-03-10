@@ -8,12 +8,54 @@
   @include mat.elevation(2);
 }
 
+:host {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  display: block;
+  height: 100%;
+  background-color: var(--mat-sys-background);
+  color: var(--mat-sys-on-background);
+}
+
+.page-container {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--mat-sys-background);
+  color: var(--mat-sys-on-background);
+}
+
+.top-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.one-cell {
+  flex: 1;
+}
+
+.last-cell {
+  text-align: right;
+}
+
+.center-self {
+  align-self: center;
+}
+
 .event-info-container {
   display: inline-block;
   flex-direction: column;
-  min-width: 900px;
-  margin-top: 40px;
-  width: 900px;
+  width: 80%;
+  max-width: 1200px;
+  margin-top: 20px;
   overflow-y: auto;
   box-shadow: 0 5px 5px -3px #0003, 0 8px 10px 1px #00000024, 0 3px 14px 2px #0000001f;
 }

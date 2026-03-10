@@ -9,7 +9,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { ComnSettingsService, Theme } from '@cmusei/crucible-common';
+import { ComnAuthQuery, ComnSettingsService, Theme } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
 import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
@@ -39,6 +39,7 @@ import { UserDataService } from 'src/app/data/user/user-data.service';
 import { UserEventsQuery } from '../../../data/event/user-events.query';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
+import { TopbarView } from '../../shared/top-bar/topbar.models';
 
 @Component({
     selector: 'app-event-template-info',
@@ -50,6 +51,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   @Input() eventTemplateId: string;
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
+  public TopbarView = TopbarView;
+  public titleText: string;
 
   readonly ONE_HOUR = 1000 * 3600;
 
@@ -97,13 +100,15 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private eventQuery: EventQuery,
     private userDataService: UserDataService,
     private userEventsQuery: UserEventsQuery,
+    private authQuery: ComnAuthQuery,
     private currentUserQuery: CurrentUserQuery,
     private routerQuery: RouterQuery,
     private signalRService: SignalRService,
     private clipboardService: ClipboardService,
     private changeDetector: ChangeDetectorRef
   ) {
-    this.theme$ = this.currentUserQuery.userTheme$;
+    this.titleText = this.settingsService.settings.AppTopBarText;
+    this.theme$ = this.authQuery.userTheme$;
 
     this.impsDataSource = new MatTableDataSource<AlloyEvent>(
       new Array<AlloyEvent>()

@@ -4,15 +4,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 -->
 <!-- Event Templates -->
 <div class="events-list-container elevate">
-  <div class="cssLayoutRowStartCenter full-width">
-    <div class="sp-icon">
-      <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy"></mat-icon>
-    </div>
-    <div class="cssLayoutRowStartCenter title-div">
-      <h2 class="text title-text">My Events</h2>
-    </div>
-    <div class="cssLayoutRowStartCenter search-div">
-      <mat-form-field class="search-field">
+  <div class="icon-text-container">
+    <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy"></mat-icon>
+    <span class="title-text text">My Events</span>
+    <div class="searchBox">
+      <mat-form-field style="width: 320px">
         <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
         @if (filterString) {
         <button mat-icon-button matSuffix (click)="clearFilter()" title="Clear Search">
@@ -20,13 +16,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         </button>
         }
       </mat-form-field>
-    </div>
-    <div class="cssLayoutRowEndCenter logo-div">
-      <img class="crucible-logo" [src]="
-          (theme$ | async) === 'light-theme'
-            ? 'assets/img/crucible-logo-light.png'
-            : 'assets/img/crucible-logo-dark.png'
-        " />
     </div>
   </div>
   @if (!doneLoading) {

@@ -8,11 +8,13 @@
     "response_type": "code",
     "scope": "openid profile player player-vm alloy caster steamfitter",
     "automaticSilentRenew": true,
-    "silent_redirect_uri": "http://localhost:4403/auth-callback-silent"
+    
+    "silent_redirect_uri": "http://localhost:4403/auth-callback-silent.html"
   },
   "AppTitle": "Alloy",
   "AppTopBarText": "Alloy",
-  "AppPrimaryThemeColor": "#E81717",
+  "AppTopBarHexColor": "#006B6D",
+  "AppTopBarHexTextColor": "#FFFFFF",
   "PlayerUIAddress": "http://localhost:4301",
   "PollingIntervalMS": "3500",
   "UseLocalAuthStorage": false

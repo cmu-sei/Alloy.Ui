@@ -8,6 +8,18 @@
   @include mat.elevation(2);
 }
 
+.event-template-page-container {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  height: 100%;
+  overflow: auto;
+  background-color: var(--mat-sys-background);
+  color: var(--mat-sys-on-background);
+}
+
 .event-info-container {
   display: inline-block;
   flex-direction: column;
@@ -15,7 +27,6 @@
   margin-top: 40px;
   width: 900px;
   overflow-y: auto;
-  box-shadow: 0 5px 5px -3px #0003, 0 8px 10px 1px #00000024, 0 3px 14px 2px #0000001f;
 }
 
 .sp-icon {
@@ -31,7 +42,7 @@
   margin-top: 5px;
   font-size: medium;
   font-weight: bold;
-  color: warn;
+  color: var(--mat-sys-error);
 }
 
 .description-text {
@@ -54,7 +65,7 @@
 
 .failure-text {
   font-weight: bold;
-  color: warn;
+  color: var(--mat-sys-error);
 }
 
 .title-text {
@@ -70,7 +81,7 @@
 }
 
 mat-card {
-  background-color: var(--mat-sys-background);
+  background-color: var(--mat-sys-surface);
 }
 
 .spinner-container {

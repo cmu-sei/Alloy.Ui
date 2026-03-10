@@ -41,6 +41,7 @@ export interface Event {
     lastLaunchInternalStatus?: InternalEventStatus;
     lastEndStatus?: EventStatus;
     lastEndInternalStatus?: InternalEventStatus;
+    errorMessage?: string | null;
     statusDate?: Date;
     launchDate?: Date | null;
     endDate?: Date | null;

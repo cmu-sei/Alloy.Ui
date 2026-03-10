@@ -33,6 +33,22 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </mat-form-field>
         </div>
       </div>
+      @if (data.event.errorMessage) {
+      <div class="add-margin">
+        <mat-card style="background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); padding: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <mat-icon class="mdi-24px" fontIcon="mdi-alert-circle-outline"></mat-icon>
+            <strong>Error Message</strong>
+          </div>
+          <div style="word-break: break-word;">{{ data.event.errorMessage }}</div>
+          @if (data.event.lastLaunchInternalStatus) {
+          <div style="margin-top: 8px; font-size: 0.9em; opacity: 0.9;">
+            Last Internal Status: {{ data.event.lastLaunchInternalStatus }}
+          </div>
+          }
+        </mat-card>
+      </div>
+      }
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">

@@ -60,7 +60,18 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       </div>
       <div class="cell name-cell center-self">{{ item.name }}</div>
       <div class="cell one-cell center-self">{{ item.username }}</div>
-      <div class="cell one-cell center-self">{{ item.status }}</div>
+      <div class="cell one-cell center-self">
+        {{ item.status }}
+        @if (item.errorMessage) {
+        <mat-icon
+          class="mdi-18px"
+          fontIcon="mdi-alert-circle-outline"
+          style="color: var(--mat-sys-error); vertical-align: middle; cursor: help;"
+          [matTooltip]="item.errorMessage"
+          matTooltipPosition="right">
+        </mat-icon>
+        }
+      </div>
       <div class="cell date-cell center-self">{{
         !!item.statusDate ? (item.statusDate | date: 'yyyy-MM-dd HH:mm') : ' '
         }}</div>
@@ -74,6 +85,20 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         }}</div>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
+      @if (item.errorMessage) {
+      <div class="error-container" style="padding: 12px; background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); margin-bottom: 12px; border-radius: 4px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <mat-icon class="mdi-24px" fontIcon="mdi-alert-circle-outline"></mat-icon>
+          <strong>Error Details</strong>
+        </div>
+        <div>{{ item.errorMessage }}</div>
+        @if (item.lastLaunchInternalStatus) {
+        <div style="margin-top: 8px; font-size: 0.9em; opacity: 0.9;">
+          Last Internal Status: {{ item.lastLaunchInternalStatus }}
+        </div>
+        }
+      </div>
+      }
       <div class="memberships-container">
         <label class="memberships-label">Memberships</label>
         <app-event-memberships [event]="item" [embedded]="false"></app-event-memberships>

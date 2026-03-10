@@ -28,7 +28,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   <mat-table #sortTemplate="matSort" [dataSource]="eventTemplateDataSource" matSort>
     @for (col of eventTemplateDisplayedColumns; track col; let i = $index) {
     <ng-container matColumnDef="{{ col }}">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>{{ col }}
+      <mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders[col] }}
       </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <!-- Only Show link if its the first element-->

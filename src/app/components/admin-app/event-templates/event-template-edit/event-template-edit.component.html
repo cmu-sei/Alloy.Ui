@@ -132,7 +132,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         [disabled]="!data.canEdit">Public</mat-checkbox>
     </div>
     <div class="add-margin">
-      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost" [disabled]="!data.canEdit">Use Dynamic
+      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost"
+        title="Dynamically assigns host addresses for deployed infrastructure"
+        [disabled]="!data.canEdit">Use Dynamic
         Host</mat-checkbox>
     </div>
   </mat-dialog-content>

@@ -224,11 +224,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
     </div>
     <div class="delete-button">
-      @if (data.event.status !== 'Ended') {
-        <button mat-stroked-button (click)="endEvent()" style="margin-left: 80px" [disabled]="!data.canManage">
-          End Event Now
-        </button>
-      }
+      <button mat-stroked-button (click)="endEvent()" style="margin-left: 80px" [disabled]="!data.canManage || data.event.status === 'Ended' || data.event.status === 'Failed'">
+        End Event Now
+      </button>
     </div>
     <div class="delete-button">
       <button mat-stroked-button (click)="deleteEvent()" style="margin-left: 80px" [disabled]="!data.canManage">Delete Event</button>

@@ -116,19 +116,19 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     this.viewSearchControl.valueChanges
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((filterTerm) => {
-        this._viewFilter = filterTerm;
+        this._viewFilter = filterTerm || '';
         this.filterViews();
       });
     this.directorySearchControl.valueChanges
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((filterTerm) => {
-        this._directoryFilter = filterTerm;
+        this._directoryFilter = filterTerm || '';
         this.filterDirectories();
       });
     this.scenarioTemplateSearchControl.valueChanges
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((filterTerm) => {
-        this._scenarioTemplateFilter = filterTerm;
+        this._scenarioTemplateFilter = filterTerm || '';
         this.filterScenarioTemplates();
       });
     this.eventTemplateNameFormControl.setValue(this.data.eventTemplate.name);

@@ -14,29 +14,33 @@
   justify-content: center;
   max-height: 800px;
   min-width: 300px;
-  margin: auto;
+  max-width: 1200px;
   width: 80%;
+  margin: auto;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 5px 5px -3px #0003, 0 8px 10px 1px #00000024, 0 3px 14px 2px #0000001f;
 }
 
 .mat-table {
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   max-height: 700px;
 }
 
 .mat-column-name {
   word-wrap: break-word !important;
-  flex: 0 0 300px !important;
-  width: 300px !important;
+  flex: 0 0 30% !important;
+  min-width: 150px !important;
+  max-width: 300px !important;
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
 
 .mat-column-description {
   word-wrap: break-word !important;
-  flex: 0 0 600px !important;
-  width: 600px !important;
+  flex: 1 1 auto !important;
+  min-width: 200px !important;
   overflow-wrap: break-word;
   word-wrap: break-word;
 }

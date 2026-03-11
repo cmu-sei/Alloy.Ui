@@ -9,25 +9,19 @@
 }
 
 :host {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: absolute;
   display: block;
-  height: 100%;
+  min-height: 100vh;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
 }
 
 .page-container {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: absolute;
-  height: 100%;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
 }
@@ -57,6 +51,7 @@
   max-width: 1200px;
   margin-top: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 5px 5px -3px #0003, 0 8px 10px 1px #00000024, 0 3px 14px 2px #0000001f;
 }
 

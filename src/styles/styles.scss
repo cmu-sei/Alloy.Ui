@@ -30,6 +30,11 @@ html {
     ));
 }
 
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .darkMode {
   @include mat.theme((color: (primary: theme.$primary-palette,
         typography: '"Open Sans", sans-serif',

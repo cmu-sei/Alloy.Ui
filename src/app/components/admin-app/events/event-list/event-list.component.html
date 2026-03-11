@@ -92,6 +92,29 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <strong>Error Details</strong>
         </div>
         <div>{{ item.errorMessage }}</div>
+        @if (item.workspaceId) {
+        <div style="margin-top: 8px;">
+          <a href="http://localhost:4310" target="_blank" style="color: inherit; text-decoration: underline;">
+            Open Caster <mat-icon class="mdi-18px" fontIcon="mdi-open-in-new" style="vertical-align: middle;"></mat-icon>
+          </a>
+          <div style="margin-top: 4px; font-size: 0.9em; opacity: 0.9; font-family: monospace; display: flex; flex-direction: column; gap: 2px;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <button mat-icon-button ngxClipboard [cbContent]="item.workspaceId" (click)="$event.stopPropagation()" title="Copy Workspace ID" style="width: 20px; height: 20px; line-height: 20px; padding: 0;">
+                <mat-icon class="mdi-14px" fontIcon="mdi-content-copy"></mat-icon>
+              </button>
+              <span>Workspace: {{ item.workspaceId }}</span>
+            </div>
+            @if (item.runId) {
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <button mat-icon-button ngxClipboard [cbContent]="item.runId" (click)="$event.stopPropagation()" title="Copy Run ID" style="width: 20px; height: 20px; line-height: 20px; padding: 0;">
+                <mat-icon class="mdi-14px" fontIcon="mdi-content-copy"></mat-icon>
+              </button>
+              <span>Run: {{ item.runId }}</span>
+            </div>
+            }
+          </div>
+        </div>
+        }
         @if (item.lastLaunchInternalStatus) {
         <div style="margin-top: 8px; font-size: 0.9em; opacity: 0.9;">
           Last Internal Status: {{ item.lastLaunchInternalStatus }}

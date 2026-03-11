@@ -25,7 +25,7 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs/operators';
-import { EventStatus } from 'src/app/generated/alloy.api';
+import { EventService, EventStatus } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
@@ -96,6 +96,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     public eventTemplateDataService: EventTemplateDataService,
     public eventDataService: EventDataService,
+    private eventService: EventService,
     private eventTemplateQuery: EventTemplateQuery,
     private eventQuery: EventQuery,
     private userDataService: UserDataService,
@@ -360,6 +361,35 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           this.signalRService.startConnection().then(() => {
             this.signalRService.joinEvent(event.id);
           });
+          // Poll for early failures (first 30 seconds)
+          this.pollEventStatus(event.id, 30);
+        })
+      )
+      .subscribe();
+  }
+
+  private pollEventStatus(eventId: string, durationSeconds: number) {
+    const pollInterval = 2000; // Poll every 2 seconds
+    const endTime = Date.now() + (durationSeconds * 1000);
+    const stopPolling$ = new Subject<void>();
+
+    interval(pollInterval)
+      .pipe(
+        takeUntil(stopPolling$),
+        takeUntil(this.unsubscribe$),
+        switchMap(() => this.eventService.getEvent(eventId)),
+        tap((event) => {
+          // Update the store so UI refreshes
+          this.eventDataService.stateUpdate(event);
+
+          // Stop polling if event reaches a final state or time expires
+          if (event.status === EventStatus.Active ||
+              event.status === EventStatus.Failed ||
+              event.status === EventStatus.Ended ||
+              Date.now() >= endTime) {
+            stopPolling$.next();
+            stopPolling$.complete();
+          }
         })
       )
       .subscribe();

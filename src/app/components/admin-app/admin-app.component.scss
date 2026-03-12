@@ -1,6 +1,11 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
+.appitems-container {
+  grid-row: 2;
+  overflow-y: auto;
+}
+
 .appitems-container .mat-mdc-list-item {
   min-height: 48px;
 }
@@ -17,30 +22,41 @@
 }
 
 .sidenav-header {
+  grid-row: 1;
   height: 40px;
   border-bottom: 2px solid var(--mat-sys-surface-container);
 }
 
 .appcontent-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+
+  ::ng-deep mat-sidenav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 
   ::ng-deep .mat-sidenav-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     overflow: hidden;
+    width: 100%;
   }
 }
 
 .appbarmenu-container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
   width: 250px;
   border-right: solid var(--mat-sys-surface-container);
 }
 
 .crucible-logo {
-  position: absolute;
-  bottom: 0;
+  grid-row: 3;
 }
 
 .showhand {

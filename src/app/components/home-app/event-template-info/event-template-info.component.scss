@@ -9,15 +9,18 @@
 }
 
 .event-template-page-container {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: absolute;
-  height: 100%;
-  overflow: auto;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
+
+  .cssLayoutRowCenterCenter {
+    align-items: flex-start !important;
+    justify-content: center;
+  }
 }
 
 .event-info-container {

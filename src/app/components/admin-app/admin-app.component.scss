@@ -35,7 +35,22 @@
     flex-direction: column;
     flex: 1;
     overflow: hidden;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  ::ng-deep app-topbar {
+    display: block;
     width: 100%;
+    margin: 0;
+    padding: 0;
+
+    mat-toolbar,
+    .toolbar {
+      width: 100%;
+      margin: 0;
+      box-sizing: border-box;
+    }
   }
 }
 

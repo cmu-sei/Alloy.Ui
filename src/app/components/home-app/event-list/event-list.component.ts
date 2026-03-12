@@ -44,6 +44,11 @@ export class EventListComponent implements OnInit, OnDestroy {
     'description',
     'durationHours',
   ];
+  public columnHeaders: { [key: string]: string } = {
+    'name': 'Event Name',
+    'description': 'Description',
+    'durationHours': 'Duration (Hours)'
+  };
 
   public filterString: string;
   public doneLoading = false;

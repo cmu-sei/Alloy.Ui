@@ -7,8 +7,10 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 import { ComnAuthQuery, ComnSettingsService, Theme } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
@@ -25,7 +27,7 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs/operators';
-import { EventStatus } from 'src/app/generated/alloy.api';
+import { EventStatus, SystemPermission } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
@@ -40,6 +42,7 @@ import { UserEventsQuery } from '../../../data/event/user-events.query';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
 import { TopbarView } from '../../shared/top-bar/topbar.models';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
     selector: 'app-event-template-info',
@@ -49,6 +52,7 @@ import { TopbarView } from '../../shared/top-bar/topbar.models';
 })
 export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   @Input() eventTemplateId: string;
+  @ViewChild(MatSort, { static: false }) sort: MatSort;
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
   public TopbarView = TopbarView;
@@ -89,6 +93,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public expirationDate: Date;
   public isIFrame: boolean;
   public inviteLink: string;
+  public permissions: SystemPermission[] = [];
+  public canViewAdministration = false;
   private unsubscribe$: Subject<null> = new Subject<null>();
 
   constructor(
@@ -105,7 +111,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private routerQuery: RouterQuery,
     private signalRService: SignalRService,
     private clipboardService: ClipboardService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private permissionDataService: PermissionDataService
   ) {
     this.titleText = this.settingsService.settings.AppTopBarText;
     this.theme$ = this.authQuery.userTheme$;
@@ -125,6 +132,17 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isIFrame = this.isIframe();
+
+    // Load permissions
+    this.permissionDataService
+      .load()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        (x) => {
+          this.permissions = this.permissionDataService.permissions;
+          this.canViewAdministration = this.permissions.some((y) => y.startsWith('View'));
+        }
+      );
 
     this.routerQuery
       .selectParams(['id', 'viewId'])
@@ -170,6 +188,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       }),
       tap((events) => {
         this.impsDataSource.data = events;
+        if (this.sort) {
+          this.impsDataSource.sort = this.sort;
+        }
       }),
       shareReplay(),
       // share({

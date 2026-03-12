@@ -232,13 +232,13 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
               <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row eventTemplate" -->
               <ng-container matColumnDef="username">
-                <mat-header-cell *matHeaderCellDef> User </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef mat-sort-header> User </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   {{ element.username }}
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="status">
-                <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">{{ element?.status }}</div>
                   @if (element.status === EventStatus.Failed) {
@@ -249,7 +249,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="lastLaunchStatus">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Last Launch
                 </mat-header-cell>
                 <mat-cell *matCellDef="let element">
@@ -262,7 +262,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="lastEndStatus">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Last End Status</mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   @if (element.lastEndStatus) {
@@ -274,7 +274,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="dateCreated">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Start Date Status</mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">
@@ -283,7 +283,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="endDate">
-                <mat-header-cell *matHeaderCellDef> End Date </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef mat-sort-header> End Date </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">
                     {{ element.endDate | date: 'long' }}
@@ -291,7 +291,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="statusDate">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Last Status Date
                 </mat-header-cell>
                 <mat-cell *matCellDef="let element">

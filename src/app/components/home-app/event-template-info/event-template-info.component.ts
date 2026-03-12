@@ -7,8 +7,10 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 import { ComnAuthQuery, ComnSettingsService, Theme } from '@cmusei/crucible-common';
 import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { ClipboardService } from 'ngx-clipboard';
@@ -50,6 +52,7 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 })
 export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   @Input() eventTemplateId: string;
+  @ViewChild(MatSort, { static: false }) sort: MatSort;
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
   public TopbarView = TopbarView;
@@ -185,6 +188,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       }),
       tap((events) => {
         this.impsDataSource.data = events;
+        if (this.sort) {
+          this.impsDataSource.sort = this.sort;
+        }
       }),
       shareReplay(),
       // share({

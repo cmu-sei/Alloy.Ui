@@ -25,7 +25,7 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs/operators';
-import { EventStatus } from 'src/app/generated/alloy.api';
+import { EventStatus, SystemPermission } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
@@ -40,6 +40,7 @@ import { UserEventsQuery } from '../../../data/event/user-events.query';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
 import { TopbarView } from '../../shared/top-bar/topbar.models';
+import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
 @Component({
     selector: 'app-event-template-info',
@@ -89,6 +90,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public expirationDate: Date;
   public isIFrame: boolean;
   public inviteLink: string;
+  public permissions: SystemPermission[] = [];
+  public canViewAdministration = false;
   private unsubscribe$: Subject<null> = new Subject<null>();
 
   constructor(
@@ -105,7 +108,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private routerQuery: RouterQuery,
     private signalRService: SignalRService,
     private clipboardService: ClipboardService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private permissionDataService: PermissionDataService
   ) {
     this.titleText = this.settingsService.settings.AppTopBarText;
     this.theme$ = this.authQuery.userTheme$;
@@ -125,6 +129,17 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isIFrame = this.isIframe();
+
+    // Load permissions
+    this.permissionDataService
+      .load()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        (x) => {
+          this.permissions = this.permissionDataService.permissions;
+          this.canViewAdministration = this.permissions.some((y) => y.startsWith('View'));
+        }
+      );
 
     this.routerQuery
       .selectParams(['id', 'viewId'])

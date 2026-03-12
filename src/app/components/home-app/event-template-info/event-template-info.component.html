@@ -10,6 +10,18 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   >
 </app-topbar>
 }
+@if (permissions && !isIFrame) {
+<div class="top-row">
+  <div class="one-cell last-cell">
+    @if (canViewAdministration) {
+    <button aria-label="Show Administration Page" mat-icon-button [routerLink]="['/admin']"
+      style="outline: none;" title="Administration">
+      <mat-icon class="mdi-24px center-self" fontIcon="mdi-cog"></mat-icon>
+    </button>
+    }
+  </div>
+</div>
+}
 <div class="cssLayoutRowCenterCenter">
   <div class="event-info-container elevate">
     <div class="cssLayoutRowStartCenter full-width">

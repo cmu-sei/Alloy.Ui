@@ -10,7 +10,7 @@
 
 .event-template-page-container {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   min-height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -21,6 +21,24 @@
     align-items: flex-start !important;
     justify-content: center;
   }
+}
+
+.top-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.one-cell {
+  flex: 1;
+}
+
+.last-cell {
+  text-align: right;
+}
+
+.center-self {
+  align-self: center;
 }
 
 .event-info-container {

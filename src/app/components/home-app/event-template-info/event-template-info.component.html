@@ -2,12 +2,25 @@
 Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
+<div class="event-template-page-container">
 @if (!isIFrame) {
 <app-topbar
   [title]="titleText"
   [topbarView]="TopbarView.ALLOY_HOME"
   >
 </app-topbar>
+}
+@if (permissions && !isIFrame) {
+<div class="top-row">
+  <div class="one-cell last-cell">
+    @if (canViewAdministration) {
+    <button aria-label="Show Administration Page" mat-icon-button [routerLink]="['/admin']"
+      style="outline: none;" title="Administration">
+      <mat-icon class="mdi-24px center-self" fontIcon="mdi-cog"></mat-icon>
+    </button>
+    }
+  </div>
+</div>
 }
 <div class="cssLayoutRowCenterCenter">
   <div class="event-info-container elevate">
@@ -219,13 +232,13 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
               <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row eventTemplate" -->
               <ng-container matColumnDef="username">
-                <mat-header-cell *matHeaderCellDef> User </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef mat-sort-header> User </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   {{ element.username }}
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="status">
-                <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">{{ element?.status }}</div>
                   @if (element.status === EventStatus.Failed) {
@@ -236,7 +249,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="lastLaunchStatus">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Last Launch
                 </mat-header-cell>
                 <mat-cell *matCellDef="let element">
@@ -249,7 +262,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="lastEndStatus">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Last End Status</mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   @if (element.lastEndStatus) {
@@ -261,7 +274,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="dateCreated">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Start Date Status</mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">
@@ -270,7 +283,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="endDate">
-                <mat-header-cell *matHeaderCellDef> End Date </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef mat-sort-header> End Date </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">
                     {{ element.endDate | date: 'long' }}
@@ -278,7 +291,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="statusDate">
-                <mat-header-cell *matHeaderCellDef>
+                <mat-header-cell *matHeaderCellDef mat-sort-header>
                   Last Status Date
                 </mat-header-cell>
                 <mat-cell *matCellDef="let element">
@@ -304,4 +317,5 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </div>
     }
   </div>
+</div>
 </div>

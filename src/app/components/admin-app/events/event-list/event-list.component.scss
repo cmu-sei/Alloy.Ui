@@ -108,3 +108,9 @@
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
+
+mat-accordion {
+  display: block;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+}

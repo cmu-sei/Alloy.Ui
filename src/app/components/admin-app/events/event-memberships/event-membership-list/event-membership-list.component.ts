@@ -4,6 +4,7 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 */
 
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
@@ -26,7 +27,7 @@ import { EventMembership, Group, User } from 'src/app/generated/alloy.api';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false
 })
-export class EventMembershipListComponent implements OnInit, OnChanges {
+export class EventMembershipListComponent implements OnInit, OnChanges, AfterViewInit {
   @Input()
   users: User[];
 
@@ -47,12 +48,17 @@ export class EventMembershipListComponent implements OnInit, OnChanges {
 
   filterString = '';
 
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+
   constructor(public snackBar: MatSnackBar) {}
 
   ngOnInit(): void {}
 
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
 
   ngOnChanges() {
     this.dataSource.data = this.buildModel();

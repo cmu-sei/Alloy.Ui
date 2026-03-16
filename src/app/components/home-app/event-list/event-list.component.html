@@ -17,6 +17,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         }
       </mat-form-field>
     </div>
+    <mat-paginator
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      showFirstLastButtons
+      aria-label="Select page of events">
+    </mat-paginator>
   </div>
   @if (!doneLoading) {
   <mat-card class="spinner">

@@ -8,7 +8,6 @@ import {
   trigger,
 } from '@angular/animations';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -39,7 +38,6 @@ export class EventListComponent implements OnInit, OnDestroy {
   @Input() templates: EventTemplate[];
   @ViewChild('sortTemplate', { static: true }) eventTemplateSort: MatSort;
   @ViewChild('sortEvent', { static: true }) eventSort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   public eventTemplateDataSource: MatTableDataSource<EventTemplate>;
   public eventTemplateDisplayedColumns: string[] = [
     'name',
@@ -89,7 +87,6 @@ export class EventListComponent implements OnInit, OnDestroy {
             start: 'asc',
           });
           this.eventTemplateDataSource.sort = this.eventTemplateSort;
-          this.eventTemplateDataSource.paginator = this.paginator;
           this.doneLoading = !loading;
         }),
         takeUntil(this.unsubscribe$)

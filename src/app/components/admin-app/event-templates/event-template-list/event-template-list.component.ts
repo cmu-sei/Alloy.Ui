@@ -2,14 +2,25 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+import {
+  AfterViewInit,
   Component,
   Input,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -26,7 +37,6 @@ import {
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { MatDialog } from '@angular/material/dialog';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 
@@ -34,28 +44,33 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
   selector: 'app-event-template-list',
   templateUrl: './event-template-list.component.html',
   styleUrls: ['./event-template-list.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
   standalone: false
 })
-export class EventTemplateListComponent implements OnDestroy, OnInit {
+export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnInit {
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
   @Input() scenarioTemplateList: Observable<EventTemplate[]>;
   @Input() set eventTemplates(value: EventTemplate[]) {
-    this._eventTemplates = value || [];
-    this.applyFilter();
+    this.eventTemplateDataSource.data = value || [];
   }
   @Input() isLoading: boolean;
   @Input() adminMode = false;
 
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('paginator') paginator: MatPaginator;
+
   filterControl = new UntypedFormControl();
-  filterString = '';
-  filteredEventTemplateList: EventTemplate[] = [];
-  displayedEventTemplates: EventTemplate[] = [];
-  pageIndex = 0;
-  pageSize = 20;
-  sort: Sort = { active: 'dateCreated', direction: 'desc' };
+  displayedColumns: string[] = ['actions', 'name', 'description', 'durationHours', 'dateCreated'];
+  eventTemplateDataSource = new MatTableDataSource<EventTemplate>([]);
+  expandedEventTemplateId: string | null = null;
   systemPermissions: SystemPermission[] = [];
-  private _eventTemplates: EventTemplate[] = [];
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -74,6 +89,50 @@ export class EventTemplateListComponent implements OnDestroy, OnInit {
       );
   }
 
+  ngOnInit() {
+    this.eventTemplateDataSource.filterPredicate = (data, filter) =>
+      !filter ||
+      (data.name?.toLowerCase().includes(filter)) ||
+      (data.description?.toLowerCase().includes(filter));
+
+    this.eventTemplateDataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'name': return item.name?.toLowerCase() ?? '';
+        case 'description': return item.description?.toLowerCase() ?? '';
+        case 'dateCreated': return item.dateCreated ?? '';
+        default: return (item as any)[property] ?? '';
+      }
+    };
+
+    this.filterControl.valueChanges
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe((term) => {
+        this.eventTemplateDataSource.filter = (term || '').trim().toLowerCase();
+      });
+  }
+
+  ngAfterViewInit() {
+    this.eventTemplateDataSource.sort = this.sort;
+    this.eventTemplateDataSource.paginator = this.paginator;
+  }
+
+  ngOnDestroy() {
+    this.unsubscribe$.next(null);
+    this.unsubscribe$.complete();
+  }
+
+  clearFilter() {
+    this.filterControl.setValue('');
+  }
+
+  selectEventTemplate(id: string) {
+    this.expandedEventTemplateId = this.expandedEventTemplateId === id ? null : id;
+  }
+
   canCreateEventTemplates(): boolean {
     return this.permissionDataService.canCreateEventTemplates();
   }
@@ -88,68 +147,6 @@ export class EventTemplateListComponent implements OnDestroy, OnInit {
 
   canManageEventTemplate(id: string): boolean {
     return this.permissionDataService.canManageEventTemplate(id);
-  }
-
-  ngOnInit() {
-    this.filterControl.valueChanges
-      .pipe(
-        debounceTime(250),
-        distinctUntilChanged(),
-        takeUntil(this.unsubscribe$)
-      )
-      .subscribe((term) => {
-        this.filterString = term.trim().toLowerCase();
-        this.applyFilter();
-      });
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe$.next(null);
-    this.unsubscribe$.complete();
-  }
-
-  clearFilter() {
-    this.filterControl.setValue('');
-  }
-
-  applyFilter() {
-    this.filteredEventTemplateList = this._eventTemplates.filter(et =>
-      !this.filterString ||
-      et.name?.toLowerCase().includes(this.filterString) ||
-      et.description?.toLowerCase().includes(this.filterString)
-    );
-    this.sortList(this.sort);
-  }
-
-  sortList(sort: Sort) {
-    this.sort = sort;
-    this.filteredEventTemplateList.sort((a, b) => this.sortEventTemplates(a, b, sort.active, sort.direction));
-    this.applyPagination();
-  }
-
-  private sortEventTemplates(a: EventTemplate, b: EventTemplate, column: string, direction: string) {
-    const isAsc = direction !== 'desc';
-    switch (column) {
-      case 'name':
-        return ((a.name?.toLowerCase() ?? '') < (b.name?.toLowerCase() ?? '') ? -1 : 1) * (isAsc ? 1 : -1);
-      case 'description':
-        return ((a.description?.toLowerCase() ?? '') < (b.description?.toLowerCase() ?? '') ? -1 : 1) * (isAsc ? 1 : -1);
-      case 'dateCreated':
-        return ((a.dateCreated ?? '') < (b.dateCreated ?? '') ? -1 : 1) * (isAsc ? 1 : -1);
-      default:
-        return 0;
-    }
-  }
-
-  paginatorEvent(page: PageEvent) {
-    this.pageIndex = page.pageIndex;
-    this.pageSize = page.pageSize;
-    this.applyPagination();
-  }
-
-  applyPagination() {
-    const startIndex = this.pageIndex * this.pageSize;
-    this.displayedEventTemplates = this.filteredEventTemplateList.slice(startIndex, startIndex + this.pageSize);
   }
 
   addNewEventTemplate() {
@@ -199,5 +196,4 @@ export class EventTemplateListComponent implements OnDestroy, OnInit {
       dialogRef.close();
     });
   }
-
 }

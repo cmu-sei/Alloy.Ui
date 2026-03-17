@@ -2,6 +2,13 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+import {
   Component,
   Input,
   OnInit,
@@ -37,10 +44,18 @@ export interface Action {
   selector: 'app-admin-event-list',
   templateUrl: './event-list.component.html',
   styleUrls: ['./event-list.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
   standalone: false
 })
 export class AdminEventListComponent implements OnInit {
   displayedColumns: string[] = [
+    'actions',
     'name',
     'username',
     'status',
@@ -48,6 +63,7 @@ export class AdminEventListComponent implements OnInit {
     'launchDate',
     'expirationDate',
   ];
+  expandedEventId: string | null = null;
   filterString: string;
 
   editEventText = 'Edit Event';
@@ -65,8 +81,8 @@ export class AdminEventListComponent implements OnInit {
   defaultPageSize = 10;
   pageEvent: PageEvent;
   isLoading: Boolean;
-  displayedRows$: Observable<AlloyEvent[]>;
-  totalRows$: Observable<number>;
+  displayedRows$: Observable<AlloyEvent[]> = of([]);
+  totalRows$: Observable<number> = of(0);
   sortEvents$: Observable<Sort>;
   pageEvents$: Observable<PageEvent>;
 
@@ -258,6 +274,10 @@ export class AdminEventListComponent implements OnInit {
       }
       dialogRef.close();
     });
+  }
+
+  selectEvent(id: string) {
+    this.expandedEventId = this.expandedEventId === id ? null : id;
   }
 
   canEdit(id: string): boolean {

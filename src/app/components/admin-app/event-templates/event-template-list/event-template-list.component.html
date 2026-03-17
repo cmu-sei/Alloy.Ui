@@ -17,65 +17,88 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     }
   </mat-form-field>
   <div class="nator-div">
-    <mat-paginator #paginator [length]="filteredEventTemplateList.length" [pageIndex]="pageIndex"
-      [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"
-      (page)="paginatorEvent($event)"></mat-paginator>
+    <mat-paginator #paginator [pageSize]="20"
+      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
   </div>
 </div>
-<mat-accordion displayMode="flat">
-  <section matSort (matSortChange)="sortList($event)" class="header-row">
-    <div class="header-cell first-cell">
-      @if (canCreateEventTemplates()) {
-      <button mat-icon-button (click)="addNewEventTemplate()" style="outline: none; margin-left: 20px;"
-        title="Add Event Template">
-        <mat-icon class="mdi-24px self-center" fontIcon="mdi-plus-circle"></mat-icon>
-      </button>
-      }
-    </div>
-    <div class="header-cell name-cell" mat-sort-header="name">Name</div>
-    <div class="header-cell description-cell">Description</div>
-    <div class="header-cell duration-cell">Duration (Hours)</div>
-    <div class="header-cell date-cell" mat-sort-header="dateCreated">Created</div>
-  </section>
 
-  @for (element of displayedEventTemplates; track element.id) {
-  <mat-expansion-panel>
-    <mat-expansion-panel-header class="row">
-      <div class="cell first-cell">
+<div class="table-container">
+  <table mat-table [dataSource]="eventTemplateDataSource" matSort matSortActive="dateCreated"
+    matSortDirection="desc" multiTemplateDataRows>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>
+        @if (canCreateEventTemplates()) {
+        <button mat-icon-button (click)="addNewEventTemplate(); $event.stopPropagation()"
+          style="outline: none; margin-left: 20px;" title="Add Event Template">
+          <mat-icon class="mdi-24px" fontIcon="mdi-plus-circle"></mat-icon>
+        </button>
+        }
+      </th>
+      <td mat-cell *matCellDef="let element">
         <button mat-icon-button (click)="editEventTemplate(element); $event.stopPropagation()"
           title="{{ (canEditEventTemplate(element.id) || canManageEventTemplate(element.id)) ? 'Edit' : 'View' }}: {{ element.name }}">
-          <mat-icon class="mdi-18px" [fontIcon]="(canEditEventTemplate(element.id) || canManageEventTemplate(element.id)) ? 'mdi-square-edit-outline' : 'mdi-eye-outline'"></mat-icon>
+          <mat-icon class="mdi-18px"
+            [fontIcon]="(canEditEventTemplate(element.id) || canManageEventTemplate(element.id)) ? 'mdi-square-edit-outline' : 'mdi-eye-outline'"></mat-icon>
         </button>
         <button mat-icon-button ngxClipboard [cbContent]="element.id" (click)="$event.stopPropagation()"
           title="Copy: {{ element.id }}">
           <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
         </button>
-      </div>
-      <div class="cell name-cell center-self">{{ element.name }}</div>
-      <div class="cell description-cell center-self" title="{{ element.description }}">
-        {{
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+      <td mat-cell *matCellDef="let element" title="{{ element.description }}">{{
         element.description && element.description.length > 80
         ? element.description.slice(0, 80) + ' ...'
         : element.description
-        }}
-      </div>
-      <div class="cell duration-cell center-self">{{ element.durationHours }}</div>
-      <div class="cell date-cell center-self">{{ element.dateCreated | date: 'yyyy-MM-dd' }}</div>
-    </mat-expansion-panel-header>
-    <ng-template matExpansionPanelContent>
-      <div class="memberships-container">
-        <label class="memberships-label">Memberships</label>
-        <app-event-template-memberships [eventTemplateId]="element.id"
-          [showHeader]="false"></app-event-template-memberships>
-      </div>
-    </ng-template>
-  </mat-expansion-panel>
-  }
-</mat-accordion>
+        }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="durationHours">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Duration (Hours)</th>
+      <td mat-cell *matCellDef="let element">{{ element.durationHours }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="dateCreated">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+      <td mat-cell *matCellDef="let element">{{ element.dateCreated | date: 'yyyy-MM-dd' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+        <div [@detailExpand]="element.id === expandedEventTemplateId ? 'expanded' : 'collapsed'"
+          (click)="$event.stopPropagation()">
+          @if (element.id === expandedEventTemplateId) {
+          <div class="memberships-container">
+            <label class="memberships-label">Memberships</label>
+            <app-event-template-memberships [eventTemplateId]="element.id"
+              [showHeader]="false"></app-event-template-memberships>
+          </div>
+          }
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"
+      (click)="selectEventTemplate(row.id)"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+  </table>
+</div>
 
 @if (isLoading) {
-<mat-card appearance="outlined" style="display: flex; justify-content: center; align-items: center;">
-  <mat-progress-spinner color="primary" mode="indeterminate">
-  </mat-progress-spinner>
-</mat-card>
+<div>
+  <div flex>
+    <mat-progress-spinner color="accent" mode="indeterminate">
+    </mat-progress-spinner>
+  </div>
+</div>
 }

@@ -13,7 +13,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { combineLatest, forkJoin, Observable } from 'rxjs';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
 import { EventTemplateMembershipDataService } from 'src/app/data/event-template/event-template-membership-data.service';
@@ -52,7 +52,7 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
   groupNonMembers$ = this.selectGroups(false);
   groupMembers$ = this.selectGroups(true);
 
-  canEdit: boolean;
+  canEdit$: Observable<boolean>;
 
   constructor(
     private eventTemplateQuery: EventTemplateQuery,
@@ -73,20 +73,16 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
       this.eventTemplateRolesDataService.loadRoles(),
       this.groupDataService.load(),
     ]).subscribe();
+    this.permissionDataService
+      .loadEventTemplatePermissions(this.eventTemplateId)
+      .subscribe(() =>
+        this.canEdit$ = of(this.permissionDataService.canEditEventTemplate(this.eventTemplateId)));
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.eventTemplate$ = this.eventTemplateQuery
       .selectEntity(this.eventTemplateId)
-      .pipe(
-        filter((x) => x != null),
-        tap(
-          (x) =>
-            (this.canEdit = this.permissionDataService.canEditEventTemplate(
-              x.id
-            ))
-        )
-      );
+      .pipe(filter((x) => x != null));
   }
 
   selectUsers(members: boolean) {

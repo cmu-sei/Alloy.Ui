@@ -28,57 +28,84 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 </div>
 
 @if (isLoading) {
-<mat-card appearance="outlined" style="display: flex; justify-content: center; align-items: center;">
-  <mat-progress-spinner color="primary" mode="indeterminate">
-  </mat-progress-spinner>
-</mat-card>
+<div>
+  <div flex>
+    <mat-progress-spinner color="accent" mode="indeterminate">
+    </mat-progress-spinner>
+  </div>
+</div>
 }
 
-<mat-accordion displayMode="flat">
-  <section matSort class="header-row">
-    <div class="header-cell first-cell">&nbsp;</div>
-    <div class="header-cell name-cell" mat-sort-header="name">Name</div>
-    <div class="header-cell one-cell" mat-sort-header="username">User</div>
-    <div class="header-cell one-cell" mat-sort-header="status">Status</div>
-    <div class="header-cell date-cell" mat-sort-header="statusDate">Status Date</div>
-    <div class="header-cell date-cell" mat-sort-header="launchDate">Launch Date</div>
-    <div class="header-cell date-cell" mat-sort-header="expirationDate">Expiration Date</div>
-  </section>
+<div class="table-container">
+  <table mat-table [dataSource]="displayedRows$ | async" matSort multiTemplateDataRows>
 
-  @for (item of displayedRows$ | async; track item) {
-  <mat-expansion-panel>
-    <mat-expansion-panel-header class="row">
-      <div class="cell first-cell">
-        <button mat-icon-button (click)="editEvent(item); $event.stopPropagation()" title="Edit event"
-          [disabled]="!(canEdit(item.id) || canManage(item.id))">
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button (click)="editEvent(element); $event.stopPropagation()" title="Edit event"
+          [disabled]="!(canEdit(element.id) || canManage(element.id))">
           <mat-icon class="mdi-18px" fontIcon="mdi-square-edit-outline"></mat-icon>
         </button>
-        <button mat-icon-button ngxClipboard [cbContent]="item.id" (click)="$event.stopPropagation()"
-          title="Copy: {{ item.id }}">
+        <button mat-icon-button ngxClipboard [cbContent]="element.id" (click)="$event.stopPropagation()"
+          title="Copy: {{ element.id }}">
           <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
         </button>
-      </div>
-      <div class="cell name-cell center-self">{{ item.name }}</div>
-      <div class="cell one-cell center-self">{{ item.username }}</div>
-      <div class="cell one-cell center-self">{{ item.status }}</div>
-      <div class="cell date-cell center-self">{{
-        !!item.statusDate ? (item.statusDate | date: 'yyyy-MM-dd HH:mm') : ' '
-        }}</div>
-      <div class="cell date-cell center-self">{{
-        !!item.launchDate ? (item.launchDate | date: 'yyyy-MM-dd HH:mm') : ' '
-        }}</div>
-      <div class="cell date-cell center-self">{{
-        !!item.expirationDate
-        ? (item.expirationDate | date: 'yyyy-MM-dd HH:mm')
-        : ' '
-        }}</div>
-    </mat-expansion-panel-header>
-    <ng-template matExpansionPanelContent>
-      <div class="memberships-container">
-        <label class="memberships-label">Memberships</label>
-        <app-event-memberships [event]="item" [embedded]="false"></app-event-memberships>
-      </div>
-    </ng-template>
-  </mat-expansion-panel>
-  }
-</mat-accordion>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="username">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>User</th>
+      <td mat-cell *matCellDef="let element">{{ element.username }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+      <td mat-cell *matCellDef="let element">{{ element.status }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="statusDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status Date</th>
+      <td mat-cell *matCellDef="let element">{{
+        !!element.statusDate ? (element.statusDate | date: 'yyyy-MM-dd HH:mm') : ' '
+        }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="launchDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Launch Date</th>
+      <td mat-cell *matCellDef="let element">{{
+        !!element.launchDate ? (element.launchDate | date: 'yyyy-MM-dd HH:mm') : ' '
+        }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="expirationDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Expiration Date</th>
+      <td mat-cell *matCellDef="let element">{{
+        !!element.expirationDate ? (element.expirationDate | date: 'yyyy-MM-dd HH:mm') : ' '
+        }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+        <div [@detailExpand]="element.id === expandedEventId ? 'expanded' : 'collapsed'"
+          (click)="$event.stopPropagation()">
+          @if (element.id === expandedEventId) {
+          <div class="memberships-container">
+            <label class="memberships-label">Memberships</label>
+            <app-event-memberships [event]="element" [embedded]="false"></app-event-memberships>
+          </div>
+          }
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"
+      (click)="selectEvent(row.id)"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+  </table>
+</div>

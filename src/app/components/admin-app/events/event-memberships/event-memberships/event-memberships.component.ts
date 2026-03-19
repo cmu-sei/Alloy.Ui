@@ -12,7 +12,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { combineLatest, forkJoin, Observable } from 'rxjs';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { EventQuery } from 'src/app/data/event/event.query';
@@ -47,7 +47,7 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
   groupNonMembers$ = this.selectGroups(false);
   groupMembers$ = this.selectGroups(true);
 
-  canEdit: boolean;
+  canEdit$: Observable<boolean>;
 
   constructor(
     private eventDataService: EventDataService,
@@ -69,12 +69,15 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
     ]).subscribe(() => {
       this.eventDataService.getEvent(this.event.id).subscribe;
     });
+    this.permissionDataService
+      .loadEventPermissions(this.event.id)
+      .subscribe(() =>
+        this.canEdit$ = of(this.permissionDataService.canEditEvent(this.event.id)));
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.event$ = this.eventQuery.selectEntity(this.event.id).pipe(
-      filter((x) => x != null),
-      tap((x) => (this.canEdit = this.permissionDataService.canEditEvent(x.id)))
+      filter((x) => x != null)
     );
   }
 

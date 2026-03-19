@@ -4,6 +4,7 @@
 /* VENDER IMPORTS */
 @use '@angular/material' as mat;
 @use './theme-colors' as theme;
+@use './dark-theme-colors' as dark-theme;
 
 @include mat.core();
 @include mat.elevation-classes();
@@ -34,8 +35,13 @@ html {
     ));
 }
 
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .darkMode {
-  @include mat.theme((color: (primary: theme.$primary-palette,
+  @include mat.theme((color: (primary: dark-theme.$dark-primary-palette,
         typography: '"Open Sans", sans-serif',
         theme-type: dark,
       ),

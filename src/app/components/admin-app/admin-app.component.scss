@@ -1,6 +1,10 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
+.appitems-container {
+  overflow-y: auto;
+}
+
 .appitems-container .mat-mdc-list-item {
   min-height: 48px;
 }
@@ -22,18 +26,37 @@
 }
 
 .appcontent-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
 
   ::ng-deep .mat-sidenav-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     overflow: hidden;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  ::ng-deep app-topbar {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    mat-toolbar,
+    .toolbar {
+      width: 100%;
+      margin: 0;
+      box-sizing: border-box;
+    }
   }
 }
 
 .appbarmenu-container {
+  position: relative;
+  height: 100vh;
   width: 250px;
   border-right: solid var(--mat-sys-surface-container);
 }

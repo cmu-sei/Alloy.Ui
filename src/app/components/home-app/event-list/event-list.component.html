@@ -16,6 +16,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         </button>
         }
       </mat-form-field>
+      <mat-paginator
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        showFirstLastButtons
+        aria-label="Select page of events">
+      </mat-paginator>
     </div>
   </div>
   @if (!doneLoading) {
@@ -25,27 +30,29 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </mat-card>
   }
   <!-- Event Templates-->
-  <mat-table #sortTemplate="matSort" [dataSource]="eventTemplateDataSource" matSort>
-    @for (col of eventTemplateDisplayedColumns; track col; let i = $index) {
-    <ng-container matColumnDef="{{ col }}">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>{{ col }}
-      </mat-header-cell>
-      <mat-cell *matCellDef="let element">
-        <!-- Only Show link if its the first element-->
-        @if (i === 0) {
-        <div class="link-text">
-          <a [routerLink]="['/templates', element.id]">{{ element.name }}</a>
-        </div>
-        } @else {
-        {{ element[col] }}
-        }
-      </mat-cell>
-    </ng-container>
-    }
+  <div class="table-container">
+    <mat-table #sortTemplate="matSort" [dataSource]="eventTemplateDataSource" matSort>
+      @for (col of eventTemplateDisplayedColumns; track col; let i = $index) {
+      <ng-container matColumnDef="{{ col }}">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders[col] }}
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <!-- Only Show link if its the first element-->
+          @if (i === 0) {
+          <div class="link-text">
+            <a [routerLink]="['/templates', element.id]">{{ element.name }}</a>
+          </div>
+          } @else {
+          {{ element[col] }}
+          }
+        </mat-cell>
+      </ng-container>
+      }
 
-    <mat-header-row *matHeaderRowDef="eventTemplateDisplayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: eventTemplateDisplayedColumns"></mat-row>
-  </mat-table>
+      <mat-header-row *matHeaderRowDef="eventTemplateDisplayedColumns; sticky: true"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: eventTemplateDisplayedColumns"></mat-row>
+    </mat-table>
+  </div>
 
   @if (eventTemplateDataSource.filteredData.length === 0) {
   <div>

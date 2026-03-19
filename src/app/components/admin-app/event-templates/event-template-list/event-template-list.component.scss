@@ -12,83 +12,71 @@
   margin-left: 10px;
 }
 
-.header-row {
-  min-height: 56px;
-}
-
-.row {
-  min-height: 48px;
-}
-
-.row,
-.header-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 24px;
-  font-weight: 400;
-}
-
-.cell,
-.header-cell {
-  overflow: hidden;
-  word-wrap: break-word;
+.nator-div {
+  min-width: 220px;
 }
 
 .sp-icon {
   margin-left: 10px;
 }
 
-.mat-accordion .header-row {
-  padding-left: 1.5rem;
-  padding-right: 2rem;
-  border-bottom: none;
+.table-container {
+  height: calc(100vh - 180px);
+  overflow: auto;
+  padding-bottom: 20px;
 }
 
-.mat-expansion-panel {
-  text-align: left;
-  --mat-expansion-header-disabled-state-text-color: var(--mat-sys-on-surface);
+table {
+  width: 100%;
 }
 
-.nator-div {
-  min-width: 220px;
+.mat-mdc-header-row {
+  min-height: 56px;
 }
 
-.first-cell {
-  flex: 1;
-  align-self: center;
-  min-width: 80px;
-  max-width: 100px;
+.mat-mdc-row {
+  min-height: 48px;
 }
 
-.name-cell {
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  overflow: hidden;
+  word-wrap: break-word;
+  padding-right: 10px;
+}
+
+.mat-column-actions {
+  width: 140px;
+  white-space: nowrap;
+}
+
+.mat-column-name {
   flex: 3;
   min-width: 120px;
 }
 
-.description-cell {
-  flex: 5;
+.mat-column-description {
+  flex: 4;
   min-width: 150px;
 }
 
-.duration-cell {
-  flex: 1;
-  min-width: 70px;
+.mat-column-durationHours {
+  flex: 1.5;
+  min-width: 110px;
 }
 
-.date-cell {
+.mat-column-dateCreated {
   flex: 2;
   min-width: 75px;
 }
 
-.center-self {
-  align-self: center;
+tr.detail-row {
+  height: 0;
 }
 
-.spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.element-row td {
+  border-bottom-width: 0;
+  cursor: pointer;
 }
 
 .memberships-container {

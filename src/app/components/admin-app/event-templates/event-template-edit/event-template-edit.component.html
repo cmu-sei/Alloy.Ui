@@ -19,6 +19,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
+          <mat-label>Name (required)</mat-label>
           <input type="text" matInput [(ngModel)]="data.eventTemplate.name" placeholder="Name (required)"
             [disabled]="!data.canEdit" />
         </mat-form-field>
@@ -27,6 +28,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
+          <mat-label>Event Template Description</mat-label>
           <textarea matInput placeholder="Event Template Description" [(ngModel)]="data.eventTemplate.description"
             [disabled]="!data.canEdit"></textarea>
         </mat-form-field>
@@ -35,6 +37,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
+          <mat-label>Duration Hours</mat-label>
           <input matInput type="number" placeholder="Duration Hours" [(ngModel)]="data.eventTemplate.durationHours"
             [disabled]="!data.canEdit" />
         </mat-form-field>
@@ -43,6 +46,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
+          <mat-label>Player View Template</mat-label>
           @if (data.canEdit) {
           <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView"
             placeholder="Player View Template" />
@@ -70,6 +74,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
+          <mat-label>Caster Directory</mat-label>
           @if (data.canEdit) {
           <input matInput type="text" [formControl]="directorySearchControl" [matAutocomplete]="autoDirectory"
             placeholder="Caster Directory" />
@@ -97,6 +102,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="add-margin">
       <div>
         <mat-form-field class="full-width">
+          <mat-label>Steamfitter Scenario Template</mat-label>
           @if (data.canEdit) {
           <input matInput type="text" [formControl]="scenarioTemplateSearchControl"
             [matAutocomplete]="autoScenarioTemplate" placeholder="Steamfitter Scenario Template" />
@@ -132,7 +138,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         [disabled]="!data.canEdit">Public</mat-checkbox>
     </div>
     <div class="add-margin">
-      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost" [disabled]="!data.canEdit">Use Dynamic
+      <mat-checkbox [(ngModel)]="data.eventTemplate.useDynamicHost"
+        title="Dynamically assigns host addresses for deployed infrastructure"
+        [disabled]="!data.canEdit">Use Dynamic
         Host</mat-checkbox>
     </div>
   </mat-dialog-content>

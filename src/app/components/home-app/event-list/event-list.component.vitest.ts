@@ -89,9 +89,9 @@ describe('EventListComponent', () => {
 
   it('should display column headers', async () => {
     await renderEventList();
-    expect(screen.getByText('name')).toBeInTheDocument();
-    expect(screen.getByText('description')).toBeInTheDocument();
-    expect(screen.getByText('durationHours')).toBeInTheDocument();
+    expect(screen.getByText('Event Name')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('Duration (Hours)')).toBeInTheDocument();
   });
 
   it('should filter templates when search input is used', async () => {

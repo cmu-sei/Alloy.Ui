@@ -16,11 +16,29 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Running unit tests
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Alloy UI uses **Vitest** with `@testing-library/angular`. Test files use the `.vitest.ts` extension.
 
-## Running end-to-end tests
+```bash
+npm test                    # Run all tests (jsdom, fast)
+npm run test:watch          # Watch mode
+npm run test:coverage       # With coverage report
+npm run test:browser        # Run in headless Chromium via Playwright
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+### Permission Tests
+
+Comprehensive permission tests verify UI gating across all three permission tiers:
+
+| File | Coverage |
+|------|----------|
+| `src/app/test-utils/mock-permission-data.service.ts` | `permissionProvider(systemPerms, eventPerms, eventTemplatePerms)` factory |
+| `src/app/data/permission/permission-data.service.vitest.ts` | All 15 `SystemPermission` values, `canEditEvent/canManageEvent/canExecuteEvent()` hierarchy, `canEditEventTemplate/canManageEventTemplate()` |
+| `src/app/components/home-app/home-app.component.vitest.ts` | Admin link visibility gated by `canViewAdiminstration()` |
+
+Key patterns tested:
+- System permission grants access to any event/template ID
+- Resource-level permission only grants access to the specific ID
+- `canViewAdiminstration()` (note: intentional typo matches service) returns `true` for any `View*` permission
 
 ## Further help on Angular CLI
 

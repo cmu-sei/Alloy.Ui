@@ -55,7 +55,7 @@ export class PermissionDataService {
     return this._permissions.some((y) => y.startsWith('CreateEvents'));
   }
 
-  canViewAdiminstration() {
+  canViewAdministration() {
     return this._permissions.some((y) => y.startsWith('View'));
   }
 

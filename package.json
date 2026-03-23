@@ -13,7 +13,8 @@
     "docker:stack": "npm run docker:stack:identity && npm run docker:stack:api",
     "docker:stack:api": "docker stack deploy -c docker-compose.yml -c docker/compose/api.yml alloy_stack",
     "docker:stack:identity": "docker stack deploy -c docker-compose.yml -c docker/compose/identity.yml identity_stack",
-    "docker:destroy": "docker stack rm alloy_stack identity_stack"
+    "docker:destroy": "docker stack rm alloy_stack identity_stack",
+    "lint:css": "stylelint \"src/**/*.{scss,css}\""
   },
   "private": true,
   "dependencies": {
@@ -29,11 +30,11 @@
     "@angular/platform-browser-dynamic": "^21.2.1",
     "@angular/router": "^21.2.1",
     "@cmusei/crucible-common": "^0.4.3",
-    "@material/material-color-utilities": "^0.4.0",
     "@datorama/akita": "8.0.0",
     "@datorama/akita-ng-router-store": "8.0.0",
     "@datorama/akita-ngdevtools": "^7.0.0",
     "@fortawesome/fontawesome-free": "^7.2.0",
+    "@material/material-color-utilities": "^0.4.0",
     "@mdi/font": "7.4.47",
     "@microsoft/signalr": "^8.0.17",
     "bootstrap": "^5.3.3",
@@ -70,6 +71,8 @@
     "jasmine-core": "^4.6.0",
     "jasmine-spec-reporter": "^7.0.0",
     "prettier": "^2.3.2",
+    "stylelint": "^17.5.0",
+    "stylelint-config-recommended-scss": "^17.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.9.3"
   }

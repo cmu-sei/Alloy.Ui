@@ -26,7 +26,7 @@ async function renderUsers(canManage = true) {
           permissions: canManage ? [SystemPermission.ManageUsers] : [],
           hasPermission: (p: SystemPermission) =>
             canManage && p === SystemPermission.ManageUsers,
-          canViewAdiminstration: () => false,
+          canViewAdministration: () => false,
         },
       },
       {

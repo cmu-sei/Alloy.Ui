@@ -18,7 +18,7 @@ function mockPermission(canView = false) {
       load: () => of([]),
       permissions: [],
       hasPermission: () => false,
-      canViewAdiminstration: () => canView,
+      canViewAdministration: () => canView,
     },
   };
 }

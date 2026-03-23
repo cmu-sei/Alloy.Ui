@@ -101,7 +101,14 @@ async function renderHomeApp(
 
   return renderComponent(HomeAppComponent, {
     declarations: [HomeAppComponent],
-    providers: [settingsMock, eventDataMock, routerQueryMock, userDataMock, routerMock, permMock],
+    providers: [
+      settingsMock,
+      eventDataMock,
+      routerQueryMock,
+      userDataMock,
+      routerMock,
+      permMock,
+    ],
   });
 }
 
@@ -117,7 +124,7 @@ describe('HomeAppComponent', () => {
       loadEventPermissions: () => of([]),
       loadEventTemplatePermissions: () => of([]),
       hasPermission: () => false,
-      canViewAdiminstration: () => false,
+      canViewAdministration: () => false,
       canCreateEventTemplates: () => false,
       canCreateEvents: () => false,
       canViewEventTemplateList: () => false,
@@ -133,14 +140,14 @@ describe('HomeAppComponent', () => {
     expect(document.querySelector('.app-events-container')).not.toBeNull();
   });
 
-  it('does not show the administration button when canViewAdiminstration returns false', async () => {
+  it('does not show the administration button when canViewAdministration returns false', async () => {
     await renderHomeApp({
       permissions: [],
       load: () => of([]),
       loadEventPermissions: () => of([]),
       loadEventTemplatePermissions: () => of([]),
       hasPermission: () => false,
-      canViewAdiminstration: () => false,
+      canViewAdministration: () => false,
       canCreateEventTemplates: () => false,
       canCreateEvents: () => false,
       canViewEventTemplateList: () => false,
@@ -152,7 +159,9 @@ describe('HomeAppComponent', () => {
       canManageEventTemplate: () => false,
     });
 
-    expect(screen.queryByRole('button', { name: /Show Administration Page/i })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: /Show Administration Page/i })
+    ).toBeNull();
     expect(screen.queryByTitle('Administration')).toBeNull();
   });
 
@@ -165,7 +174,7 @@ describe('HomeAppComponent', () => {
       loadEventPermissions: () => of([]),
       loadEventTemplatePermissions: () => of([]),
       hasPermission: (p: SystemPermission) => viewPerms.includes(p),
-      canViewAdiminstration: () => true,
+      canViewAdministration: () => true,
       canCreateEventTemplates: () => false,
       canCreateEvents: () => false,
       canViewEventTemplateList: () => true,
@@ -177,7 +186,9 @@ describe('HomeAppComponent', () => {
       canManageEventTemplate: () => false,
     });
 
-    const adminButton = screen.getByRole('button', { name: /Show Administration Page/i });
+    const adminButton = screen.getByRole('button', {
+      name: /Show Administration Page/i,
+    });
     expect(adminButton).toBeTruthy();
   });
 
@@ -190,7 +201,7 @@ describe('HomeAppComponent', () => {
       loadEventPermissions: () => of([]),
       loadEventTemplatePermissions: () => of([]),
       hasPermission: (p: SystemPermission) => viewPerms.includes(p),
-      canViewAdiminstration: () => true,
+      canViewAdministration: () => true,
       canCreateEventTemplates: () => false,
       canCreateEvents: () => false,
       canViewEventTemplateList: () => false,
@@ -202,7 +213,9 @@ describe('HomeAppComponent', () => {
       canManageEventTemplate: () => false,
     });
 
-    expect(screen.getByRole('button', { name: /Show Administration Page/i })).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: /Show Administration Page/i })
+    ).toBeTruthy();
   });
 
   it('hides the administration button when only non-View permissions are present', async () => {
@@ -217,7 +230,7 @@ describe('HomeAppComponent', () => {
       loadEventPermissions: () => of([]),
       loadEventTemplatePermissions: () => of([]),
       hasPermission: (p: SystemPermission) => nonViewPerms.includes(p),
-      canViewAdiminstration: () => false,
+      canViewAdministration: () => false,
       canCreateEventTemplates: () => false,
       canCreateEvents: () => true,
       canViewEventTemplateList: () => false,
@@ -229,6 +242,8 @@ describe('HomeAppComponent', () => {
       canManageEventTemplate: () => false,
     });
 
-    expect(screen.queryByRole('button', { name: /Show Administration Page/i })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: /Show Administration Page/i })
+    ).toBeNull();
   });
 });

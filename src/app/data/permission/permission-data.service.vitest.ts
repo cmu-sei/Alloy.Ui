@@ -93,33 +93,33 @@ describe('PermissionDataService.hasPermission', () => {
 });
 
 // ---------------------------------------------------------------------------
-// canViewAdiminstration (note: typo matches actual service)
+// canViewAdministration (note: typo matches actual service)
 // ---------------------------------------------------------------------------
 
-describe('PermissionDataService.canViewAdiminstration', () => {
+describe('PermissionDataService.canViewAdministration', () => {
   it('returns true when at least one View* permission is present', () => {
     const svc = buildService([SystemPermission.ViewUsers]);
-    expect(svc.canViewAdiminstration()).toBe(true);
+    expect(svc.canViewAdministration()).toBe(true);
   });
 
   it('returns true for ViewEventTemplates', () => {
     const svc = buildService([SystemPermission.ViewEventTemplates]);
-    expect(svc.canViewAdiminstration()).toBe(true);
+    expect(svc.canViewAdministration()).toBe(true);
   });
 
   it('returns true for ViewEvents', () => {
     const svc = buildService([SystemPermission.ViewEvents]);
-    expect(svc.canViewAdiminstration()).toBe(true);
+    expect(svc.canViewAdministration()).toBe(true);
   });
 
   it('returns true for ViewRoles', () => {
     const svc = buildService([SystemPermission.ViewRoles]);
-    expect(svc.canViewAdiminstration()).toBe(true);
+    expect(svc.canViewAdministration()).toBe(true);
   });
 
   it('returns true for ViewGroups', () => {
     const svc = buildService([SystemPermission.ViewGroups]);
-    expect(svc.canViewAdiminstration()).toBe(true);
+    expect(svc.canViewAdministration()).toBe(true);
   });
 
   it('returns false when only non-View permissions are present', () => {
@@ -128,12 +128,12 @@ describe('PermissionDataService.canViewAdiminstration', () => {
       SystemPermission.ManageRoles,
       SystemPermission.CreateEvents,
     ]);
-    expect(svc.canViewAdiminstration()).toBe(false);
+    expect(svc.canViewAdministration()).toBe(false);
   });
 
   it('returns false when permissions list is empty', () => {
     const svc = buildService([]);
-    expect(svc.canViewAdiminstration()).toBe(false);
+    expect(svc.canViewAdministration()).toBe(false);
   });
 });
 
@@ -556,7 +556,7 @@ describe('PermissionDataService edge cases', () => {
   it('empty permissions list returns false for all boolean checks', () => {
     const svc = buildService([], [], []);
     expect(svc.hasPermission(SystemPermission.ViewUsers)).toBe(false);
-    expect(svc.canViewAdiminstration()).toBe(false);
+    expect(svc.canViewAdministration()).toBe(false);
     expect(svc.canCreateEventTemplates()).toBe(false);
     expect(svc.canCreateEvents()).toBe(false);
     expect(svc.canViewEventTemplateList()).toBe(false);

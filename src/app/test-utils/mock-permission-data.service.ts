@@ -26,11 +26,13 @@ export function permissionProvider(
 
       load: () => of(systemPerms),
       loadEventPermissions: (_eventId?: string) => of(eventPerms),
-      loadEventTemplatePermissions: (_eventTemplateId?: string) => of(eventTemplatePerms),
+      loadEventTemplatePermissions: (_eventTemplateId?: string) =>
+        of(eventTemplatePerms),
 
       hasPermission: (p: SystemPermission) => systemPerms.includes(p),
 
-      canViewAdiminstration: () => systemPerms.some((y) => y.startsWith('View')),
+      canViewAdministration: () =>
+        systemPerms.some((y) => y.startsWith('View')),
 
       canCreateEventTemplates: () =>
         systemPerms.includes(SystemPermission.CreateEventTemplates),
@@ -41,8 +43,7 @@ export function permissionProvider(
       canViewEventTemplateList: () =>
         systemPerms.some((y) => y.endsWith('EventTemplates')),
 
-      canViewEventList: () =>
-        systemPerms.some((y) => y.endsWith('Events')),
+      canViewEventList: () => systemPerms.some((y) => y.endsWith('Events')),
 
       canEditEvent: (eventId: string) =>
         systemPerms.includes(SystemPermission.EditEvents) ||

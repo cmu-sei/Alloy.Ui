@@ -112,7 +112,13 @@ export function getDefaultProviders(): Provider[] {
     {
       provide: CurrentUserQuery,
       useValue: {
-        select: () => of({ name: 'Test User', id: 'test-user-id', theme: 'LIGHT', lastRoute: '/' }),
+        select: () =>
+          of({
+            name: 'Test User',
+            id: 'test-user-id',
+            theme: 'LIGHT',
+            lastRoute: '/',
+          }),
         userTheme$: of('LIGHT'),
         getLastRoute: () => '/',
       },
@@ -232,7 +238,7 @@ export function getDefaultProviders(): Provider[] {
         permissions: [],
         canCreateEventTemplates: () => false,
         canCreateEvents: () => false,
-        canViewAdiminstration: () => false,
+        canViewAdministration: () => false,
         canViewEventTemplateList: () => false,
         canViewEventList: () => false,
         hasPermission: () => false,
@@ -383,6 +389,9 @@ export function getDefaultProviders(): Provider[] {
 
     // Dialog tokens
     { provide: MAT_DIALOG_DATA, useValue: {} },
-    { provide: MatDialogRef, useValue: { close: () => {}, disableClose: false } },
+    {
+      provide: MatDialogRef,
+      useValue: { close: () => {}, disableClose: false },
+    },
   ];
 }

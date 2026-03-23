@@ -24,7 +24,7 @@ function mockPermission(canManage = false) {
       permissions: canManage ? [SystemPermission.ManageGroups] : [],
       hasPermission: (p: SystemPermission) =>
         canManage && p === SystemPermission.ManageGroups,
-      canViewAdiminstration: () => false,
+      canViewAdministration: () => false,
     },
   };
 }
@@ -97,7 +97,9 @@ describe('AdminGroupsComponent', () => {
 
   it('should enable Add Group button when canEdit is true', async () => {
     const { container } = await renderGroups(true);
-    const addButtons = container.querySelectorAll('button[mattooltip="Add New Group"]');
+    const addButtons = container.querySelectorAll(
+      'button[mattooltip="Add New Group"]'
+    );
     const addButton = addButtons[0] as HTMLButtonElement;
     expect(addButton).toBeTruthy();
     expect(addButton.disabled).toBe(false);
@@ -105,7 +107,9 @@ describe('AdminGroupsComponent', () => {
 
   it('should disable Add Group button when canEdit is false', async () => {
     const { container } = await renderGroups(false);
-    const addButtons = container.querySelectorAll('button[mattooltip="Add New Group"]');
+    const addButtons = container.querySelectorAll(
+      'button[mattooltip="Add New Group"]'
+    );
     const addButton = addButtons[0] as HTMLButtonElement;
     expect(addButton).toBeTruthy();
     expect(addButton.disabled).toBe(true);

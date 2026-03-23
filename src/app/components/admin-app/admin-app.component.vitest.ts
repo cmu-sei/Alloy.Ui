@@ -17,7 +17,7 @@ function mockPermissionService(permissions: SystemPermission[] = []) {
       load: () => of(permissions),
       permissions,
       hasPermission: (p: SystemPermission) => permissions.includes(p),
-      canViewAdiminstration: () =>
+      canViewAdministration: () =>
         permissions.some((p) => p.toString().startsWith('View')),
       canCreateEventTemplates: () => false,
       canCreateEvents: () => false,

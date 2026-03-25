@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ComnAuthQuery,
   ComnAuthService,
@@ -12,10 +12,9 @@ import {
 import { Observable, Subject } from 'rxjs';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from './../shared/top-bar/topbar.models';
-import { takeUntil } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { SystemPermission } from 'src/app/generated/alloy.api';
-import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { SignalRService } from 'src/app/shared/signalr/signalr.service';
 @Component({
@@ -46,7 +45,7 @@ export class AdminAppComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private routerQuery: RouterQuery,
+    private route: ActivatedRoute,
     private authService: ComnAuthService,
     private settingsService: ComnSettingsService,
     private titleService: Title,
@@ -77,9 +76,11 @@ export class AdminAppComponent implements OnInit {
       });
     this.userDataService.setCurrentUser();
 
-    this.routerQuery
-      .selectQueryParams<string>('section')
-      .pipe(takeUntil(this.unsubscribe$))
+    this.route.queryParams
+      .pipe(
+        map((params) => params['section'] as string),
+        takeUntil(this.unsubscribe$)
+      )
       .subscribe((section) => {
         if (section != null) {
           this.showStatus = section;

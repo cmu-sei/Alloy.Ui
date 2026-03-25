@@ -2,6 +2,13 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 @use "@angular/material" as mat;
 
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
 mat-toolbar {
   @include mat.toolbar-overrides((container-background-color: var(--mat-sys-primary),
       container-text-color: var(--mat-sys-on-primary),
@@ -12,7 +19,7 @@ mat-toolbar {
    Note about src: url() and BaseHref:
    When using BaseHref SCSS and angular pre-processors do not like relative paths
    We can escape the angular pre-processors by adding `^` to the start of the URL
-  
+
   */
 @font-face {
   font-family: 'open_sansregular';

@@ -43,11 +43,9 @@ import {
   ComnSettingsConfig,
   ComnSettingsModule,
   ComnSettingsService,
+  ComnHeaderBarModule,
 } from '@cmusei/crucible-common';
-import { AkitaNgRouterStoreModule } from '@datorama/akita-ng-router-store';
-import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { ClipboardModule } from 'ngx-clipboard';
-import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AdminAppComponent } from './components/admin-app/admin-app.component';
@@ -89,6 +87,7 @@ import { SignalRService } from './shared/signalr/signalr.service';
 
 const settings: ComnSettingsConfig = {
   url: 'assets/config/settings.json',
+  sharedUrl: 'assets/config/settings.shared.json',
   envUrl: 'assets/config/settings.env.json',
 };
 
@@ -134,9 +133,7 @@ export class AngularMaterialModule {}
         AdminUserListComponent,
         NameDialogComponent,
     ],
-    bootstrap: [AppComponent], imports: [AkitaNgDevtools.forRoot(),
-        AkitaNgRouterStoreModule,
-        BrowserModule,
+    bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
         SwaggerCodegenApiModule,
@@ -178,7 +175,8 @@ export class AngularMaterialModule {}
         MatTreeModule,
         ClipboardModule,
         ComnAuthModule.forRoot(),
-        ComnSettingsModule.forRoot()], providers: [
+        ComnSettingsModule.forRoot(),
+        ComnHeaderBarModule], providers: [
         SignalRService,
         {
             provide: BASE_PATH,

@@ -1,11 +1,16 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
+:host {
+  flex: 1;
+  overflow: hidden;
+}
+
 .app-events-container {
   display: grid;
   grid-template-rows: auto auto 1fr;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   text-align: center;
   overflow: hidden;
   background-color: var(--mat-sys-background);

@@ -2,8 +2,8 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
-    "downlevelIteration": true,
     "outDir": "./dist/out-tsc",
+    "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,
     "module": "es2020",
@@ -11,19 +11,10 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
+    "typeRoots": ["node_modules/@types"],
     "useDefineForClassFields": false,
-    "skipLibCheck": true,
-    "paths": {
-      "@cmusei/crucible-common": ["../../libraries/Crucible.Common.Ui/dist/@crucible-common"],
-      "@angular/*": ["./node_modules/@angular/*"]
-    }
+    "skipLibCheck": true
   },
-  "exclude": [
-    "../../libraries/**/node_modules"
-  ],
   "angularCompilerOptions": {
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,

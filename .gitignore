@@ -51,3 +51,4 @@ Thumbs.db
 src/assets/config/settings.env.json
 docker/
 .vscode/
+tsconfig.local-npm.json

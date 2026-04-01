@@ -67,6 +67,19 @@
                   "maximumWarning": "6kb"
                 }
               ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true
+              },
+              "namedChunks": true
+            },
+            "localNPM": {
+              "tsConfig": "tsconfig.local-npm.json"
             }
           }
         },
@@ -76,9 +89,16 @@
             "port": 4403,
             "buildTarget": "alloy:build"
           },
+          "defaultConfiguration": "development",
           "configurations": {
             "production": {
               "buildTarget": "alloy:build:production"
+            },
+            "development": {
+              "buildTarget": "alloy:build:development"
+            },
+            "localNPM": {
+              "buildTarget": "alloy:build:development,localNPM"
             }
           }
         },

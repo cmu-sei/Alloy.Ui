@@ -44,6 +44,13 @@
     margin: 0 !important;
   }
 
+  .section-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
   ::ng-deep app-topbar {
     display: block;
     width: 100%;

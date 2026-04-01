@@ -6,7 +6,8 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 :host {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 44px);
+  flex: 1;
+  min-height: 0;
 }
 
 .cssLayoutColumnCenterStart {

@@ -58,7 +58,7 @@
     "@angular/cli": "^21.2.1",
     "@angular/compiler-cli": "^21.2.1",
     "@angular/language-service": "^21.2.1",
-    "@openapitools/openapi-generator-cli": "^2.30.2",
+    "@openapitools/openapi-generator-cli": "^2.31.1",
     "@types/jasmine": "^4.3.1",
     "@types/jasminewd2": "^2.0.10",
     "@types/node": "^25.4.0",

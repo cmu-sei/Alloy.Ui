@@ -60,7 +60,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
       .subscribe(
         (x) =>
           (this.canViewAdmin =
-            this.permissionDataService.canViewAdiminstration())
+            this.permissionDataService.canViewAdministration())
       );
 
     this.currentUser$ = this.currentUserQuery.select().pipe(

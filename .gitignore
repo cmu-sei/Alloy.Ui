@@ -49,5 +49,7 @@ Thumbs.db
 /terraform/
 
 src/assets/config/settings.env.json
+src/assets/config/settings.shared.json
 docker/
 .vscode/
+tsconfig.local-npm.json

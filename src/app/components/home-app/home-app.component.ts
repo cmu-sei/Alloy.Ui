@@ -4,13 +4,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { combineLatest, Subject } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from '../shared/top-bar/topbar.models';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { SystemPermission } from 'src/app/generated/alloy.api';
 
@@ -36,7 +35,7 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     private settingsService: ComnSettingsService,
     private titleService: Title,
     private eventDataService: EventDataService,
-    private routerQuery: RouterQuery,
+    private route: ActivatedRoute,
     private router: Router,
     private userDataService: UserDataService,
     private permissionDataService: PermissionDataService
@@ -64,9 +63,9 @@ export class HomeAppComponent implements OnInit, OnDestroy {
       );
 
     // Get the event GUID from the URL that the user is entering the web page on
-    this.routerQuery
-      .selectParams('viewId')
+    this.route.params
       .pipe(
+        map((params) => params['viewId']),
         filter((viewId) => viewId),
         switchMap((viewId) => {
           return combineLatest([

@@ -12,7 +12,7 @@ import {
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { ComnAuthQuery, ComnSettingsService, Theme } from '@cmusei/crucible-common';
-import { RouterQuery } from '@datorama/akita-ng-router-store';
+import { ActivatedRoute } from '@angular/router';
 import { ClipboardService } from 'ngx-clipboard';
 import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
 import {
@@ -108,7 +108,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private userEventsQuery: UserEventsQuery,
     private authQuery: ComnAuthQuery,
     private currentUserQuery: CurrentUserQuery,
-    private routerQuery: RouterQuery,
+    private route: ActivatedRoute,
     private signalRService: SignalRService,
     private clipboardService: ClipboardService,
     private changeDetector: ChangeDetectorRef,
@@ -144,9 +144,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         }
       );
 
-    this.routerQuery
-      .selectParams(['id', 'viewId'])
+    this.route.params
       .pipe(
+        map((params) => [params['id'] as string, params['viewId'] as string]),
         switchMap(([id, viewId]) => {
           if (viewId) {
             this.viewId = viewId;
@@ -166,7 +166,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
     this.eventTemplate$ = this.eventTemplateQuery.selectLoading().pipe(
       filter((loading) => !loading),
-      withLatestFrom(this.routerQuery.selectParams('id')),
+      withLatestFrom(this.route.params.pipe(map((p) => p['id'] as string))),
       map(([loading, id]) => id),
       switchMap((id) => {
         return this.eventTemplateQuery.selectEntity(
@@ -203,7 +203,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     this.currentEvent$ = this.eventQuery.selectAll().pipe(
       withLatestFrom(
         this.currentUserQuery.select(),
-        this.routerQuery.selectParams('id')
+        this.route.params.pipe(map((p) => p['id'] as string))
       ),
       map(([events, user, id]) => {
         this.currentUserId = user ? user.id : '';
@@ -253,7 +253,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
     this.userEvents$ = this.userEventsQuery.selectLoading().pipe(
       filter((loading) => !loading),
-      withLatestFrom(this.routerQuery.selectParams('id')),
+      withLatestFrom(this.route.params.pipe(map((p) => p['id'] as string))),
       switchMap(([loading, id]) => {
         return this.userEventsQuery.userEventsByTemplateId$(
           id ? id : this.eventTemplateId

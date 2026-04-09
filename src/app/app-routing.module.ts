@@ -67,4 +67,3 @@ export const ROUTES: Routes = [
   ],
 })
 export class AppRoutingModule {}
-7;

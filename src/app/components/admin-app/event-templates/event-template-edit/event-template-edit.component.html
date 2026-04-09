@@ -20,7 +20,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div>
         <mat-form-field class="full-width">
           <mat-label>Name (required)</mat-label>
-          <input type="text" matInput [(ngModel)]="data.eventTemplate.name" placeholder="Name (required)"
+          <input type="text" matInput [(ngModel)]="data.eventTemplate.name"
             [disabled]="!data.canEdit" />
         </mat-form-field>
       </div>
@@ -29,7 +29,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div>
         <mat-form-field class="full-width">
           <mat-label>Event Template Description</mat-label>
-          <textarea matInput placeholder="Event Template Description" [(ngModel)]="data.eventTemplate.description"
+          <textarea matInput [(ngModel)]="data.eventTemplate.description"
             [disabled]="!data.canEdit"></textarea>
         </mat-form-field>
       </div>
@@ -38,7 +38,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div>
         <mat-form-field class="full-width">
           <mat-label>Duration Hours</mat-label>
-          <input matInput type="number" placeholder="Duration Hours" [(ngModel)]="data.eventTemplate.durationHours"
+          <input matInput type="number" [(ngModel)]="data.eventTemplate.durationHours"
             [disabled]="!data.canEdit" />
         </mat-form-field>
       </div>
@@ -48,10 +48,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <mat-form-field class="full-width">
           <mat-label>Player View Template</mat-label>
           @if (data.canEdit) {
-          <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView"
-            placeholder="Player View Template" />
+          <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView" />
           <mat-autocomplete #autoView="matAutocomplete" ngDefaultControl [displayWith]="selectedViewName"
-            placeholder="Select a View Template" [(ngModel)]="data.eventTemplate.viewId"
+            [(ngModel)]="data.eventTemplate.viewId"
             (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()">
             <mat-option [value]="null">None</mat-option>
             @for (view of filteredViewList | async; track view) {
@@ -61,7 +60,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             }
           </mat-autocomplete>
           } @else {
-          <input matInput type="text" [value]="viewSearchControl.value" placeholder="Player View Template"
+          <input matInput type="text" [value]="viewSearchControl.value"
             [disabled]="true" />
           }
           <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.viewId"
@@ -76,10 +75,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <mat-form-field class="full-width">
           <mat-label>Caster Directory</mat-label>
           @if (data.canEdit) {
-          <input matInput type="text" [formControl]="directorySearchControl" [matAutocomplete]="autoDirectory"
-            placeholder="Caster Directory" />
+          <input matInput type="text" [formControl]="directorySearchControl" [matAutocomplete]="autoDirectory" />
           <mat-autocomplete #autoDirectory="matAutocomplete" ngDefaultControl [displayWith]="selectedDirectoryName"
-            placeholder="Select a Directory" [(ngModel)]="data.eventTemplate.directoryId"
+            [(ngModel)]="data.eventTemplate.directoryId"
             (optionSelected)="saveEventIds($event, 'directoryId')" (opened)="filterDirectories()">
             <mat-option [value]="null">None</mat-option>
             @for (directory of filteredDirectoryList | async; track directory) {
@@ -89,7 +87,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             }
           </mat-autocomplete>
           } @else {
-          <input matInput type="text" [value]="directorySearchControl.value" placeholder="Caster Directory"
+          <input matInput type="text" [value]="directorySearchControl.value"
             [disabled]="true" />
           }
           <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.directoryId"
@@ -105,9 +103,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <mat-label>Steamfitter Scenario Template</mat-label>
           @if (data.canEdit) {
           <input matInput type="text" [formControl]="scenarioTemplateSearchControl"
-            [matAutocomplete]="autoScenarioTemplate" placeholder="Steamfitter Scenario Template" />
+            [matAutocomplete]="autoScenarioTemplate" />
           <mat-autocomplete #autoScenarioTemplate="matAutocomplete" ngDefaultControl
-            [displayWith]="selectedEventTemplateName" placeholder="Select a Scenario Template"
+            [displayWith]="selectedEventTemplateName"
             [(ngModel)]="data.eventTemplate.scenarioTemplateId"
             (optionSelected)="saveEventIds($event, 'scenarioTemplateId')" (opened)="filterScenarioTemplates()"
             (closed)="scenarioTemplateSearchControl.setValue('')">
@@ -123,7 +121,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </mat-autocomplete>
           } @else {
           <input matInput type="text" [value]="scenarioTemplateSearchControl.value"
-            placeholder="Steamfitter Scenario Template" [disabled]="true" />
+            [disabled]="true" />
           }
           <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
             title="Copy:  {{ data.eventTemplate.scenarioTemplateId }}">

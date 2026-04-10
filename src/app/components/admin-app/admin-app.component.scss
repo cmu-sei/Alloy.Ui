@@ -1,6 +1,11 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
+:host {
+  flex: 1;
+  overflow: hidden;
+}
+
 .appitems-container {
   overflow-y: auto;
 }
@@ -27,8 +32,8 @@
 
 .appcontent-container {
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
 
   ::ng-deep .mat-sidenav-content {
     display: flex;
@@ -37,6 +42,13 @@
     overflow: hidden;
     padding: 0 !important;
     margin: 0 !important;
+  }
+
+  .section-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
 
   ::ng-deep app-topbar {
@@ -56,7 +68,7 @@
 
 .appbarmenu-container {
   position: relative;
-  height: 100vh;
+  height: 100%;
   width: 250px;
   border-right: solid var(--mat-sys-surface-container);
 }

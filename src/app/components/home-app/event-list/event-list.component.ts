@@ -8,12 +8,12 @@ import {
   trigger,
 } from '@angular/animations';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
 import { combineQueries } from '@datorama/akita';
-import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 import { filter, share, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
@@ -38,6 +38,7 @@ export class EventListComponent implements OnInit, OnDestroy {
   @Input() templates: EventTemplate[];
   @ViewChild('sortTemplate', { static: true }) eventTemplateSort: MatSort;
   @ViewChild('sortEvent', { static: true }) eventSort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   public eventTemplateDataSource: MatTableDataSource<EventTemplate>;
   public eventTemplateDisplayedColumns: string[] = [
     'name',
@@ -60,7 +61,6 @@ export class EventListComponent implements OnInit, OnDestroy {
     private templateDataService: EventTemplateDataService,
     private eventTemplateQuery: EventTemplateQuery,
     private router: Router,
-    private routerQuery: RouterQuery,
     private authQuery: ComnAuthQuery
   ) {
     this.theme$ = this.authQuery.userTheme$;
@@ -87,6 +87,7 @@ export class EventListComponent implements OnInit, OnDestroy {
             start: 'asc',
           });
           this.eventTemplateDataSource.sort = this.eventTemplateSort;
+          this.eventTemplateDataSource.paginator = this.paginator;
           this.doneLoading = !loading;
         }),
         takeUntil(this.unsubscribe$)

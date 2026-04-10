@@ -4,8 +4,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { RouterQuery } from '@datorama/akita-ng-router-store';
+import { ActivatedRoute, Router } from '@angular/router';
 import { from, of, Subject } from 'rxjs';
 import {
   catchError,
@@ -29,22 +28,20 @@ export class EnlistComponent implements OnInit, OnDestroy {
   eventTemplateId: string;
   constructor(
     private router: Router,
-    private routerQuery: RouterQuery,
+    private route: ActivatedRoute,
     private eventDataService: EventDataService
   ) {}
 
   ngOnInit(): void {
     this.isLoading$.next(true);
-    this.routerQuery
-      .selectParams('code')
+    this.route.params
       .pipe(
-        filter((code) => code),
+        map((params) => params['code'] as string),
+        filter((code) => !!code),
         switchMap((code) =>
-          from(this.eventDataService.enlistEvent(code)).pipe(
-            map((userEvent) => [code, userEvent])
-          )
+          from(this.eventDataService.enlistEvent(code))
         ),
-        tap(([code, event]) => {
+        tap((event) => {
           this.isLoading$.next(false);
           this.router.navigate(['templates/' + event.eventTemplateId]);
         }),

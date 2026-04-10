@@ -15,6 +15,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Name (required)</mat-label>
             <input type="text" matInput [formControl]="eventNameFormControl" placeholder="Name (required)"
               (blur)="saveEvent('name')" value="{{ data.event.name }}" [errorStateMatcher]="matcher" />
             @if (
@@ -52,6 +53,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Description</mat-label>
             <textarea matInput placeholder="Description" [formControl]="descriptionFormControl"
               (blur)="saveEvent('description')" value="{{ data.event.description }}"
             [errorStateMatcher]="matcher"></textarea>
@@ -61,6 +63,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Username</mat-label>
             <input matInput placeholder="Username" [formControl]="usernameFormControl" (blur)="saveEvent('username')"
               value="{{ data.event.username }}" [errorStateMatcher]="matcher" />
             @if (usernameFormControl.hasError('required')) {
@@ -74,6 +77,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Status</mat-label>
             <input matInput placeholder="Status" [formControl]="statusFormControl" (blur)="saveEvent('status')"
               value="{{ data.event.status }}" [errorStateMatcher]="matcher" />
             @if (statusFormControl.hasError('required')) {
@@ -87,6 +91,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Internal Status</mat-label>
             <input matInput placeholder="Internal Status" [formControl]="internalStatusFormControl"
               (blur)="saveEvent('internalStatus')" value="{{ data.event.internalStatus }}"
               [errorStateMatcher]="matcher" />
@@ -101,6 +106,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>User ID</mat-label>
             <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.userId"
               title="Copy:  {{ data.event.userId }}" style="margin-top: -15px">
               <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
@@ -118,6 +124,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Event Template ID</mat-label>
             <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.eventTemplateId"
               title="Copy:  {{ data.event.eventTemplateId }}" style="margin-top: -15px">
               <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
@@ -136,6 +143,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>View ID</mat-label>
             <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.viewId"
               title="Copy:  {{ data.event.viewId }}" style="margin-top: -15px">
               <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
@@ -148,6 +156,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Workspace ID</mat-label>
             <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.workspaceId"
               title="Copy:  {{ data.event.workspaceId }}" style="margin-top: -15px">
               <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
@@ -160,6 +169,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Run ID</mat-label>
             <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.runId"
               title="Copy:  {{ data.event.runId }}" style="margin-top: -15px">
               <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
@@ -172,6 +182,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Scenario ID</mat-label>
             <button mat-icon-button matPrefix ngxClipboard [cbContent]="data.event.scenarioId"
               title="Copy:  {{ data.event.scenarioId }}" style="margin-top: -15px">
               <mat-icon style="transform: scale(0.65)" svgIcon="ic_clipboard_copy"></mat-icon>
@@ -184,6 +195,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Launch Date</mat-label>
             <input matInput placeholder="Launch Date" [formControl]="launchDateFormControl"
               (blur)="saveEvent('launchDate')" value="{{ data.event.launchDate }}" [errorStateMatcher]="matcher" />
           </mat-form-field>
@@ -192,6 +204,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>End Date</mat-label>
             <input matInput placeholder="End Date" [formControl]="endDateFormControl" (blur)="saveEvent('endDate')"
               value="{{ data.event.endDate }}" [errorStateMatcher]="matcher" />
           </mat-form-field>
@@ -200,6 +213,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Expiration Date</mat-label>
             <input matInput placeholder="Expiration Date" [formControl]="expirationDateFormControl"
               (blur)="saveEvent('expirationDate')" value="{{ data.event.expirationDate }}"
               [errorStateMatcher]="matcher" />
@@ -209,6 +223,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
+            <mat-label>Status Date</mat-label>
             <input matInput placeholder="Status Date" [formControl]="statusDateFormControl"
               (blur)="saveEvent('statusDate')" value="{{ data.event.statusDate }}" [errorStateMatcher]="matcher" />
           </mat-form-field>

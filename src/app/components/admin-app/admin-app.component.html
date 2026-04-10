@@ -73,7 +73,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       (sidenavToggle)="sidenav.toggle()"></app-topbar>
     }
     @if (permissions) {
-    <span>
+    <div class="section-container">
       @if (showStatus === eventTemplatesText) {
       <app-event-templates></app-event-templates>
       }
@@ -98,7 +98,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       ) {
       <app-admin-users></app-admin-users>
       }
-    </span>
+    </div>
     }
   </mat-sidenav-content>
 </mat-sidenav-container>

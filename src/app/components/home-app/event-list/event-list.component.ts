@@ -14,7 +14,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
 import { combineQueries } from '@datorama/akita';
-import { RouterQuery } from '@datorama/akita-ng-router-store';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 import { filter, share, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
@@ -62,7 +61,6 @@ export class EventListComponent implements OnInit, OnDestroy {
     private templateDataService: EventTemplateDataService,
     private eventTemplateQuery: EventTemplateQuery,
     private router: Router,
-    private routerQuery: RouterQuery,
     private authQuery: ComnAuthQuery
   ) {
     this.theme$ = this.authQuery.userTheme$;

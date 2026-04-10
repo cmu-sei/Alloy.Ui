@@ -10,9 +10,8 @@
 @include mat.elevation-classes();
 @include mat.app-background();
 
-@import '~material-design-icons/iconfont/material-icons.css';
-@import '~@fortawesome/fontawesome-free/css/all.css';
-$mdi-font-path: '~@mdi/font/fonts';
+@import 'material-design-icons/iconfont/material-icons.css';
+@import '@fortawesome/fontawesome-free/css/all.css';
 @import '@mdi/font/scss/materialdesignicons';
 /* END VENDER IMPORTS */
 
@@ -30,9 +29,12 @@ $mdi-font-path: '~@mdi/font/fonts';
 
 /* Material 3 Theme Application */
 html {
-  @include mat.theme((color: theme.$primary-palette,
+  @include mat.theme(
+    (
+      color: theme.$primary-palette,
       typography: '"Open Sans", sans-serif',
-    ));
+    )
+  );
 }
 
 body {
@@ -41,11 +43,15 @@ body {
 }
 
 .darkMode {
-  @include mat.theme((color: (primary: dark-theme.$dark-primary-palette,
+  @include mat.theme(
+    (
+      color: (
+        primary: dark-theme.$dark-primary-palette,
         typography: '"Open Sans", sans-serif',
         theme-type: dark,
       ),
-    ));
+    )
+  );
 }
 
 /* Global Theme Styles */
@@ -123,7 +129,8 @@ a {
 }
 
 // default all icons to the primary theme color
-mat-icon, .mat-icon {
+mat-icon,
+.mat-icon {
   --mat-icon-color: var(--mat-sys-primary);
 }
 

@@ -11,8 +11,7 @@
 .event-template-page-container {
   display: grid;
   grid-template-rows: auto auto 1fr;
-  min-height: 100vh;
-  overflow-y: auto;
+  height: 100%;
   overflow-x: hidden;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
@@ -44,10 +43,9 @@
 .event-info-container {
   display: inline-block;
   flex-direction: column;
-  min-width: 900px;
+  max-width: 900px;
+  width: 100%;
   margin-top: 40px;
-  width: 900px;
-  overflow-y: auto;
 }
 
 .sp-icon {

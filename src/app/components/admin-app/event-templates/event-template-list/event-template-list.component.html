@@ -95,10 +95,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 </div>
 
 @if (isLoading) {
-<div>
-  <div flex>
-    <mat-progress-spinner color="accent" mode="indeterminate">
-    </mat-progress-spinner>
-  </div>
-</div>
+<mat-card appearance="outlined" style="display: flex; justify-content: center; align-items: center; width: 100%">
+  <mat-progress-spinner color="primary" mode="indeterminate">
+  </mat-progress-spinner>
+</mat-card>
 }

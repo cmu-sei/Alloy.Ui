@@ -53,3 +53,10 @@ src/assets/config/settings.shared.json
 docker/
 .vscode/
 tsconfig.local-npm.json
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+# Git worktrees
+.worktrees/

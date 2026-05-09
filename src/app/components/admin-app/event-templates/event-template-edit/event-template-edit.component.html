@@ -158,9 +158,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         Clone
       </button>
     </div>
-    <div class="delete-button">
-      <button mat-stroked-button (click)="deleteEventTemplate()" title="Delete this event template"
-        style="margin-left: 80px;" [disabled]="!data.canManage">
+    <div class="delete-button"
+      [matTooltip]="data.hasEvents ? 'Cannot delete template with existing events' : 'Delete this event template'"
+      style="display: inline-block;">
+      <button mat-stroked-button (click)="deleteEventTemplate()"
+        style="margin-left: 80px;" [disabled]="!data.canManage || data.hasEvents">
         Delete
       </button>
     </div>

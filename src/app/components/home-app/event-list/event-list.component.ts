@@ -117,7 +117,8 @@ export class EventListComponent implements OnInit, OnDestroy {
   }
 
   updateEventStatusMap(events: AlloyEvent[]) {
-    this.eventStatusMap.clear();
+    // Create new Map to trigger change detection
+    const newStatusMap = new Map<string, string>();
 
     // Group events by template ID and find most recent active/creating event
     const templateEventMap = new Map<string, AlloyEvent[]>();
@@ -143,9 +144,12 @@ export class EventListComponent implements OnInit, OnDestroy {
       const activeEvent = sortedEvents.find(e => e.status !== EventStatus.Ended) || sortedEvents[0];
 
       if (activeEvent) {
-        this.eventStatusMap.set(templateId, this.getEventStatusText(activeEvent));
+        newStatusMap.set(templateId, this.getEventStatusText(activeEvent));
       }
     });
+
+    // Replace Map reference to trigger change detection
+    this.eventStatusMap = newStatusMap;
   }
 
   getEventStatusText(event: AlloyEvent): string {

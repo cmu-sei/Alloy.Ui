@@ -17,9 +17,12 @@ import { combineQueries } from '@datorama/akita';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
 import { filter, share, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
+import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
+import { EventStatus } from 'src/app/generated/alloy.api/model/eventStatus';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
+import { UserEventsQuery } from 'src/app/data/event/user-events.query';
 
 @Component({
     selector: 'app-event-list',
@@ -44,12 +47,16 @@ export class EventListComponent implements OnInit, OnDestroy {
     'name',
     'description',
     'durationHours',
+    'status',
   ];
   public columnHeaders: { [key: string]: string } = {
     'name': 'Event Name',
     'description': 'Description',
-    'durationHours': 'Duration (Hours)'
+    'durationHours': 'Duration (Hours)',
+    'status': 'Status'
   };
+  public userEvents: AlloyEvent[] = [];
+  public eventStatusMap: Map<string, string> = new Map();
 
   public filterString: string;
   public doneLoading = false;
@@ -60,6 +67,7 @@ export class EventListComponent implements OnInit, OnDestroy {
     private eventDataService: EventDataService,
     private templateDataService: EventTemplateDataService,
     private eventTemplateQuery: EventTemplateQuery,
+    private userEventsQuery: UserEventsQuery,
     private router: Router,
     private authQuery: ComnAuthQuery
   ) {
@@ -74,13 +82,18 @@ export class EventListComponent implements OnInit, OnDestroy {
     this.filterString = '';
     // Initial datasource
     this.templateDataService.loadTemplates();
+    this.eventDataService.getUserEvents().pipe(takeUntil(this.unsubscribe$)).subscribe();
+
     combineQueries([
       this.eventTemplateQuery.selectLoading(),
       this.eventTemplateQuery.selectAll(),
+      this.userEventsQuery.selectAll(),
     ])
       .pipe(
         filter(([loading]) => !loading),
-        tap(([loading, templates]) => {
+        tap(([loading, templates, events]) => {
+          this.userEvents = events;
+          this.updateEventStatusMap(events);
           this.eventTemplateDataSource.data = templates;
           this.eventTemplateSort.sort(<MatSortable>{
             id: 'name',
@@ -93,6 +106,50 @@ export class EventListComponent implements OnInit, OnDestroy {
         takeUntil(this.unsubscribe$)
       )
       .subscribe();
+  }
+
+  updateEventStatusMap(events: AlloyEvent[]) {
+    this.eventStatusMap.clear();
+
+    // Group events by template ID and find most recent active/creating event
+    const templateEventMap = new Map<string, AlloyEvent[]>();
+    events.forEach(event => {
+      if (event.eventTemplateId) {
+        if (!templateEventMap.has(event.eventTemplateId)) {
+          templateEventMap.set(event.eventTemplateId, []);
+        }
+        templateEventMap.get(event.eventTemplateId)!.push(event);
+      }
+    });
+
+    // For each template, determine status from most recent non-ended event
+    templateEventMap.forEach((templateEvents, templateId) => {
+      // Sort by date, most recent first
+      const sortedEvents = templateEvents.sort((a, b) => {
+        const aDate = new Date(a.dateCreated!).getTime();
+        const bDate = new Date(b.dateCreated!).getTime();
+        return bDate - aDate;
+      });
+
+      // Find first non-ended event or most recent ended
+      const activeEvent = sortedEvents.find(e => e.status !== EventStatus.Ended) || sortedEvents[0];
+
+      if (activeEvent) {
+        this.eventStatusMap.set(templateId, this.getEventStatusText(activeEvent));
+      }
+    });
+  }
+
+  getEventStatusText(event: AlloyEvent): string {
+    if (!event.status) {
+      return '-';
+    }
+    // Return the status string directly (EventStatus is already a string enum)
+    return event.status;
+  }
+
+  getStatusForTemplate(templateId: string): string {
+    return this.eventStatusMap.get(templateId) || '-';
   }
 
   /**

@@ -51,6 +51,14 @@
   word-wrap: break-word;
 }
 
+.mat-column-status {
+  word-wrap: break-word !important;
+  flex: 0 0 150px !important;
+  width: 150px !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
 .description-text {
   margin-left: 10px;
   margin-right: 10px;

@@ -39,6 +39,7 @@ import { EventTemplateEditComponent } from '../event-template-edit/event-templat
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { EventService } from 'src/app/generated/alloy.api';
 
 @Component({
   selector: 'app-event-template-list',
@@ -78,7 +79,8 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
     public dialogService: DialogService,
     private eventTemplateDataService: EventTemplateDataService,
     private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
+    private eventService: EventService
   ) {
     this.eventTemplateDataService.loadTemplates();
     this.isLoading = false;
@@ -162,38 +164,45 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   }
 
   editEventTemplate(eventTemplate: EventTemplate) {
-    const dialogRef = this.dialog.open(EventTemplateEditComponent, {
-      minWidth: '400px',
-      maxWidth: '90vw',
-      width: 'auto',
-      data: {
-        eventTemplate: { ...eventTemplate },
-        viewList: this.viewList,
-        directoryList: this.directoryList,
-        scenarioTemplateList: this.scenarioTemplateList,
-        canEdit: this.permissionDataService.canEditEventTemplate(eventTemplate.id),
-        canManage: this.permissionDataService.canManageEventTemplate(eventTemplate.id),
-        canCreate: this.permissionDataService.canCreateEventTemplates()
-      },
-    });
-    dialogRef.componentInstance.editComplete.subscribe((result) => {
-      switch (result.action) {
-        case 'clone':
-          this.eventTemplateDataService
-            .addNew(result.eventTemplate)
-            .pipe(take(1))
-            .subscribe();
-          break;
-        case 'save':
-          this.eventTemplateDataService.update(result.eventTemplate);
-          break;
-        case 'delete':
-          this.eventTemplateDataService.delete(result.eventTemplate.id);
-          break;
-        default:
-          break;
-      }
-      dialogRef.close();
-    });
+    this.eventService.getEventTemplateEvents(eventTemplate.id)
+      .pipe(take(1))
+      .subscribe((events) => {
+        const hasEvents = events && events.length > 0;
+
+        const dialogRef = this.dialog.open(EventTemplateEditComponent, {
+          minWidth: '400px',
+          maxWidth: '90vw',
+          width: 'auto',
+          data: {
+            eventTemplate: { ...eventTemplate },
+            viewList: this.viewList,
+            directoryList: this.directoryList,
+            scenarioTemplateList: this.scenarioTemplateList,
+            canEdit: this.permissionDataService.canEditEventTemplate(eventTemplate.id),
+            canManage: this.permissionDataService.canManageEventTemplate(eventTemplate.id),
+            canCreate: this.permissionDataService.canCreateEventTemplates(),
+            hasEvents: hasEvents
+          },
+        });
+        dialogRef.componentInstance.editComplete.subscribe((result) => {
+          switch (result.action) {
+            case 'clone':
+              this.eventTemplateDataService
+                .addNew(result.eventTemplate)
+                .pipe(take(1))
+                .subscribe();
+              break;
+            case 'save':
+              this.eventTemplateDataService.update(result.eventTemplate);
+              break;
+            case 'delete':
+              this.eventTemplateDataService.delete(result.eventTemplate.id);
+              break;
+            default:
+              break;
+          }
+          dialogRef.close();
+        });
+      });
   }
 }

@@ -84,16 +84,24 @@ export class EventListComponent implements OnInit, OnDestroy {
     this.templateDataService.loadTemplates();
     this.eventDataService.getUserEvents().pipe(takeUntil(this.unsubscribe$)).subscribe();
 
+    // Watch for event updates and refresh status map
+    this.userEventsQuery.selectAll()
+      .pipe(
+        tap(events => {
+          this.userEvents = events;
+          this.updateEventStatusMap(events);
+        }),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe();
+
     combineQueries([
       this.eventTemplateQuery.selectLoading(),
       this.eventTemplateQuery.selectAll(),
-      this.userEventsQuery.selectAll(),
     ])
       .pipe(
         filter(([loading]) => !loading),
-        tap(([loading, templates, events]) => {
-          this.userEvents = events;
-          this.updateEventStatusMap(events);
+        tap(([loading, templates]) => {
           this.eventTemplateDataSource.data = templates;
           this.eventTemplateSort.sort(<MatSortable>{
             id: 'name',

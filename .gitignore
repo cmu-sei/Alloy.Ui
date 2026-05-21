@@ -53,6 +53,7 @@ src/assets/config/settings.shared.json
 docker/
 .vscode/
 tsconfig.local-npm.json
+serve.json
 
 # Claude Code
 CLAUDE.md

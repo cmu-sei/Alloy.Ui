@@ -126,18 +126,18 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             </div>
             }
             @if (!isIFrame) {
-            <button class="event-button-end" matButton="tonal" (click)="rejoinEvent(currentEvent)">
+            <button class="event-button-end" matButton="filled" (click)="rejoinEvent(currentEvent)">
               Open Event
             </button>
             }
             @if (isOwner) {
-            <button class="event-button-end" matButton="tonal" (click)="endEvent(currentEvent)">
+            <button class="event-button-end" matButton="filled" (click)="endEvent(currentEvent)">
               End Event
             </button>
             <div style="display: inline-block" matTooltip="Create An Invite Link">
-              <button matButton="tonal" [matMenuTriggerFor]="invite" class="event-button-end">
+              <button matButton="filled" [matMenuTriggerFor]="invite" class="event-button-end">
                 Invite
-                <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+                <mat-icon svgIcon="ic_expand_more_white_24px"></mat-icon>
               </button>
               <mat-menu #invite="matMenu" [overlapTrigger]="false">
                 @if (!currentEvent?.shareCode) {

@@ -228,7 +228,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <mat-panel-title> History </mat-panel-title>
           </mat-expansion-panel-header>
           <div>
-            <mat-table class="history-table" [dataSource]="impsDataSource" matSort>
+            <mat-table #historySort="matSort" class="history-table" [dataSource]="impsDataSource" matSort>
               <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row eventTemplate" -->
               <ng-container matColumnDef="username">

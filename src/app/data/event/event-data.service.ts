@@ -36,17 +36,14 @@ export class EventDataService implements OnDestroy {
   }
 
   stateCreate(event: AlloyEvent) {
-    console.log('SignalR EventCreated:', event.id, event.status);
     this.eventStore.upsert(event.id, event);
     this.userEventsStore.upsert(event.id, event);
   }
   stateUpdate(event: AlloyEvent) {
-    console.log('SignalR EventUpdated:', event.id, event.status);
     this.eventStore.update(event.id, event);
     this.userEventsStore.update(event.id, event);
   }
   stateDelete(event: AlloyEvent) {
-    console.log('SignalR EventDeleted:', event.id);
     this.eventStore.remove(event.id);
     this.userEventsStore.remove(event.id);
   }
@@ -103,9 +100,9 @@ export class EventDataService implements OnDestroy {
     );
   }
 
-  getUserEvents() {
+  getUserEvents(includeEnded?: boolean, days?: number) {
     return this.eventService
-      .getMyEvents()
+      .getMyEvents(includeEnded, days)
       .pipe(tap((events) => this.userEventsStore.upsertMany(events)));
   }
 

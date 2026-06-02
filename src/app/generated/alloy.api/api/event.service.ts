@@ -803,10 +803,18 @@ export class EventService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getMyEvents(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<Event>>;
-    public getMyEvents(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<Event>>>;
-    public getMyEvents(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<Event>>>;
-    public getMyEvents(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+    public getMyEvents(includeEnded?: boolean, days?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<Array<Event>>;
+    public getMyEvents(includeEnded?: boolean, days?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpResponse<Array<Event>>>;
+    public getMyEvents(includeEnded?: boolean, days?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<HttpEvent<Array<Event>>>;
+    public getMyEvents(includeEnded?: boolean, days?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json'}): Observable<any> {
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (includeEnded !== undefined && includeEnded !== null) {
+            queryParameters = queryParameters.set('includeEnded', <any>includeEnded);
+        }
+        if (days !== undefined && days !== null) {
+            queryParameters = queryParameters.set('days', <any>days);
+        }
 
         let headers = this.defaultHeaders;
 
@@ -840,6 +848,7 @@ export class EventService {
 
         return this.httpClient.get<Array<Event>>(`${this.configuration.basePath}/api/events/mine`,
             {
+                params: queryParameters,
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

@@ -82,7 +82,8 @@ export class EventListComponent implements OnInit, OnDestroy {
     this.filterString = '';
     // Initial datasource
     this.templateDataService.loadTemplates();
-    this.eventDataService.getUserEvents().pipe(takeUntil(this.unsubscribe$)).subscribe();
+    // Get events excluding ended/failed/expired for status display
+    this.eventDataService.getUserEvents(false).pipe(takeUntil(this.unsubscribe$)).subscribe();
 
     // Watch for event updates and refresh status map
     this.userEventsQuery.selectAll()

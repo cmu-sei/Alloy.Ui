@@ -85,6 +85,16 @@ export class EventListComponent implements OnInit, OnDestroy {
     // Get events excluding ended/failed/expired for status display
     this.eventDataService.getUserEvents(false).pipe(takeUntil(this.unsubscribe$)).subscribe();
 
+    // Custom sort accessor for status column
+    this.eventTemplateDataSource.sortingDataAccessor = (item, property) => {
+      if (property === 'status') {
+        const status = this.getStatusForTemplate(item.id);
+        // Return numeric sort order for status
+        return this.getStatusSortOrder(status);
+      }
+      return item[property];
+    };
+
     // Watch for event updates and refresh status map
     this.userEventsQuery.selectAll()
       .pipe(
@@ -163,6 +173,20 @@ export class EventListComponent implements OnInit, OnDestroy {
 
   getStatusForTemplate(templateId: string): string {
     return this.eventStatusMap.get(templateId) || '-';
+  }
+
+  getStatusSortOrder(status: string): number {
+    // Define logical sort order for event statuses
+    const sortOrder: { [key: string]: number } = {
+      'Planning': 1,
+      'Creating': 2,
+      'Applying': 3,
+      'Active': 4,
+      'Paused': 5,
+      'Ending': 6,
+      '-': 99
+    };
+    return sortOrder[status] || 99;
   }
 
   /**

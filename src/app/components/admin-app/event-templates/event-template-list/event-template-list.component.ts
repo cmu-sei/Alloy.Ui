@@ -91,6 +91,12 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
       );
   }
 
+  private refreshTemplateLists: (() => void) | null = null;
+
+  setRefreshCallback(callback: () => void) {
+    this.refreshTemplateLists = callback;
+  }
+
   ngOnInit() {
     this.eventTemplateDataSource.filterPredicate = (data, filter) =>
       !filter ||
@@ -164,6 +170,11 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   }
 
   editEventTemplate(eventTemplate: EventTemplate) {
+    // Refresh template lists from external services before opening dialog
+    if (this.refreshTemplateLists) {
+      this.refreshTemplateLists();
+    }
+
     this.eventService.getEventTemplateEvents(eventTemplate.id)
       .pipe(take(1))
       .subscribe((events) => {

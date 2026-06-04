@@ -14,6 +14,11 @@
   min-height: 48px;
 }
 
+// highlight the whole row on hover instead of an arrow button
+.appitems-container .mat-mdc-list-item.showhand:hover {
+  background-color: var(--mat-sys-surface-container);
+}
+
 .nolink {
   text-decoration: none;
   color: inherit;

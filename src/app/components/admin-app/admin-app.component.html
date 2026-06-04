@@ -19,42 +19,27 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         [ngClass]="getSelectedClass(eventTemplatesText)">
         <mat-icon matListItemIcon class="mat-list-item-icon" fontIcon="mdi-clipboard"></mat-icon>
         Event Templates
-        <button mat-icon-button class="pull-right">
-          <mat-icon fontIcon="mdi-menu-right"></mat-icon>
-        </button>
       </mat-list-item>
       <mat-list-item class="showhand" (click)="adminGotoEvents()" [ngClass]="getSelectedClass(eventsText)">
         <mat-icon matListItemIcon class="mat-list-item-icon" fontIcon="mdi-clipboard-play"></mat-icon>
         Events
-        <button mat-icon-button class="pull-right">
-          <mat-icon fontIcon="mdi-menu-right"></mat-icon>
-        </button>
       </mat-list-item>
       @if (permissions.includes(SystemPermission.ViewUsers)) {
       <mat-list-item class="showhand" (click)="adminGotoUsers()" [ngClass]="getSelectedClass(usersText)">
         <mat-icon matListItemIcon class="mat-list-item-icon" fontIcon="mdi-account-multiple"></mat-icon>
         Users
-        <button mat-icon-button class="pull-right">
-          <mat-icon fontIcon="mdi-menu-right"></mat-icon>
-        </button>
       </mat-list-item>
       }
       @if (permissions.includes(SystemPermission.ViewRoles)) {
       <mat-list-item class="showhand" (click)="adminGotoRoles()" [ngClass]="getSelectedClass(rolesText)">
         <mat-icon matListItemIcon class="mat-list-item-icon" fontIcon="mdi-lock"></mat-icon>
         Roles
-        <button mat-icon-button class="pull-right">
-          <mat-icon fontIcon="mdi-menu-right"></mat-icon>
-        </button>
       </mat-list-item>
       }
       @if (permissions.includes(SystemPermission.ViewGroups)) {
       <mat-list-item class="showhand" (click)="adminGotoGroups()" [ngClass]="getSelectedClass(groupsText)">
         <mat-icon matListItemIcon class="mat-list-item-icon" fontIcon="mdi-account-group"></mat-icon>
         Groups
-        <button mat-icon-button class="pull-right">
-          <mat-icon fontIcon="mdi-menu-right"></mat-icon>
-        </button>
       </mat-list-item>
       }
     </mat-list>

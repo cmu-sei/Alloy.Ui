@@ -1,19 +1,25 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-.add-margin {
-  margin-top: 8px;
-  margin-bottom: 8px;
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  scrollbar-color: var(--mat-sys-outline) transparent;
+  scrollbar-width: thin;
 }
 
-.bottom-button {
-  margin-bottom: 10px;
-  margin-top: 10px;
+mat-dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0;
 }
 
-.delete-button {
-  margin-top: 10px;
-  margin-right: 50px;
+
+.close-button {
+  float: right;
 }
 
 ::ng-deep .mat-autocomplete-panel {
@@ -22,10 +28,18 @@
   border-width: 1px;
 }
 
-.clone-button {
-  margin-left: 40px;
+::ng-deep .mdc-text-field {
+  overflow: visible;
 }
 
-.close-button {
-  float: right;
+::ng-deep .mat-mdc-form-field-icon-suffix {
+  overflow: visible;
+}
+
+::ng-deep .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button {
+  overflow: visible;
+}
+
+::ng-deep .mat-mdc-form-field-icon-suffix .mat-mdc-icon-button .mat-icon {
+  overflow: visible;
 }

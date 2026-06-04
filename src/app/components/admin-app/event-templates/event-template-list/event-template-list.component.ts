@@ -170,9 +170,8 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
         const hasEvents = events && events.length > 0;
 
         const dialogRef = this.dialog.open(EventTemplateEditComponent, {
-          minWidth: '400px',
+          width: '750px',
           maxWidth: '90vw',
-          width: 'auto',
           data: {
             eventTemplate: { ...eventTemplate },
             viewList: this.viewList,

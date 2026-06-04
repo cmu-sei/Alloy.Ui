@@ -4,7 +4,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 -->
 
 <h1 mat-dialog-title>{{ title }}</h1>
-<div style="font-family: 'open_sansregular', sans-serif">{{ message }}</div>
+<div class="message-text">{{ message }}</div>
 
 <form [formGroup]="form" class="name-form">
   <mat-form-field class="form-full-width">
@@ -28,7 +28,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </mat-form-field>
 </form>
 
-<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-around center">
+<mat-dialog-actions>
   <button
     mat-stroked-button
     hotkeyAction="ENTER"

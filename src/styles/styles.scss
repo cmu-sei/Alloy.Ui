@@ -134,6 +134,11 @@ mat-icon,
   --mat-icon-color: var(--mat-sys-primary);
 }
 
+// button text follows the theme (black in light, white in dark)
+.mat-mdc-button-base .mdc-button__label {
+  color: var(--mat-sys-on-surface) !important;
+}
+
 // remove the border around paginator items per page selection
 mat-paginator {
   --mat-form-field-outlined-outline-color: transparent;

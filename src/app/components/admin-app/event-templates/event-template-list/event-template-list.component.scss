@@ -43,6 +43,11 @@ table {
   width: 100%;
 }
 
+// hide the paginator while a row is expanded to reduce clutter
+.hidden-paginator {
+  display: none !important;
+}
+
 .mat-mdc-header-row {
   min-height: 56px;
 }

@@ -70,7 +70,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           (click)="$event.stopPropagation()">
           @if (element.id === expandedEventTemplateId) {
           <div class="memberships-container">
-            <label class="memberships-label">Memberships</label>
             <app-event-template-memberships [eventTemplateId]="element.id"
               [showHeader]="false"></app-event-template-memberships>
           </div>
@@ -86,7 +85,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </table>
 </div>
 
-<mat-paginator #paginator [pageSize]="20"
+<mat-paginator #paginator [class.hidden-paginator]="!!expandedEventTemplateId" [pageSize]="20"
   [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
 
 @if (isLoading) {

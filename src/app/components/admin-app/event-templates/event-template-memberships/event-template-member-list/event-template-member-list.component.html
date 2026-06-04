@@ -6,11 +6,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 <div class="mat-elevation-z8">
   <mat-toolbar class="background">
     <mat-toolbar-row>
-      <mat-icon class="mdi-24px" fontIcon="mdi-account-multiple"></mat-icon>
-      <p>EventTemplate Members</p>
+      <p>Event Template Members</p>
     </mat-toolbar-row>
     <mat-toolbar-row>
-      <mat-form-field class="w-50">
+      <mat-form-field class="search-field">
         <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event)" #input autocomplete="off"
           placeholder="Search" />
         @if (filterString) {
@@ -19,7 +18,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         </button>
         }
       </mat-form-field>
-      <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of members"></mat-paginator>
     </mat-toolbar-row>
   </mat-toolbar>
   <table mat-table matSort matSortActive="name" matSortDirection="asc" [dataSource]="dataSource" class="w-100">
@@ -71,4 +69,5 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       </td>
     </tr>
   </table>
+  <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" aria-label="Select page of members"></mat-paginator>
 </div>

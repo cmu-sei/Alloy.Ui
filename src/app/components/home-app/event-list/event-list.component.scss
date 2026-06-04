@@ -66,28 +66,35 @@
 }
 
 .title-text {
-  font-size: x-large;
+  font: var(--mat-sys-title-large);
   text-align: left;
-  padding-left: 20px;
+  white-space: nowrap;
+}
+
+.header-container {
+  // horizontal padding matches the table's first-column padding so the
+  // title and table content share the same left edge
+  padding: 24px;
 }
 
 .icon-text-container {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  margin-left: 20px;
-  height: 90px;
+  gap: 12px;
 }
 
+// search acts as a toolbar attached to the top of the table
 .searchBox {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  margin-left: auto !important;
-  height: 60px !important;
+  padding: 0 24px 4px;
+}
+
+// paginator built into the bottom of the table, aligned right
+.table-paginator {
+  background: transparent;
 }
 
 .spinner {

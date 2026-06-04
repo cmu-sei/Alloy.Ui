@@ -13,10 +13,18 @@ table {
   table-layout: fixed;
 }
 
-// narrow columns for the icon buttons; Name and Type take the rest
-.mat-column-copy,
+// narrow column for the + icon button; Name and Type take the rest
 .mat-column-actions {
   width: 56px;
+}
+
+// clicking the name copies the user/group id
+.copy-name {
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .mat-toolbar-row {

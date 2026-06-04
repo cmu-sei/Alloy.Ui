@@ -13,6 +13,20 @@ table {
   table-layout: fixed;
 }
 
+// narrow column for the remove (-) icon button
+.mat-column-actions {
+  width: 56px;
+}
+
+// clicking the name copies the member's id
+.copy-name {
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .mat-column-type {
   padding-right: 24px;
 }

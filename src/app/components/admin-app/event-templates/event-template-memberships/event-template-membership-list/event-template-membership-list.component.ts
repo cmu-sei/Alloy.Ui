@@ -44,8 +44,8 @@ export class EventTemplateMembershipListComponent implements OnInit, OnChanges, 
   @Output()
   createMembership = new EventEmitter<EventTemplateMembership>();
 
-  viewColumns = ['copy', 'actions', 'name', 'type'];
-  viewOnlyColumns = ['copy', 'name', 'type'];
+  viewColumns = ['actions', 'name', 'type'];
+  viewOnlyColumns = ['name', 'type'];
   displayedColumns = this.viewOnlyColumns;
 
   dataSource = new MatTableDataSource<EventTemplateMemberModel>();

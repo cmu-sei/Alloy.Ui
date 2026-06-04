@@ -31,8 +31,12 @@
 }
 
 .sidenav-header {
-  height: 40px;
-  border-bottom: 2px solid var(--mat-sys-surface-container);
+  // match the top bar height so the title sits on the same line, and
+  // drop the toolbar's boxed background
+  height: 46px;
+  min-height: 46px;
+  background: transparent;
+  padding: 0 16px;
 }
 
 .appcontent-container {

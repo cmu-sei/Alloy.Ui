@@ -3,14 +3,11 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 
-<div class="cssLayoutColumnCenterStart">
-  <div class="move-container">
-    <div>
-      <mat-icon class="mdi-24px sp-icon" fontIcon="mdi-account-group"></mat-icon>
-    </div>
+<div class="component-container mat-elevation-z8">
+  <div class="cssLayoutRowStartCenter">
     <mat-form-field class="search-field">
       <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)"
-        placeholder="Search Groups" />
+        placeholder="Search" />
       @if (filterString) {
       <button mat-icon-button matSuffix (click)="clearFilter()" title="Clear Search">
         <mat-icon style="transform: scale(0.85)" fontIcon="mdi-close-circle-outline"></mat-icon>

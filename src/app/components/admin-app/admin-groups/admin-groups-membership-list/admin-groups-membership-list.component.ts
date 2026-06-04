@@ -38,7 +38,7 @@ export class AdminGroupsMembershipListComponent
   createMembership = new EventEmitter<string>();
 
   viewColumns = ['name'];
-  editColumns = ['actions'];
+  editColumns = ['actions', 'name'];
   displayedColumns = this.viewColumns;
   dataSource = new MatTableDataSource<User>();
 
@@ -59,9 +59,9 @@ export class AdminGroupsMembershipListComponent
   ngOnChanges() {
     this.dataSource.data = this.users;
 
-    this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : []
-    );
+    this.displayedColumns = this.canEdit
+      ? this.editColumns
+      : this.viewColumns;
   }
 
   add(id: string) {

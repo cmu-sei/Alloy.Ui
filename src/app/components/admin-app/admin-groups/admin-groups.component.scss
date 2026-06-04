@@ -3,39 +3,48 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 */
 
+@use "@angular/material" as mat;
+
 :host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  @include mat.form-field-density(-5);
 }
 
-.cssLayoutColumnCenterStart {
-  display: flex;
+// elevated card with margins, matching the Event Templates page
+.component-container {
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  align-items: stretch;
+  min-width: 900px;
+  margin-top: 40px;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-bottom: 40px;
 }
 
-.move-container {
+.cssLayoutRowStartCenter {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  text-align: left;
+  justify-content: flex-start;
   align-items: center;
-  flex-shrink: 0;
 }
 
 .search-field {
-  min-width: 100px;
+  width: 250px;
   margin-left: 10px;
+
+  // override the compact host density just for the search field
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 48px;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
 }
 
 .table-container {
-  flex: 1;
+  max-height: calc(100vh - 236px);
   overflow: auto;
-  padding-bottom: 20px;
 }
 
 table {
@@ -62,14 +71,6 @@ tr.detail-row {
 .element-row td {
   border-bottom-width: 0;
   cursor: pointer;
-}
-
-.sp-icon {
-  margin-left: 20px;
-  margin-right: 20px;
-  min-width: 30px;
-  width: 5%;
-  color: var(--mat-sys-primary);
 }
 
 .button-cell {

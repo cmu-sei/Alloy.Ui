@@ -176,6 +176,34 @@ mat-paginator {
     0 1px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
+/* Account menu in the top bar */
+.account-menu {
+  // align the icon and label on a shared center line
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+  }
+
+  // leading icons share the primary color, sized and spaced to sit
+  // inline and close to the label text
+  .mat-mdc-menu-item .mat-icon {
+    color: var(--mat-sys-primary);
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+    margin: 0 8px 0 0;
+    flex-shrink: 0;
+  }
+
+  // theme toggle row: label fills the space, toggle pinned to the right
+  .theme-toggle {
+    margin-left: 24px;
+    pointer-events: none;
+  }
+}
+
+
 /* The following acts as drop in replacement for the deprecation of Angular FlexLayout */
 .cssLayoutColumnCenterCenter {
   display: flex;

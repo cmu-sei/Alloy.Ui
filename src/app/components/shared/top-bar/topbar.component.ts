@@ -18,7 +18,7 @@ import {
   Theme,
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, take, takeUntil } from 'rxjs/operators';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
@@ -79,6 +79,13 @@ export class TopbarComponent implements OnInit, OnDestroy {
   themeFn(event) {
     const theme = event.checked ? Theme.DARK : Theme.LIGHT;
     this.authService.setUserTheme(theme);
+  }
+
+  toggleTheme() {
+    this.theme$.pipe(take(1)).subscribe((current) => {
+      const theme = current === Theme.DARK ? Theme.LIGHT : Theme.DARK;
+      this.authService.setUserTheme(theme);
+    });
   }
   editFn(event) {
     this.editView.emit(event);

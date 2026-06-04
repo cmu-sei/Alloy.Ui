@@ -71,6 +71,14 @@
   height: 100%;
   width: 250px;
   border-right: solid var(--mat-sys-surface-container);
+  border-radius: 0;
+}
+
+// square off the sidenav corners (Material M3 applies a default radius)
+::ng-deep .mat-sidenav.appbarmenu-container,
+::ng-deep .mat-drawer.appbarmenu-container {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .crucible-logo {

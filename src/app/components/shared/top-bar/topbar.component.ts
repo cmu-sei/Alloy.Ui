@@ -3,6 +3,7 @@
 
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -51,17 +52,15 @@ export class TopbarComponent implements OnInit, OnDestroy {
     private currentUserQuery: CurrentUserQuery,
     private authQuery: ComnAuthQuery,
     private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.permissionDataService
-      .load()
-      .subscribe(
-        (x) =>
-          (this.canViewAdmin =
-            this.permissionDataService.canViewAdministration())
-      );
+    this.permissionDataService.load().subscribe((x) => {
+      this.canViewAdmin = this.permissionDataService.canViewAdministration();
+      this.changeDetectorRef.markForCheck();
+    });
 
     this.currentUser$ = this.currentUserQuery.select().pipe(
       filter((user) => user !== null),

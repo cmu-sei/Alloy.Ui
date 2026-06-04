@@ -34,6 +34,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     }
     }
     <span class="spacer"></span>
+    @if (topbarView === TopbarView.ALLOY_ADMIN) {
+    <a mat-icon-button class="nav-icon" [routerLink]="['/']" title="Home" aria-label="Show Home Page">
+      <mat-icon class="mdi-24px center-self" fontIcon="mdi-home"></mat-icon>
+    </a>
+    } @else if (canViewAdmin) {
+    <a mat-icon-button class="nav-icon" [routerLink]="['/admin']" title="Administration"
+      aria-label="Show Administration Page">
+      <mat-icon class="mdi-24px center-self" fontIcon="mdi-cog"></mat-icon>
+    </a>
+    }
     @if (currentUser$ | async; as currentUser) {
     <div class="user-text">
       <button mat-button class="menu-trigger" [matMenuTriggerFor]="menu" style="outline: none"

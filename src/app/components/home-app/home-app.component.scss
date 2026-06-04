@@ -24,6 +24,12 @@
   font-size: large;
 }
 
+// space the events window away from the top bar
+.events-wrapper {
+  display: block;
+  padding-top: 24px;
+}
+
 .top-row {
   display: flex;
   align-items: center;

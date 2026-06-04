@@ -37,6 +37,15 @@
   color: var(--mat-sys-on-primary);
 }
 
+// nav icon (Administration / Home toggle) sits left of the username
+.nav-icon {
+  color: var(--mat-sys-on-primary);
+
+  .mat-icon {
+    color: var(--mat-sys-on-primary);
+  }
+}
+
 a,
 a:hover,
 a:focus {

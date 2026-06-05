@@ -81,7 +81,6 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
   margin-left: 20px;
   height: 90px;
 }
@@ -110,7 +109,8 @@
 
 .alloy-icon {
   transform: scale(2);
-  width: 60px;
+  height: auto;
+  margin-right: 10px;
   color: var(--mat-sys-primary);
 }
 

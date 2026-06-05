@@ -36,6 +36,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <div class="link-text">
             <a [routerLink]="['/templates', element.id]">{{ element.name }}</a>
           </div>
+          } @else if (col === 'dateCreated') {
+          {{ element[col] | date: 'yyyy-MM-dd HH:mm' }}
           } @else {
           {{ element[col] }}
           }

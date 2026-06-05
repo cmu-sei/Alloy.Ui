@@ -51,6 +51,11 @@
   word-wrap: break-word;
 }
 
+.mat-column-dateCreated {
+  flex: 0 0 180px;
+  padding: 1%;
+}
+
 .description-text {
   margin-left: 10px;
   margin-right: 10px;
@@ -108,11 +113,31 @@
   color: var(--mat-sys-primary);
 }
 
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  vertical-align: middle;
+  border-color: var(--mat-sys-outline-variant);
+}
+
 .link-text {
   text-align: left;
   font-size: large;
+}
 
-  a {
-    color: var(--mat-sys-primary);
-  }
+a:link {
+  color: var(--mat-sys-on-background);
+}
+
+a:visited {
+  color: var(--mat-sys-on-background);
+}
+
+a:hover {
+  color: var(--mat-sys-outline);
+}
+
+a:active {
+  color: var(--mat-sys-on-background);
 }

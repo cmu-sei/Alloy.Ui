@@ -132,6 +132,20 @@ export class CasterDataService {
       const parent = this._apiDirectories.find((d) => d.id === me.parentId);
       name = this.getFullName(parent) + ' - ' + name;
     }
+    // Find the root directory to get project ID
+    let root = me;
+    while (root.parentId) {
+      const parent = this._apiDirectories.find((d) => d.id === root.parentId);
+      if (parent) {
+        root = parent;
+      } else {
+        break;
+      }
+    }
+    // Prepend full project ID to distinguish directories with same name across projects
+    if (root.projectId) {
+      name = `Project: ${root.projectId} | ${name}`;
+    }
     return name;
   }
 }

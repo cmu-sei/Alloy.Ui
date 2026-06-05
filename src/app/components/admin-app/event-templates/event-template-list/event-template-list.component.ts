@@ -11,9 +11,11 @@ import {
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewChild,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
@@ -63,6 +65,7 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   }
   @Input() isLoading: boolean;
   @Input() adminMode = false;
+  @Output() refreshTemplates = new EventEmitter<void>();
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('paginator') paginator: MatPaginator;
@@ -89,12 +92,6 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
       .subscribe(
         (x) => (this.systemPermissions = this.permissionDataService.permissions)
       );
-  }
-
-  private refreshTemplateLists: (() => void) | null = null;
-
-  setRefreshCallback(callback: () => void) {
-    this.refreshTemplateLists = callback;
   }
 
   ngOnInit() {
@@ -171,9 +168,7 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
 
   editEventTemplate(eventTemplate: EventTemplate) {
     // Refresh template lists from external services before opening dialog
-    if (this.refreshTemplateLists) {
-      this.refreshTemplateLists();
-    }
+    this.refreshTemplates.emit();
 
     this.eventService.getEventTemplateEvents(eventTemplate.id)
       .pipe(take(1))

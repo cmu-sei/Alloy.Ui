@@ -35,6 +35,8 @@ html {
       typography: '"Open Sans", sans-serif',
     )
   );
+  @include mat.icon-button-overrides((icon-color: var(--mat-sys-primary),));
+  --mat-icon-button-icon-color: var(--mat-sys-error);
 }
 
 body {

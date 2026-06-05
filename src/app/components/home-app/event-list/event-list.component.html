@@ -33,9 +33,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <mat-cell *matCellDef="let element">
           <!-- Only Show link if its the first element-->
           @if (i === 0) {
-          <div class="link-text">
-            <a [routerLink]="['/templates', element.id]">{{ element.name }}</a>
-          </div>
+          <a [routerLink]="['/templates', element.id]">{{ element.name }}</a>
           } @else if (col === 'dateCreated') {
           {{ element[col] | date: 'yyyy-MM-dd HH:mm' }}
           } @else {

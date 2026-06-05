@@ -37,6 +37,11 @@
   color: var(--mat-sys-on-primary);
 }
 
+.margin-auto button mat-icon,
+.margin-auto a mat-icon {
+  color: var(--mat-sys-primary);
+}
+
 a,
 a:hover,
 a:focus {

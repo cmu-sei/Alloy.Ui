@@ -4,21 +4,21 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 -->
 
 <h1 mat-dialog-title>{{ title }}</h1>
-<div class="message-text">{{ message }}</div>
+<mat-dialog-content>
+  <p class="message-text">{{ message }}</p>
+</mat-dialog-content>
 
-<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-around center">
-  <div>
-    @if (buttonTrueText !== '') {
-      <button
-        mat-stroked-button
-        hotkeyAction="ENTER"
-        (click)="onClick(true)"
-        tabindex="3"
-        >
-        {{ buttonTrueText }}
-      </button>
-    }
-  </div>
+<mat-dialog-actions>
+  @if (buttonTrueText !== '') {
+    <button
+      mat-stroked-button
+      hotkeyAction="ENTER"
+      (click)="onClick(true)"
+      tabindex="3"
+      >
+      {{ buttonTrueText }}
+    </button>
+  }
   <button mat-stroked-button (click)="onCancel()" tabindex="3">
     {{ buttonFalseText }}
   </button>

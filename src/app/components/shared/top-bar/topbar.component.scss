@@ -37,6 +37,11 @@
   color: var(--mat-sys-on-primary);
 }
 
+// header bar text stays white on the colored bar, overriding the global default
+::ng-deep .menu-trigger .mdc-button__label {
+  color: var(--mat-sys-on-primary) !important;
+}
+
 a,
 a:hover,
 a:focus {

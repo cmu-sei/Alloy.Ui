@@ -34,6 +34,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     }
     }
     <span class="spacer"></span>
+    @if (topbarView === TopbarView.ALLOY_ADMIN) {
+    <a mat-icon-button class="nav-icon" [routerLink]="['/']" title="Home" aria-label="Show Home Page">
+      <mat-icon class="mdi-24px center-self" fontIcon="mdi-home"></mat-icon>
+    </a>
+    } @else if (canViewAdmin) {
+    <a mat-icon-button class="nav-icon" [routerLink]="['/admin']" title="Administration"
+      aria-label="Show Administration Page">
+      <mat-icon class="mdi-24px center-self" fontIcon="mdi-cog"></mat-icon>
+    </a>
+    }
     @if (currentUser$ | async; as currentUser) {
     <div class="user-text">
       <button mat-button class="menu-trigger" [matMenuTriggerFor]="menu" style="outline: none"
@@ -41,28 +51,39 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <strong>{{ currentUser.name }}</strong>
         <mat-icon aria-hidden="false" class="menu-trigger" fontIcon="mdi-chevron-down"></mat-icon>
       </button>
-      <mat-menu #menu="matMenu" [overlapTrigger]="false">
+      <mat-menu #menu="matMenu" class="account-menu" [overlapTrigger]="false" yPosition="below"
+        xPosition="before">
         @if (team && team.canManage) {
-        <button (click)="editFn($event)" mat-menu-item>
-          Edit View
+        <button mat-menu-item (click)="editFn($event)">
+          <mat-icon fontIcon="mdi-pencil"></mat-icon>
+          <span>Edit View</span>
         </button>
         }
         @if (topbarView === TopbarView.ALLOY_ADMIN) {
-        <button [routerLink]="['/']" mat-menu-item>
-          Exit Administration
+        <button mat-menu-item [routerLink]="['/']">
+          <mat-icon fontIcon="mdi-home"></mat-icon>
+          <span>Exit Administration</span>
         </button>
         }
         @if (topbarView !== TopbarView.ALLOY_ADMIN && canViewAdmin) {
-        <button [routerLink]="['/admin']" mat-menu-item>
-          Administration
+        <button mat-menu-item [routerLink]="['/admin']">
+          <mat-icon fontIcon="mdi-cog"></mat-icon>
+          <span>Administration</span>
         </button>
         }
-        <button mat-menu-item (click)="logout()">Logout</button>
-        <mat-slide-toggle class="mat-menu-item" color="primary"
-          [checked]="(theme$ | async) === 'dark-theme' ? true : false" (click)="$event.stopPropagation()"
-          (change)="themeFn($event)">
-          Dark Theme
-        </mat-slide-toggle>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon fontIcon="mdi-logout"></mat-icon>
+          <span>Logout</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="$event.stopPropagation(); toggleTheme()">
+          <mat-icon [fontIcon]="(theme$ | async) === 'dark-theme' ? 'mdi-weather-night' : 'mdi-weather-sunny'"></mat-icon>
+          <span>Dark Theme</span>
+          <mat-slide-toggle class="theme-toggle" color="primary"
+            [checked]="(theme$ | async) === 'dark-theme'"
+            (click)="$event.stopPropagation(); toggleTheme()">
+          </mat-slide-toggle>
+        </button>
       </mat-menu>
     </div>
     }

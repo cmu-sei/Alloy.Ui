@@ -44,9 +44,9 @@ export class EventTemplateMembershipListComponent implements OnInit, OnChanges, 
   @Output()
   createMembership = new EventEmitter<EventTemplateMembership>();
 
-  viewColumns = ['name', 'type'];
-  editColumns = ['actions'];
-  displayedColumns = this.viewColumns;
+  viewColumns = ['actions', 'name', 'type'];
+  viewOnlyColumns = ['name', 'type'];
+  displayedColumns = this.viewOnlyColumns;
 
   dataSource = new MatTableDataSource<EventTemplateMemberModel>();
 
@@ -67,9 +67,9 @@ export class EventTemplateMembershipListComponent implements OnInit, OnChanges, 
   ngOnChanges() {
     this.dataSource.data = this.buildModel();
 
-    this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : []
-    );
+    this.displayedColumns = this.canEdit
+      ? this.viewColumns
+      : this.viewOnlyColumns;
   }
 
   add(id: string, type: string) {

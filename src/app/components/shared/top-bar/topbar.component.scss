@@ -29,12 +29,21 @@
 
 .view-text {
   font-size: 110%;
-  margin-left: 50px;
+  margin-left: 12px;
   margin-right: 40px;
 }
 
 .menu-trigger {
   color: var(--mat-sys-on-primary);
+}
+
+// nav icon (Administration / Home toggle) sits left of the username
+.nav-icon {
+  color: var(--mat-sys-on-primary);
+
+  .mat-icon {
+    color: var(--mat-sys-on-primary);
+  }
 }
 
 a,

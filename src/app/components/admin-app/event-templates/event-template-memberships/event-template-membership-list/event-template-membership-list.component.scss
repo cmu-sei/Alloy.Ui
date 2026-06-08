@@ -13,6 +13,20 @@ table {
   table-layout: fixed;
 }
 
+// narrow column for the + icon button; Name and Type take the rest
+.mat-column-actions {
+  width: 56px;
+}
+
+// clicking the name copies the user/group id
+.copy-name {
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .mat-toolbar-row {
   display: flex;
   align-items: center;
@@ -32,6 +46,17 @@ mat-paginator {
   background-color: transparent;
 }
 
-.w-50 {
-  width: 50%;
+.search-field {
+  width: 250px;
+
+  // match the taller search field used by the main admin tables
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 48px;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
 }

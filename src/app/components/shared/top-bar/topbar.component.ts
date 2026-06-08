@@ -3,6 +3,7 @@
 
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -17,7 +18,7 @@ import {
   Theme,
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, take, takeUntil } from 'rxjs/operators';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
@@ -51,17 +52,15 @@ export class TopbarComponent implements OnInit, OnDestroy {
     private currentUserQuery: CurrentUserQuery,
     private authQuery: ComnAuthQuery,
     private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.permissionDataService
-      .load()
-      .subscribe(
-        (x) =>
-          (this.canViewAdmin =
-            this.permissionDataService.canViewAdministration())
-      );
+    this.permissionDataService.load().subscribe((x) => {
+      this.canViewAdmin = this.permissionDataService.canViewAdministration();
+      this.changeDetectorRef.markForCheck();
+    });
 
     this.currentUser$ = this.currentUserQuery.select().pipe(
       filter((user) => user !== null),
@@ -80,6 +79,13 @@ export class TopbarComponent implements OnInit, OnDestroy {
   themeFn(event) {
     const theme = event.checked ? Theme.DARK : Theme.LIGHT;
     this.authService.setUserTheme(theme);
+  }
+
+  toggleTheme() {
+    this.theme$.pipe(take(1)).subscribe((current) => {
+      const theme = current === Theme.DARK ? Theme.LIGHT : Theme.DARK;
+      this.authService.setUserTheme(theme);
+    });
   }
   editFn(event) {
     this.editView.emit(event);

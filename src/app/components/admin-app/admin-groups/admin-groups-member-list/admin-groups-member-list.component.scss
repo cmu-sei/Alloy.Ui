@@ -1,5 +1,65 @@
 /*
-Copyright 2021 Carnegie Mellon University. All Rights Reserved. 
+Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 */
 
+:host {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+}
+
+table {
+  table-layout: fixed;
+}
+
+// narrow column for the remove (-) icon button; Name takes the rest
+.mat-column-actions {
+  width: 56px;
+}
+
+// clicking the name copies the user id
+.copy-name {
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.mat-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mat-toolbar-row mat-icon {
+  color: var(--mat-sys-primary);
+}
+
+.mat-toolbar-row p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.mat-cell {
+  vertical-align: middle;
+}
+
+mat-paginator {
+  background-color: transparent;
+}
+
+.search-field {
+  width: 250px;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 48px;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+}

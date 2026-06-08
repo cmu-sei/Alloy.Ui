@@ -8,8 +8,19 @@
 }
 
 .search-field {
-  min-width: 100px;
+  width: 250px;
   margin-left: 10px;
+
+  // override the compact host density just for the search field
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 48px;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
 }
 
 .nator-div {
@@ -21,13 +32,20 @@
 }
 
 .table-container {
-  height: calc(100vh - 180px);
+  // grow with the rows so the paginator sits just below the last item,
+  // but cap at the viewport so long lists scroll and the paginator
+  // stays at the bottom of the page
+  max-height: calc(100vh - 236px);
   overflow: auto;
-  padding-bottom: 20px;
 }
 
 table {
   width: 100%;
+}
+
+// hide the paginator while a row is expanded to reduce clutter
+.hidden-paginator {
+  display: none !important;
 }
 
 .mat-mdc-header-row {

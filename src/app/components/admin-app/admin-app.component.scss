@@ -14,6 +14,11 @@
   min-height: 48px;
 }
 
+// highlight the whole row on hover instead of an arrow button
+.appitems-container .mat-mdc-list-item.showhand:hover {
+  background-color: var(--mat-sys-surface-container);
+}
+
 .nolink {
   text-decoration: none;
   color: inherit;
@@ -26,8 +31,12 @@
 }
 
 .sidenav-header {
-  height: 40px;
-  border-bottom: 2px solid var(--mat-sys-surface-container);
+  // match the top bar height so the title sits on the same line, and
+  // drop the toolbar's boxed background
+  height: 46px;
+  min-height: 46px;
+  background: transparent;
+  padding: 0 16px;
 }
 
 .appcontent-container {
@@ -71,6 +80,14 @@
   height: 100%;
   width: 250px;
   border-right: solid var(--mat-sys-surface-container);
+  border-radius: 0;
+}
+
+// square off the sidenav corners (Material M3 applies a default radius)
+::ng-deep .mat-sidenav.appbarmenu-container,
+::ng-deep .mat-drawer.appbarmenu-container {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .crucible-logo {

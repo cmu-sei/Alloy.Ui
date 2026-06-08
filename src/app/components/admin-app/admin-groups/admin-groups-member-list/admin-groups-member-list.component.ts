@@ -43,7 +43,7 @@ export class AdminGroupsMemberListComponent
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   viewColumns = ['name'];
-  editColumns = ['actions'];
+  editColumns = ['actions', 'name'];
   displayedColumns = this.viewColumns;
   dataSource = new MatTableDataSource<GroupMembershipModel>();
 
@@ -60,9 +60,9 @@ export class AdminGroupsMemberListComponent
 
   ngOnChanges() {
     this.buildModel();
-    this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : []
-    );
+    this.displayedColumns = this.canEdit
+      ? this.editColumns
+      : this.viewColumns;
   }
 
   buildModel() {

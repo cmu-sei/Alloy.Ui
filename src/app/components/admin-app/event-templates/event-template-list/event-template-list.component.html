@@ -4,10 +4,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 -->
 
 <div class="cssLayoutRowStartCenter">
-  <div class="sp-icon">
-    <mat-icon class="mdi-24px" fontIcon="mdi-clipboard" [ngStyle]="{ color: 'var(--mat-sys-primary)' }"
-      alt="Event Templates"></mat-icon>
-  </div>
   <mat-form-field class="search-field">
     <input matInput [formControl]="filterControl" placeholder="Search" />
     @if (filterControl.value) {
@@ -16,10 +12,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </button>
     }
   </mat-form-field>
-  <div class="nator-div">
-    <mat-paginator #paginator [pageSize]="20"
-      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
-  </div>
 </div>
 
 <div class="table-container">
@@ -78,7 +70,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           (click)="$event.stopPropagation()">
           @if (element.id === expandedEventTemplateId) {
           <div class="memberships-container">
-            <label class="memberships-label">Memberships</label>
             <app-event-template-memberships [eventTemplateId]="element.id"
               [showHeader]="false"></app-event-template-memberships>
           </div>
@@ -93,6 +84,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
   </table>
 </div>
+
+<mat-paginator #paginator [class.hidden-paginator]="!!expandedEventTemplateId" [pageSize]="20"
+  [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
 
 @if (isLoading) {
 <mat-card appearance="outlined" style="display: flex; justify-content: center; align-items: center; width: 100%">

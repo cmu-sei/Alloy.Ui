@@ -8,13 +8,20 @@
 
 .app-events-container {
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto 1fr;
   height: 100%;
   width: 100%;
   text-align: center;
   overflow: hidden;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
+}
+
+.app-events-container > span {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .title-text {

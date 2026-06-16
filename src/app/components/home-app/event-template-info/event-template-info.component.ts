@@ -52,7 +52,7 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 })
 export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   @Input() eventTemplateId: string;
-  @ViewChild(MatSort, { static: false }) sort: MatSort;
+  @ViewChild('historySort', { static: false }) sort: MatSort;
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
   public TopbarView = TopbarView;

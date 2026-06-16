@@ -38,6 +38,7 @@ import {
 } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
+import { NameDialogComponent } from 'src/app/shared/name-dialog/name-dialog.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
@@ -155,15 +156,28 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   }
 
   addNewEventTemplate() {
-    const eventTemplate = <EventTemplate>{
-      name: 'New Event Template',
-      description: 'Add description',
-    };
-
-    this.eventTemplateDataService
-      .addNew(eventTemplate)
-      .pipe(take(1))
-      .subscribe();
+    const dialogRef = this.dialog.open(NameDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Create New Event Template',
+        nameValue: '',
+        showDescription: true,
+        descriptionValue: '',
+      },
+    });
+    dialogRef.componentInstance.title = 'Create New Event Template';
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && !result.wasCancelled) {
+        const eventTemplate = <EventTemplate>{
+          name: result.nameValue,
+          description: result.descriptionValue || '',
+        };
+        this.eventTemplateDataService
+          .addNew(eventTemplate)
+          .pipe(take(1))
+          .subscribe();
+      }
+    });
   }
 
   editEventTemplate(eventTemplate: EventTemplate) {

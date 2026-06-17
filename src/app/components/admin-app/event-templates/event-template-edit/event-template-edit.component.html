@@ -5,7 +5,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <div mat-dialog-container>
   <div mat-dialog-title>
-    @if (data.canEdit) {
+    @if (data.isNew) {
+    Create New Event Template
+    } @else if (data.canEdit) {
     Edit Event Template
     } @else {
     View Event Template
@@ -17,34 +19,47 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   @if (data.eventTemplate) {
   <mat-dialog-content mat-dialog-content>
     <div class="add-margin">
-      <div>
+      <div class="field-with-copy">
         <mat-form-field class="full-width">
           <mat-label>Name (required)</mat-label>
           <input type="text" matInput [(ngModel)]="data.eventTemplate.name"
             [disabled]="!data.canEdit" />
         </mat-form-field>
+        <span class="copy-placeholder"></span>
       </div>
     </div>
     <div class="add-margin">
-      <div>
+      <div class="field-with-copy">
         <mat-form-field class="full-width">
           <mat-label>Event Template Description</mat-label>
           <textarea matInput [(ngModel)]="data.eventTemplate.description"
             [disabled]="!data.canEdit"></textarea>
         </mat-form-field>
+        <span class="copy-placeholder"></span>
       </div>
     </div>
     <div class="add-margin">
-      <div>
+      <div class="field-with-copy">
         <mat-form-field class="full-width">
-          <mat-label>Duration Hours</mat-label>
-          <input matInput type="number" [(ngModel)]="data.eventTemplate.durationHours"
+          <mat-label>Duration Hours (required)</mat-label>
+          <input matInput type="number" min="1" step="1"
+            [formControl]="durationHoursFormControl"
+            [errorStateMatcher]="notAnIntegerErrorState"
             [disabled]="!data.canEdit" />
+          @if (
+            durationHoursFormControl.hasError('required') ||
+            durationHoursFormControl.hasError('notAnInteger')
+            ) {
+            <mat-error>
+              Duration Hours must be an <strong>integer greater than 0</strong>
+            </mat-error>
+          }
         </mat-form-field>
+        <span class="copy-placeholder"></span>
       </div>
     </div>
     <div class="add-margin">
-      <div>
+      <div class="field-with-copy">
         <mat-form-field class="full-width">
           <mat-label>Player View Template</mat-label>
           @if (data.canEdit) {
@@ -63,15 +78,17 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <input matInput type="text" [value]="viewSearchControl.value"
             [disabled]="true" />
           }
-          <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.viewId"
-            title="Copy:  {{ data.eventTemplate.viewId }}">
-            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
         </mat-form-field>
+        <span class="copy-button" matTooltip="Copy View ID">
+          <button mat-icon-button ngxClipboard [cbContent]="data.eventTemplate.viewId"
+            [disabled]="!data.eventTemplate.viewId">
+            <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
+          </button>
+        </span>
       </div>
     </div>
     <div class="add-margin">
-      <div>
+      <div class="field-with-copy">
         <mat-form-field class="full-width">
           <mat-label>Caster Directory</mat-label>
           @if (data.canEdit) {
@@ -90,15 +107,17 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <input matInput type="text" [value]="directorySearchControl.value"
             [disabled]="true" />
           }
-          <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.directoryId"
-            title="Copy:  {{ data.eventTemplate.directoryId }}">
-            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
         </mat-form-field>
+        <span class="copy-button" matTooltip="Copy Directory ID">
+          <button mat-icon-button ngxClipboard [cbContent]="data.eventTemplate.directoryId"
+            [disabled]="!data.eventTemplate.directoryId">
+            <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
+          </button>
+        </span>
       </div>
     </div>
     <div class="add-margin">
-      <div>
+      <div class="field-with-copy">
         <mat-form-field class="full-width">
           <mat-label>Steamfitter Scenario Template</mat-label>
           @if (data.canEdit) {
@@ -123,11 +142,13 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <input matInput type="text" [value]="scenarioTemplateSearchControl.value"
             [disabled]="true" />
           }
-          <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
-            title="Copy:  {{ data.eventTemplate.scenarioTemplateId }}">
-            <mat-icon class="icon-color icon-20px" svgIcon="ic_clipboard_copy"></mat-icon>
-          </button>
         </mat-form-field>
+        <span class="copy-button" matTooltip="Copy Scenario Template ID">
+          <button mat-icon-button ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
+            [disabled]="!data.eventTemplate.scenarioTemplateId">
+            <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
+          </button>
+        </span>
       </div>
     </div>
     <div class="add-margin">
@@ -144,27 +165,23 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </mat-dialog-content>
   }
 
-  <div class="cssLayoutRowStartCenter bottom-button">
-    <div class="delete-button">
-      <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template"
-        [disabled]="!data.canEdit">Save</button>
-    </div>
-    <div class="delete-button">
-      <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
-    </div>
-    <div class="delete-button">
-      <button mat-stroked-button (click)="cloneEventTemplate()" class="clone-button" title="Clone this event template"
-        style="margin-left: 80px;" [disabled]="!data.canCreate">
-        Clone
-      </button>
-    </div>
-    <div class="delete-button"
-      [matTooltip]="data.hasEvents ? 'Cannot delete template with existing events' : 'Delete this event template'"
-      style="display: inline-block;">
+  <div class="bottom-button" mat-dialog-actions>
+    <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template"
+      [disabled]="!data.canEdit">Save</button>
+    <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
+    @if (!data.isNew) {
+    <span class="spacer"></span>
+    <button mat-stroked-button (click)="cloneEventTemplate()" title="Clone this event template"
+      [disabled]="!data.canCreate">
+      Clone
+    </button>
+    <span
+      [matTooltip]="data.hasEvents ? 'Cannot delete template with existing events' : 'Delete this event template'">
       <button mat-stroked-button (click)="deleteEventTemplate()"
-        style="margin-left: 80px;" [disabled]="!data.canManage || data.hasEvents">
+        [disabled]="!data.canManage || data.hasEvents">
         Delete
       </button>
-    </div>
+    </span>
+    }
   </div>
 </div>

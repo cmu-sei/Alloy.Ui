@@ -41,6 +41,25 @@ export class UserErrorStateMatcher implements ErrorStateMatcher {
   }
 }
 
+/** Error when the duration is not an integer greater than 0. */
+export class NotIntegerErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(
+    control: UntypedFormControl | null,
+    form: FormGroupDirective | NgForm | null
+  ): boolean {
+    const hours = parseInt(control.value, 10);
+    let isNotAnInteger = Number.isNaN(hours) || hours <= 0;
+    if (!isNotAnInteger && !!control.value) {
+      isNotAnInteger = hours.toString() !== control.value.toString();
+    }
+    if (isNotAnInteger) {
+      control.setErrors({ notAnInteger: true });
+    }
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty || isSubmitted));
+  }
+}
+
 @Component({
     selector: 'app-event-template-edit',
     templateUrl: './event-template-edit.component.html',
@@ -70,7 +89,6 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   ]);
   public durationHoursFormControl = new UntypedFormControl('', [
     Validators.required,
-    Validators.pattern('^[0-9]*$'),
   ]);
   public viewIdFormControl = new UntypedFormControl('', []);
   public directoryIdFormControl = new UntypedFormControl('', []);
@@ -78,6 +96,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public isPublishedFormControl = new UntypedFormControl('', []);
   public useDynamicHostFormControl = new UntypedFormControl('', []);
   public matcher = new UserErrorStateMatcher();
+  public notAnIntegerErrorState = new NotIntegerErrorStateMatcher();
   public viewSearchControl = new UntypedFormControl('', []);
   public directorySearchControl = new UntypedFormControl('', []);
   public scenarioTemplateSearchControl = new UntypedFormControl('', []);
@@ -340,6 +359,14 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     if (!saveChanges) {
       this.editComplete.emit({ action: '', eventTemplate: null });
     } else {
+      if (
+        this.durationHoursFormControl.invalid ||
+        this.durationHoursFormControl.hasError('notAnInteger')
+      ) {
+        return;
+      }
+      this.data.eventTemplate.durationHours =
+        parseInt(this.durationHoursFormControl.value, 10);
       this.editComplete.emit({
         action: 'save',
         eventTemplate: this.data.eventTemplate,

@@ -38,7 +38,6 @@ import {
 } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
-import { NameDialogComponent } from 'src/app/shared/name-dialog/name-dialog.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
@@ -156,27 +155,33 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   }
 
   addNewEventTemplate() {
-    const dialogRef = this.dialog.open(NameDialogComponent, {
-      width: '500px',
+    // Refresh template lists from external services before opening dialog
+    this.refreshTemplates.emit();
+
+    const dialogRef = this.dialog.open(EventTemplateEditComponent, {
+      minWidth: '400px',
+      maxWidth: '90vw',
+      width: '600px',
       data: {
-        title: 'Create New Event Template',
-        nameValue: '',
-        showDescription: true,
-        descriptionValue: '',
+        eventTemplate: <EventTemplate>{},
+        viewList: this.viewList,
+        directoryList: this.directoryList,
+        scenarioTemplateList: this.scenarioTemplateList,
+        canEdit: true,
+        canManage: true,
+        canCreate: this.permissionDataService.canCreateEventTemplates(),
+        hasEvents: false,
+        isNew: true,
       },
     });
-    dialogRef.componentInstance.title = 'Create New Event Template';
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result && !result.wasCancelled) {
-        const eventTemplate = <EventTemplate>{
-          name: result.nameValue,
-          description: result.descriptionValue || '',
-        };
+    dialogRef.componentInstance.editComplete.subscribe((result) => {
+      if (result.action === 'save' || result.action === 'clone') {
         this.eventTemplateDataService
-          .addNew(eventTemplate)
+          .addNew(result.eventTemplate)
           .pipe(take(1))
           .subscribe();
       }
+      dialogRef.close();
     });
   }
 
@@ -192,7 +197,7 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
         const dialogRef = this.dialog.open(EventTemplateEditComponent, {
           minWidth: '400px',
           maxWidth: '90vw',
-          width: 'auto',
+          width: '600px',
           data: {
             eventTemplate: { ...eventTemplate },
             viewList: this.viewList,

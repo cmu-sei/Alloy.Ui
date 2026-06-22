@@ -44,11 +44,13 @@ export class EventListComponent implements OnInit, OnDestroy {
     'name',
     'description',
     'durationHours',
+    'dateCreated',
   ];
   public columnHeaders: { [key: string]: string } = {
-    'name': 'Event Name',
+    'name': 'Name',
     'description': 'Description',
-    'durationHours': 'Duration (Hours)'
+    'durationHours': 'Duration (Hours)',
+    'dateCreated': 'Created'
   };
 
   public filterString: string;

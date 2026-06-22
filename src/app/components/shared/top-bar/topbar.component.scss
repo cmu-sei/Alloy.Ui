@@ -2,8 +2,6 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 .margin-auto {
   margin: auto;
-  display: flex;
-  align-items: center;
 }
 
 .spacer {
@@ -35,6 +33,11 @@
 
 .menu-trigger {
   color: var(--mat-sys-on-primary);
+}
+
+.margin-auto button mat-icon,
+.margin-auto a mat-icon {
+  color: var(--mat-sys-primary);
 }
 
 a,

@@ -47,12 +47,14 @@ export class EventListComponent implements OnInit, OnDestroy {
     'name',
     'description',
     'durationHours',
+    'dateCreated',
     'status',
   ];
   public columnHeaders: { [key: string]: string } = {
-    'name': 'Event Name',
+    'name': 'Name',
     'description': 'Description',
     'durationHours': 'Duration (Hours)',
+    'dateCreated': 'Created',
     'status': 'Status'
   };
   public userEvents: AlloyEvent[] = [];

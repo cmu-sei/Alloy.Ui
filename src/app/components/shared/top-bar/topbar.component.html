@@ -10,11 +10,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <mat-icon svgIcon="ic_crucible_alloy"></mat-icon>
       </a>
     </span>
-    <a [routerLink]="['/']">
-      <div fxLayout="row" fxLayoutAlign="start center">
-        <span class="view-text">{{ title }}</span>
-      </div>
-    </a>
+    <span class="view-text">{{ title }}</span>
     @if (teams && team && teams.length > 0) {
     <div class="team-text">Team:</div>
     <b class="team-text">{{ team.name }}</b>

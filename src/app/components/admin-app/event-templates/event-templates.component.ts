@@ -35,6 +35,12 @@ export class EventTemplatesComponent {
     steamfitterDataService.getScenarioTemplatesFromApi();
     casterDataService.getDirectoriesFromApi();
   }
+
+  onRefreshTemplates() {
+    this.playerDataService.getViewsFromApi();
+    this.steamfitterDataService.getScenarioTemplatesFromApi();
+    this.casterDataService.getDirectoriesFromApi();
+  }
 }
 
 /** Error when invalid control is dirty, touched, or submitted. */

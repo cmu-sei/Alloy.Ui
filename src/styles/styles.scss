@@ -36,7 +36,6 @@ html {
     )
   );
   @include mat.icon-button-overrides((icon-color: var(--mat-sys-primary),));
-  --mat-icon-button-icon-color: var(--mat-sys-error);
 }
 
 body {
@@ -129,12 +128,6 @@ a {
   &:focus {
     color: var(--mat-sys-outline);
   }
-}
-
-// default all icons to the primary theme color
-mat-icon,
-.mat-icon {
-  --mat-icon-color: var(--mat-sys-primary);
 }
 
 // remove the border around paginator items per page selection

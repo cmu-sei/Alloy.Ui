@@ -4,20 +4,5 @@
 :host {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 44px);
-}
-
-.component-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.add-margin {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  margin: 16px;
+  height: calc(100% - 44px);
 }

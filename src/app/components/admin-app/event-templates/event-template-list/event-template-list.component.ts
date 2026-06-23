@@ -167,8 +167,11 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
         viewList: this.viewList,
         directoryList: this.directoryList,
         scenarioTemplateList: this.scenarioTemplateList,
-        canEdit: true,
-        canManage: true,
+        // A new template has no id yet, so per-template edit/manage checks
+        // don't apply. The create permission gates opening this dialog and
+        // governs the template being created.
+        canEdit: this.permissionDataService.canCreateEventTemplates(),
+        canManage: this.permissionDataService.canCreateEventTemplates(),
         canCreate: this.permissionDataService.canCreateEventTemplates(),
         hasEvents: false,
         isNew: true,

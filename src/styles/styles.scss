@@ -137,6 +137,14 @@ mat-icon,
   --mat-icon-color: var(--mat-sys-primary);
 }
 
+// but let icons inside disabled buttons grey out as Material intends
+button:disabled mat-icon,
+button:disabled .mat-icon,
+.mat-mdc-button-disabled mat-icon,
+.mat-mdc-button-disabled .mat-icon {
+  --mat-icon-color: var(--mat-sys-outline);
+}
+
 // remove the border around paginator items per page selection
 mat-paginator {
   --mat-form-field-outlined-outline-color: transparent;

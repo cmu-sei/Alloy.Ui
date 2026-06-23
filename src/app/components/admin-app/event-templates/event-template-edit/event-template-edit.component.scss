@@ -6,32 +6,6 @@
   margin-bottom: 8px;
 }
 
-// Give the fields breathing room on the right so the copy button
-// sits clear of the dialog edge.
-::ng-deep .mat-mdc-dialog-content {
-  padding-right: 24px;
-}
-
-.field-with-copy {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  .mat-mdc-form-field {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .copy-button,
-  .copy-placeholder {
-    flex: 0 0 auto;
-    width: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
 .bottom-button {
   display: flex;
   align-items: center;

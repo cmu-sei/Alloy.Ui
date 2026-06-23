@@ -19,137 +19,121 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   @if (data.eventTemplate) {
   <mat-dialog-content mat-dialog-content>
     <div class="add-margin">
-      <div class="field-with-copy">
-        <mat-form-field class="full-width">
-          <mat-label>Name (required)</mat-label>
-          <input type="text" matInput [(ngModel)]="data.eventTemplate.name"
-            [disabled]="!data.canEdit" />
-        </mat-form-field>
-        <span class="copy-placeholder"></span>
-      </div>
+      <mat-form-field class="full-width">
+        <mat-label>Name (required)</mat-label>
+        <input type="text" matInput [(ngModel)]="data.eventTemplate.name"
+          [disabled]="!data.canEdit" />
+      </mat-form-field>
     </div>
     <div class="add-margin">
-      <div class="field-with-copy">
-        <mat-form-field class="full-width">
-          <mat-label>Event Template Description</mat-label>
-          <textarea matInput [(ngModel)]="data.eventTemplate.description"
-            [disabled]="!data.canEdit"></textarea>
-        </mat-form-field>
-        <span class="copy-placeholder"></span>
-      </div>
+      <mat-form-field class="full-width">
+        <mat-label>Event Template Description</mat-label>
+        <textarea matInput [(ngModel)]="data.eventTemplate.description"
+          [disabled]="!data.canEdit"></textarea>
+      </mat-form-field>
     </div>
     <div class="add-margin">
-      <div class="field-with-copy">
-        <mat-form-field class="full-width">
-          <mat-label>Duration Hours (required)</mat-label>
-          <input matInput type="number" min="1" step="1"
-            [formControl]="durationHoursFormControl"
-            [errorStateMatcher]="notAnIntegerErrorState"
-            [disabled]="!data.canEdit" />
-          @if (
-            durationHoursFormControl.hasError('required') ||
-            durationHoursFormControl.hasError('notAnInteger')
-            ) {
-            <mat-error>
-              Duration Hours must be an <strong>integer greater than 0</strong>
-            </mat-error>
+      <mat-form-field class="full-width">
+        <mat-label>Duration Hours (required)</mat-label>
+        <input matInput type="number" min="1" step="1"
+          [formControl]="durationHoursFormControl"
+          [errorStateMatcher]="matcher" />
+        @if (
+          durationHoursFormControl.hasError('required') ||
+          durationHoursFormControl.hasError('pattern')
+          ) {
+          <mat-error>
+            Duration Hours must be an <strong>integer greater than 0</strong>
+          </mat-error>
+        }
+      </mat-form-field>
+    </div>
+    <div class="add-margin">
+      <mat-form-field class="full-width">
+        <mat-label>Player View Template</mat-label>
+        @if (data.canEdit) {
+        <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView" />
+        <mat-autocomplete #autoView="matAutocomplete" ngDefaultControl [displayWith]="selectedViewName"
+          [(ngModel)]="data.eventTemplate.viewId"
+          (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()">
+          <mat-option [value]="null">None</mat-option>
+          @for (view of filteredViewList | async; track view) {
+          <mat-option [value]="view.id">
+            {{ view.name }}
+          </mat-option>
           }
-        </mat-form-field>
-        <span class="copy-placeholder"></span>
-      </div>
+        </mat-autocomplete>
+        } @else {
+        <input matInput type="text" [value]="viewSearchControl.value"
+          [disabled]="true" />
+        }
+        <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.viewId"
+          (click)="$event.stopPropagation()"
+          (cbOnSuccess)="onCopySuccess('View ID')"
+          [disabled]="!data.eventTemplate.viewId" matTooltip="Copy View ID">
+          <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
+        </button>
+      </mat-form-field>
     </div>
     <div class="add-margin">
-      <div class="field-with-copy">
-        <mat-form-field class="full-width">
-          <mat-label>Player View Template</mat-label>
-          @if (data.canEdit) {
-          <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView" />
-          <mat-autocomplete #autoView="matAutocomplete" ngDefaultControl [displayWith]="selectedViewName"
-            [(ngModel)]="data.eventTemplate.viewId"
-            (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()">
-            <mat-option [value]="null">None</mat-option>
-            @for (view of filteredViewList | async; track view) {
-            <mat-option [value]="view.id">
-              {{ view.name }}
-            </mat-option>
-            }
-          </mat-autocomplete>
-          } @else {
-          <input matInput type="text" [value]="viewSearchControl.value"
-            [disabled]="true" />
+      <mat-form-field class="full-width">
+        <mat-label>Caster Directory</mat-label>
+        @if (data.canEdit) {
+        <input matInput type="text" [formControl]="directorySearchControl" [matAutocomplete]="autoDirectory" />
+        <mat-autocomplete #autoDirectory="matAutocomplete" ngDefaultControl [displayWith]="selectedDirectoryName"
+          [(ngModel)]="data.eventTemplate.directoryId"
+          (optionSelected)="saveEventIds($event, 'directoryId')" (opened)="filterDirectories()">
+          <mat-option [value]="null">None</mat-option>
+          @for (directory of filteredDirectoryList | async; track directory) {
+          <mat-option [value]="directory.id">
+            {{ directory.name }}
+          </mat-option>
           }
-        </mat-form-field>
-        <span class="copy-button" matTooltip="Copy View ID">
-          <button mat-icon-button ngxClipboard [cbContent]="data.eventTemplate.viewId"
-            [disabled]="!data.eventTemplate.viewId">
-            <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
-          </button>
-        </span>
-      </div>
+        </mat-autocomplete>
+        } @else {
+        <input matInput type="text" [value]="directorySearchControl.value"
+          [disabled]="true" />
+        }
+        <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.directoryId"
+          (click)="$event.stopPropagation()"
+          (cbOnSuccess)="onCopySuccess('Directory ID')"
+          [disabled]="!data.eventTemplate.directoryId" matTooltip="Copy Directory ID">
+          <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
+        </button>
+      </mat-form-field>
     </div>
     <div class="add-margin">
-      <div class="field-with-copy">
-        <mat-form-field class="full-width">
-          <mat-label>Caster Directory</mat-label>
-          @if (data.canEdit) {
-          <input matInput type="text" [formControl]="directorySearchControl" [matAutocomplete]="autoDirectory" />
-          <mat-autocomplete #autoDirectory="matAutocomplete" ngDefaultControl [displayWith]="selectedDirectoryName"
-            [(ngModel)]="data.eventTemplate.directoryId"
-            (optionSelected)="saveEventIds($event, 'directoryId')" (opened)="filterDirectories()">
-            <mat-option [value]="null">None</mat-option>
-            @for (directory of filteredDirectoryList | async; track directory) {
-            <mat-option [value]="directory.id">
-              {{ directory.name }}
-            </mat-option>
-            }
-          </mat-autocomplete>
-          } @else {
-          <input matInput type="text" [value]="directorySearchControl.value"
-            [disabled]="true" />
+      <mat-form-field class="full-width">
+        <mat-label>Steamfitter Scenario Template</mat-label>
+        @if (data.canEdit) {
+        <input matInput type="text" [formControl]="scenarioTemplateSearchControl"
+          [matAutocomplete]="autoScenarioTemplate" />
+        <mat-autocomplete #autoScenarioTemplate="matAutocomplete" ngDefaultControl
+          [displayWith]="selectedEventTemplateName"
+          [(ngModel)]="data.eventTemplate.scenarioTemplateId"
+          (optionSelected)="saveEventIds($event, 'scenarioTemplateId')" (opened)="filterScenarioTemplates()"
+          (closed)="scenarioTemplateSearchControl.setValue('')">
+          <mat-option [value]="null">None</mat-option>
+          @for (
+          scenarioTemplate of filteredScenarioTemplateList | async
+          ; track
+          scenarioTemplate) {
+          <mat-option [value]="scenarioTemplate.id">
+            {{ scenarioTemplate.name }}
+          </mat-option>
           }
-        </mat-form-field>
-        <span class="copy-button" matTooltip="Copy Directory ID">
-          <button mat-icon-button ngxClipboard [cbContent]="data.eventTemplate.directoryId"
-            [disabled]="!data.eventTemplate.directoryId">
-            <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
-          </button>
-        </span>
-      </div>
-    </div>
-    <div class="add-margin">
-      <div class="field-with-copy">
-        <mat-form-field class="full-width">
-          <mat-label>Steamfitter Scenario Template</mat-label>
-          @if (data.canEdit) {
-          <input matInput type="text" [formControl]="scenarioTemplateSearchControl"
-            [matAutocomplete]="autoScenarioTemplate" />
-          <mat-autocomplete #autoScenarioTemplate="matAutocomplete" ngDefaultControl
-            [displayWith]="selectedEventTemplateName"
-            [(ngModel)]="data.eventTemplate.scenarioTemplateId"
-            (optionSelected)="saveEventIds($event, 'scenarioTemplateId')" (opened)="filterScenarioTemplates()"
-            (closed)="scenarioTemplateSearchControl.setValue('')">
-            <mat-option [value]="null">None</mat-option>
-            @for (
-            scenarioTemplate of filteredScenarioTemplateList | async
-            ; track
-            scenarioTemplate) {
-            <mat-option [value]="scenarioTemplate.id">
-              {{ scenarioTemplate.name }}
-            </mat-option>
-            }
-          </mat-autocomplete>
-          } @else {
-          <input matInput type="text" [value]="scenarioTemplateSearchControl.value"
-            [disabled]="true" />
-          }
-        </mat-form-field>
-        <span class="copy-button" matTooltip="Copy Scenario Template ID">
-          <button mat-icon-button ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
-            [disabled]="!data.eventTemplate.scenarioTemplateId">
-            <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
-          </button>
-        </span>
-      </div>
+        </mat-autocomplete>
+        } @else {
+        <input matInput type="text" [value]="scenarioTemplateSearchControl.value"
+          [disabled]="true" />
+        }
+        <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.scenarioTemplateId"
+          (click)="$event.stopPropagation()"
+          (cbOnSuccess)="onCopySuccess('Scenario Template ID')"
+          [disabled]="!data.eventTemplate.scenarioTemplateId" matTooltip="Copy Scenario Template ID">
+          <mat-icon class="mdi-20px" fontIcon="mdi-content-copy"></mat-icon>
+        </button>
+      </mat-form-field>
     </div>
     <div class="add-margin">
       <mat-checkbox [(ngModel)]="data.eventTemplate.isPublished"

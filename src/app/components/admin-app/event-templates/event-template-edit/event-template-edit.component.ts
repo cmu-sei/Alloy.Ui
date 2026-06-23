@@ -28,6 +28,7 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -36,25 +37,6 @@ export class UserErrorStateMatcher implements ErrorStateMatcher {
     control: UntypedFormControl | null,
     form: FormGroupDirective | NgForm | null
   ): boolean {
-    const isSubmitted = form && form.submitted;
-    return !!(control && control.invalid && (control.dirty || isSubmitted));
-  }
-}
-
-/** Error when the duration is not an integer greater than 0. */
-export class NotIntegerErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(
-    control: UntypedFormControl | null,
-    form: FormGroupDirective | NgForm | null
-  ): boolean {
-    const hours = parseInt(control.value, 10);
-    let isNotAnInteger = Number.isNaN(hours) || hours <= 0;
-    if (!isNotAnInteger && !!control.value) {
-      isNotAnInteger = hours.toString() !== control.value.toString();
-    }
-    if (isNotAnInteger) {
-      control.setErrors({ notAnInteger: true });
-    }
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || isSubmitted));
   }
@@ -89,6 +71,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   ]);
   public durationHoursFormControl = new UntypedFormControl('', [
     Validators.required,
+    Validators.pattern('^[1-9][0-9]*$'),
   ]);
   public viewIdFormControl = new UntypedFormControl('', []);
   public directoryIdFormControl = new UntypedFormControl('', []);
@@ -96,7 +79,6 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public isPublishedFormControl = new UntypedFormControl('', []);
   public useDynamicHostFormControl = new UntypedFormControl('', []);
   public matcher = new UserErrorStateMatcher();
-  public notAnIntegerErrorState = new NotIntegerErrorStateMatcher();
   public viewSearchControl = new UntypedFormControl('', []);
   public directorySearchControl = new UntypedFormControl('', []);
   public scenarioTemplateSearchControl = new UntypedFormControl('', []);
@@ -105,9 +87,19 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   constructor(
     public dialogService: DialogService,
     dialogRef: MatDialogRef<EventTemplateEditComponent>,
+    private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     dialogRef.disableClose = true;
+  }
+
+  /**
+   * Notifies the user after a value is copied to the clipboard
+   */
+  onCopySuccess(label: string): void {
+    this.snackBar.open(`${label} copied to clipboard`, 'Dismiss', {
+      duration: 2000,
+    });
   }
 
   /**
@@ -155,6 +147,11 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     this.durationHoursFormControl.setValue(
       this.data.eventTemplate.durationHours
     );
+    // Disable in code (not via template) to avoid the reactive-form
+    // "changed after checked" warning when combining [formControl] + [disabled].
+    if (!this.data.canEdit) {
+      this.durationHoursFormControl.disable();
+    }
     this.viewIdFormControl.setValue(this.data.eventTemplate.viewId);
     this.directoryIdFormControl.setValue(this.data.eventTemplate.directoryId);
     this.scenarioTemplateIdFormControl.setValue(
@@ -233,46 +230,43 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   }
 
   filterViews() {
+    const term = (this._viewFilter ?? '').toLowerCase();
     const filteredList = this._viewList
       .sort((a: View, b: View) =>
-        a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1
       )
       .filter(
         (item) =>
-          item.name.toLowerCase().includes(this._viewFilter.toLowerCase()) ||
-          item.id.toLowerCase().includes(this._viewFilter.toLowerCase())
+          (item.name ?? '').toLowerCase().includes(term) ||
+          (item.id ?? '').toLowerCase().includes(term)
       );
     this.filteredViewList.next(filteredList);
   }
 
   filterDirectories() {
+    const term = (this._directoryFilter ?? '').toLowerCase();
     const filteredList = this._directoryList
       .sort((a: Directory, b: Directory) =>
-        a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1
       )
       .filter(
         (item) =>
-          item.name
-            .toLowerCase()
-            .includes(this._directoryFilter.toLowerCase()) ||
-          item.id.toLowerCase().includes(this._directoryFilter.toLowerCase())
+          (item.name ?? '').toLowerCase().includes(term) ||
+          (item.id ?? '').toLowerCase().includes(term)
       );
     this.filteredDirectoryList.next(filteredList);
   }
 
   filterScenarioTemplates() {
+    const term = (this._scenarioTemplateFilter ?? '').toLowerCase();
     const filteredList = this._scenarioTemplateList
-      .sort((a: View, b: View) =>
-        a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+      .sort((a: ScenarioTemplate, b: ScenarioTemplate) =>
+        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1
       )
       .filter(
         (item) =>
-          item.name
-            .toLowerCase()
-            .includes(this._scenarioTemplateFilter.toLowerCase()) ||
-          item.id
-            .toLowerCase()
-            .includes(this._scenarioTemplateFilter.toLowerCase())
+          (item.name ?? '').toLowerCase().includes(term) ||
+          (item.id ?? '').toLowerCase().includes(term)
       );
     this.filteredScenarioTemplateList.next(filteredList);
   }
@@ -359,10 +353,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     if (!saveChanges) {
       this.editComplete.emit({ action: '', eventTemplate: null });
     } else {
-      if (
-        this.durationHoursFormControl.invalid ||
-        this.durationHoursFormControl.hasError('notAnInteger')
-      ) {
+      if (this.durationHoursFormControl.invalid) {
         return;
       }
       this.data.eventTemplate.durationHours =

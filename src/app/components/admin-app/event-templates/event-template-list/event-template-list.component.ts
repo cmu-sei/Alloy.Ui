@@ -155,15 +155,37 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   }
 
   addNewEventTemplate() {
-    const eventTemplate = <EventTemplate>{
-      name: 'New Event Template',
-      description: 'Add description',
-    };
+    // Refresh template lists from external services before opening dialog
+    this.refreshTemplates.emit();
 
-    this.eventTemplateDataService
-      .addNew(eventTemplate)
-      .pipe(take(1))
-      .subscribe();
+    const dialogRef = this.dialog.open(EventTemplateEditComponent, {
+      minWidth: '400px',
+      maxWidth: '90vw',
+      width: '600px',
+      data: {
+        eventTemplate: <EventTemplate>{},
+        viewList: this.viewList,
+        directoryList: this.directoryList,
+        scenarioTemplateList: this.scenarioTemplateList,
+        // A new template has no id yet, so per-template edit/manage checks
+        // don't apply. The create permission gates opening this dialog and
+        // governs the template being created.
+        canEdit: this.permissionDataService.canCreateEventTemplates(),
+        canManage: this.permissionDataService.canCreateEventTemplates(),
+        canCreate: this.permissionDataService.canCreateEventTemplates(),
+        hasEvents: false,
+        isNew: true,
+      },
+    });
+    dialogRef.componentInstance.editComplete.subscribe((result) => {
+      if (result.action === 'save' || result.action === 'clone') {
+        this.eventTemplateDataService
+          .addNew(result.eventTemplate)
+          .pipe(take(1))
+          .subscribe();
+      }
+      dialogRef.close();
+    });
   }
 
   editEventTemplate(eventTemplate: EventTemplate) {
@@ -178,7 +200,7 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
         const dialogRef = this.dialog.open(EventTemplateEditComponent, {
           minWidth: '400px',
           maxWidth: '90vw',
-          width: 'auto',
+          width: '600px',
           data: {
             eventTemplate: { ...eventTemplate },
             viewList: this.viewList,

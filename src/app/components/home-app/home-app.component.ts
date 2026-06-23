@@ -70,7 +70,7 @@ export class HomeAppComponent implements OnInit, OnDestroy {
         switchMap((viewId) => {
           return combineLatest([
             this.eventDataService.getViewEvents(viewId),
-            this.eventDataService.getUserEvents(),
+            this.eventDataService.getUserEvents(false),
           ]).pipe(
             map(([viewEvents, myEvents]) => [
               viewId,

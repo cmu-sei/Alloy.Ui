@@ -11,11 +11,10 @@
  */
 
 
-export interface QuestionView { 
-    text?: string | null;
-    weight?: number;
-    answer?: string | null;
-    isCorrect?: boolean;
-    isGraded?: boolean;
-}
+export type GroupMembershipRole = 'Member' | 'Manager';
+
+export const GroupMembershipRole = {
+    Member: 'Member' as GroupMembershipRole,
+    Manager: 'Manager' as GroupMembershipRole
+};
 

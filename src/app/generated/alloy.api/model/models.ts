@@ -1,9 +1,6 @@
-/*
-Copyright 2021 Carnegie Mellon University. All Rights Reserved. 
- Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-*/
-
 export * from './createEventCommand';
+export * from './design';
+export * from './designModule';
 export * from './directory';
 export * from './event';
 export * from './eventMembership';
@@ -18,9 +15,13 @@ export * from './eventTemplatePermissionClaim';
 export * from './eventTemplateRole';
 export * from './group';
 export * from './groupMembership';
+export * from './groupMembershipRole';
+export * from './groupPermission';
+export * from './groupPermissionsClaim';
 export * from './healthStatus';
 export * from './internalEventStatus';
-export * from './file';
+export * from './modelFile';
+export * from './moduleValue';
 export * from './problemDetails';
 export * from './questionView';
 export * from './scenarioTemplate';

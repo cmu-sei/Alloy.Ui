@@ -2,8 +2,8 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the eventTemplate root for license information.
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, tap, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, shareReplay, tap, take } from 'rxjs/operators';
 import {
   EventPermission,
   EventPermissionClaim,
@@ -11,6 +11,9 @@ import {
   EventTemplatePermission,
   EventTemplatePermissionClaim,
   EventTemplatePermissionsService,
+  GroupPermission,
+  GroupPermissionsClaim,
+  GroupPermissionsService,
   SystemPermission,
   SystemPermissionsService,
 } from 'src/app/generated/alloy.api';
@@ -34,10 +37,23 @@ export class PermissionDataService {
     return this._eventTemplatePermissions;
   }
 
+  private _groupPermissions: GroupPermissionsClaim[] = [];
+  get groupPermissions(): GroupPermissionsClaim[] {
+    return this._groupPermissions;
+  }
+
+  private groupPermissionsSubject = new BehaviorSubject<GroupPermissionsClaim[]>(
+    []
+  );
+  groupPermissions$ = this.groupPermissionsSubject.asObservable();
+  private groupPermissionsCache: Observable<GroupPermissionsClaim[]> | null =
+    null;
+
   constructor(
     private permissionsService: SystemPermissionsService,
     private eventPermissionsService: EventPermissionsService,
-    private eventTemplatePermissionsService: EventTemplatePermissionsService
+    private eventTemplatePermissionsService: EventTemplatePermissionsService,
+    private groupPermissionsService: GroupPermissionsService
   ) {}
 
   load(): Observable<SystemPermission[]> {
@@ -56,7 +72,17 @@ export class PermissionDataService {
   }
 
   canViewAdministration() {
-    return this._permissions.some((y) => y.startsWith('View'));
+    return (
+      this._permissions.some((y) => y.startsWith('View')) ||
+      this.hasManageMembershipClaim(this._groupPermissions)
+    );
+  }
+
+  canViewGroupsAdmin() {
+    return (
+      this._permissions.includes(SystemPermission.ViewGroups) ||
+      this.hasManageMembershipClaim(this._groupPermissions)
+    );
   }
 
   canViewEventTemplateList() {
@@ -87,6 +113,31 @@ export class PermissionDataService {
         take(1),
         tap((x) => (this._eventTemplatePermissions = x))
       );
+  }
+
+  loadGroupPermissions(
+    forceReload = false
+  ): Observable<GroupPermissionsClaim[]> {
+    if (this.groupPermissionsCache && !forceReload) {
+      return this.groupPermissionsCache;
+    }
+
+    this.groupPermissionsCache = this.groupPermissionsService
+      .getMyGroupPermissions()
+      .pipe(
+        take(1),
+        tap((x) => {
+          this._groupPermissions = x;
+          this.groupPermissionsSubject.next(x);
+        }),
+        catchError((err) => {
+          this.groupPermissionsCache = null;
+          return throwError(() => err);
+        }),
+        shareReplay(1)
+      );
+
+    return this.groupPermissionsCache;
   }
 
   canEditEvent(eventId: string): boolean {
@@ -126,6 +177,30 @@ export class PermissionDataService {
       SystemPermission.ExecuteEvents,
       eventId,
       EventPermission.ExecuteEvent
+    );
+  }
+
+  canManageGroup(groupId: string): boolean {
+    return this.canGroup(
+      SystemPermission.ManageGroups,
+      groupId,
+      GroupPermission.ManageMembership
+    );
+  }
+
+  canEditGroup(groupId: string): boolean {
+    return this.canGroup(
+      SystemPermission.ManageGroups,
+      groupId,
+      GroupPermission.EditGroup
+    );
+  }
+
+  private hasManageMembershipClaim(
+    groupPermissionClaims: GroupPermissionsClaim[]
+  ): boolean {
+    return groupPermissionClaims.some((x) =>
+      x.permissions?.includes(GroupPermission.ManageMembership)
     );
   }
 
@@ -173,6 +248,31 @@ export class PermissionDataService {
         eventTemplatePermissionClaim.permissions.includes(
           eventTemplatePermission
         )
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private canGroup(
+    permission: SystemPermission,
+    groupId?: string,
+    groupPermission?: GroupPermission
+  ) {
+    const permissions = this._permissions;
+    const groupPermissionClaims = this._groupPermissions;
+    if (permissions.includes(permission)) {
+      return true;
+    } else if (groupId != null && groupPermission != null) {
+      const groupPermissionClaim = groupPermissionClaims.find(
+        (x) => x.groupId === groupId
+      );
+
+      if (
+        groupPermissionClaim &&
+        groupPermissionClaim.permissions?.includes(groupPermission)
       ) {
         return true;
       }

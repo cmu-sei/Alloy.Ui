@@ -9,13 +9,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { GroupPermission } from './groupPermission';
 
 
-export interface QuestionView { 
-    text?: string | null;
-    weight?: number;
-    answer?: string | null;
-    isCorrect?: boolean;
-    isGraded?: boolean;
+export interface GroupPermissionsClaim { 
+    groupId?: string;
+    permissions?: Array<GroupPermission> | null;
 }
 

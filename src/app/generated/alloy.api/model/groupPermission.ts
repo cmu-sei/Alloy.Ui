@@ -11,11 +11,10 @@
  */
 
 
-export interface QuestionView { 
-    text?: string | null;
-    weight?: number;
-    answer?: string | null;
-    isCorrect?: boolean;
-    isGraded?: boolean;
-}
+export type GroupPermission = 'ManageMembership' | 'EditGroup';
+
+export const GroupPermission = {
+    ManageMembership: 'ManageMembership' as GroupPermission,
+    EditGroup: 'EditGroup' as GroupPermission
+};
 

@@ -11,11 +11,8 @@
  */
 
 
-export interface QuestionView { 
-    text?: string | null;
-    weight?: number;
-    answer?: string | null;
-    isCorrect?: boolean;
-    isGraded?: boolean;
+export interface ModuleValue { 
+    name?: string | null;
+    value?: string | null;
 }
 

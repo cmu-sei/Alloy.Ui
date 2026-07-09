@@ -1,8 +1,3 @@
-/*
-Copyright 2021 Carnegie Mellon University. All Rights Reserved. 
- Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-*/
-
 export * from './caster.service';
 import { CasterService } from './caster.service';
 export * from './event.service';
@@ -23,6 +18,8 @@ export * from './eventTemplateRoles.service';
 import { EventTemplateRolesService } from './eventTemplateRoles.service';
 export * from './group.service';
 import { GroupService } from './group.service';
+export * from './groupPermissions.service';
+import { GroupPermissionsService } from './groupPermissions.service';
 export * from './health.service';
 import { HealthService } from './health.service';
 export * from './player.service';
@@ -35,4 +32,4 @@ export * from './systemRoles.service';
 import { SystemRolesService } from './systemRoles.service';
 export * from './user.service';
 import { UserService } from './user.service';
-export const APIS = [CasterService, EventService, EventMembershipsService, EventPermissionsService, EventRolesService, EventTemplateService, EventTemplateMembershipsService, EventTemplatePermissionsService, EventTemplateRolesService, GroupService, HealthService, PlayerService, SteamfitterService, SystemPermissionsService, SystemRolesService, UserService];
+export const APIS = [CasterService, EventService, EventMembershipsService, EventPermissionsService, EventRolesService, EventTemplateService, EventTemplateMembershipsService, EventTemplatePermissionsService, EventTemplateRolesService, GroupService, GroupPermissionsService, HealthService, PlayerService, SteamfitterService, SystemPermissionsService, SystemRolesService, UserService];

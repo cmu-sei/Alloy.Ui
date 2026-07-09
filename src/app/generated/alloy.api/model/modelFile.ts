@@ -9,13 +9,20 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { EventPermission } from './eventPermission';
 
 
-export interface EventRole { 
+export interface ModelFile { 
     id?: string;
     name?: string | null;
-    allPermissions?: boolean;
-    permissions?: Array<EventPermission> | null;
+    directoryId?: string;
+    workspaceId?: string | null;
+    content?: string | null;
+    modifiedById?: string | null;
+    modifiedByName?: string | null;
+    dateSaved?: Date | null;
+    isDeleted?: boolean;
+    lockedById?: string | null;
+    lockedByName?: string | null;
+    administrativelyLocked?: boolean;
 }
 

@@ -19,7 +19,7 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
-import { Directory } from '../model/directory';
+import { GroupPermissionsClaim } from '../model/groupPermissionsClaim';
 // @ts-ignore
 import { ProblemDetails } from '../model/problemDetails';
 
@@ -32,7 +32,7 @@ import { Configuration }                                     from '../configurat
 @Injectable({
   providedIn: 'root'
 })
-export class CasterService {
+export class GroupPermissionsService {
 
     protected basePath = 'http://localhost';
     public defaultHeaders = new HttpHeaders();
@@ -94,15 +94,21 @@ export class CasterService {
     }
 
     /**
-     * Gets all Directories
-     * Returns a list of all of the Directories.
+     * Get all GroupPermissions for the calling User.
+     * @param groupId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getDirectories(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<Array<Directory>>;
-    public getDirectories(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<Array<Directory>>>;
-    public getDirectories(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<Array<Directory>>>;
-    public getDirectories(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+    public getMyGroupPermissions(groupId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<Array<GroupPermissionsClaim>>;
+    public getMyGroupPermissions(groupId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<Array<GroupPermissionsClaim>>>;
+    public getMyGroupPermissions(groupId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<Array<GroupPermissionsClaim>>>;
+    public getMyGroupPermissions(groupId?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (groupId !== undefined && groupId !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>groupId, 'groupId');
+        }
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -144,10 +150,11 @@ export class CasterService {
             }
         }
 
-        let localVarPath = `/api/directories`;
-        return this.httpClient.request<Array<Directory>>('get', `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/api/permissions/group/mine`;
+        return this.httpClient.request<Array<GroupPermissionsClaim>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

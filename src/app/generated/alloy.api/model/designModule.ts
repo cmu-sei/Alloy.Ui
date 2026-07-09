@@ -9,13 +9,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ModuleValue } from './moduleValue';
 
 
-export interface QuestionView { 
-    text?: string | null;
-    weight?: number;
-    answer?: string | null;
-    isCorrect?: boolean;
-    isGraded?: boolean;
+export interface DesignModule { 
+    id?: string;
+    designId?: string;
+    moduleId?: string;
+    name?: string | null;
+    moduleVersion?: string | null;
+    enabled?: boolean;
+    values?: Array<ModuleValue> | null;
 }
 

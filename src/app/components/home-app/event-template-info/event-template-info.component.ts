@@ -14,7 +14,7 @@ import { MatSort } from '@angular/material/sort';
 import { ComnAuthQuery, ComnSettingsService, Theme } from '@cmusei/crucible-common';
 import { ActivatedRoute } from '@angular/router';
 import { ClipboardService } from 'ngx-clipboard';
-import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
+import { combineLatest, forkJoin, interval, Observable, of, Subject } from 'rxjs';
 import {
   filter,
   map,
@@ -134,13 +134,16 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     this.isIFrame = this.isIframe();
 
     // Load permissions
-    this.permissionDataService
-      .load()
+    forkJoin([
+      this.permissionDataService.load(),
+      this.permissionDataService.loadGroupPermissions(),
+    ])
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         (x) => {
           this.permissions = this.permissionDataService.permissions;
-          this.canViewAdministration = this.permissions.some((y) => y.startsWith('View'));
+          this.canViewAdministration =
+            this.permissionDataService.canViewAdministration();
         }
       );
 

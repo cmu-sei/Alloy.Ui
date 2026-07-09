@@ -79,6 +79,7 @@ import { EventMembershipListComponent } from './components/admin-app/events/even
 import { HomeAppComponent } from './components/home-app/home-app.component';
 import { NameDialogComponent } from './shared/name-dialog/name-dialog.component';
 import { ConfirmDialogComponent } from './components/shared/confirm-dialog/components/confirm-dialog.component';
+import { CurrentUserBadgeComponent } from './components/shared/current-user-badge/current-user-badge.component';
 import { TopbarComponent } from './components/shared/top-bar/topbar.component';
 import { BASE_PATH } from './generated/alloy.api';
 import { ApiModule as SwaggerCodegenApiModule } from './generated/alloy.api/api.module';
@@ -171,6 +172,7 @@ export class AngularMaterialModule {}
         MatBadgeModule,
         MatTreeModule,
         ClipboardModule,
+        CurrentUserBadgeComponent,
         ComnAuthModule.forRoot(),
         ComnSettingsModule.forRoot(),
         ComnHeaderBarModule], providers: [

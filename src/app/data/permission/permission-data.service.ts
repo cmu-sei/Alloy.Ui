@@ -1,7 +1,7 @@
 // Copyright 2024 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the eventTemplate root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, shareReplay, tap, take } from 'rxjs/operators';
 import {
@@ -22,6 +22,13 @@ import {
   providedIn: 'root',
 })
 export class PermissionDataService {
+  private readonly permissionsService = inject(SystemPermissionsService);
+  private readonly eventPermissionsService = inject(EventPermissionsService);
+  private readonly eventTemplatePermissionsService = inject(
+    EventTemplatePermissionsService
+  );
+  private readonly groupPermissionsService = inject(GroupPermissionsService);
+
   private _permissions: SystemPermission[] = [];
   get permissions(): SystemPermission[] {
     return this._permissions;
@@ -42,19 +49,12 @@ export class PermissionDataService {
     return this._groupPermissions;
   }
 
-  private groupPermissionsSubject = new BehaviorSubject<GroupPermissionsClaim[]>(
-    []
-  );
+  private groupPermissionsSubject = new BehaviorSubject<
+    GroupPermissionsClaim[]
+  >([]);
   groupPermissions$ = this.groupPermissionsSubject.asObservable();
   private groupPermissionsCache: Observable<GroupPermissionsClaim[]> | null =
     null;
-
-  constructor(
-    private permissionsService: SystemPermissionsService,
-    private eventPermissionsService: EventPermissionsService,
-    private eventTemplatePermissionsService: EventTemplatePermissionsService,
-    private groupPermissionsService: GroupPermissionsService
-  ) {}
 
   load(): Observable<SystemPermission[]> {
     return this.permissionsService.getMySystemPermissions().pipe(

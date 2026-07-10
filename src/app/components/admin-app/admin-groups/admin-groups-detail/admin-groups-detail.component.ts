@@ -3,7 +3,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 */
 
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, inject } from '@angular/core';
 import { combineLatest, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { GroupMembershipService } from 'src/app/data/group/group-membership.service';
@@ -18,22 +18,21 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
   selector: 'app-admin-groups-detail',
   templateUrl: './admin-groups-detail.component.html',
   styleUrls: ['./admin-groups-detail.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class AdminGroupsDetailComponent implements OnInit, OnChanges {
   @Input() groupId: string;
   @Input() canEdit: boolean;
+
+  private readonly userQuery = inject(UserQuery);
+  private readonly groupMembershipService = inject(GroupMembershipService);
+  private readonly permissionDataService = inject(PermissionDataService);
+
   memberships$ = of([]);
 
   // All users that are not already members of the project
   nonMembers$ = this.selectUsers(false);
   members$ = this.selectUsers(true);
-
-  constructor(
-    private userQuery: UserQuery,
-    private groupMembershipService: GroupMembershipService,
-    private permissionDataService: PermissionDataService
-  ) {}
 
   ngOnInit(): void {
     this.groupMembershipService.loadMemberships(this.groupId).subscribe();

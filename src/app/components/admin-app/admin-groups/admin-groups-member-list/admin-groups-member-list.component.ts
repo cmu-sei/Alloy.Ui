@@ -29,10 +29,10 @@ import {
 } from 'src/app/generated/alloy.api';
 
 @Component({
-    selector: 'app-admin-groups-member-list',
-    templateUrl: './admin-groups-member-list.component.html',
-    styleUrls: ['./admin-groups-member-list.component.scss'],
-    standalone: false
+  selector: 'app-admin-groups-member-list',
+  templateUrl: './admin-groups-member-list.component.html',
+  styleUrls: ['./admin-groups-member-list.component.scss'],
+  standalone: false,
 })
 export class AdminGroupsMemberListComponent
   implements OnInit, OnChanges, AfterViewInit
@@ -70,12 +70,11 @@ export class AdminGroupsMemberListComponent
 
   filterString = '';
   private readonly currentUserQuery = inject(CurrentUserQuery);
+  private readonly confirmService = inject(CrucibleDialogService);
   private currentUserId = toSignal(
     this.currentUserQuery.select((state) => state.id),
     { initialValue: '' }
   );
-
-  constructor(private confirmService: CrucibleDialogService) {}
 
   ngOnInit(): void {}
 

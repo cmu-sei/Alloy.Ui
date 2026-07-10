@@ -12,7 +12,7 @@ import {
 import { forkJoin, Observable, Subject } from 'rxjs';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from './../shared/top-bar/topbar.models';
-import { map, takeUntil } from 'rxjs/operators';
+import { filter, map, take, takeUntil } from 'rxjs/operators';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { SystemPermission } from 'src/app/generated/alloy.api';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
@@ -67,14 +67,16 @@ export class AdminAppComponent implements OnInit {
     this.userDataService.setCurrentUser();
     this.currentUserQuery
       .select()
-      .pipe(takeUntil(this.unsubscribe$))
+      .pipe(
+        filter((cu) => !!cu.id),
+        take(1)
+      )
       .subscribe((cu) => {
         this.username = cu.name;
         this.signalRService.startConnection().then(() => {
           this.signalRService.joinAdmin();
         });
       });
-    this.userDataService.setCurrentUser();
 
     this.route.queryParams
       .pipe(

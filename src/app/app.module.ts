@@ -1,6 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { A11yModule } from '@angular/cdk/a11y';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -44,6 +45,7 @@ import {
   ComnSettingsModule,
   ComnSettingsService,
   ComnHeaderBarModule,
+  CRUCIBLE_DIALOG_IMPORTS,
 } from '@cmusei/crucible-common';
 import { ClipboardModule } from 'ngx-clipboard';
 import { AppRoutingModule } from './app-routing.module';
@@ -78,12 +80,10 @@ import { EventMembershipsPageComponent } from './components/admin-app/events/eve
 import { EventMembershipListComponent } from './components/admin-app/events/event-memberships/event-membership-list/event-membership-list.component';
 import { HomeAppComponent } from './components/home-app/home-app.component';
 import { NameDialogComponent } from './shared/name-dialog/name-dialog.component';
-import { ConfirmDialogComponent } from './components/shared/confirm-dialog/components/confirm-dialog.component';
 import { CurrentUserBadgeComponent } from './components/shared/current-user-badge/current-user-badge.component';
 import { TopbarComponent } from './components/shared/top-bar/topbar.component';
 import { BASE_PATH } from './generated/alloy.api';
 import { ApiModule as SwaggerCodegenApiModule } from './generated/alloy.api/api.module';
-import { DialogService } from './services/dialog/dialog.service';
 import { SignalRService } from './shared/signalr/signalr.service';
 
 const settings: ComnSettingsConfig = {
@@ -117,7 +117,6 @@ export class AngularMaterialModule {}
         EventMembershipListComponent,
         EventMembershipsComponent,
         EventMembershipsPageComponent,
-        ConfirmDialogComponent,
         TopbarComponent,
         EnlistComponent,
         AdminGroupsComponent,
@@ -175,14 +174,15 @@ export class AngularMaterialModule {}
         CurrentUserBadgeComponent,
         ComnAuthModule.forRoot(),
         ComnSettingsModule.forRoot(),
-        ComnHeaderBarModule], providers: [
+        ComnHeaderBarModule,
+        A11yModule,
+        ...CRUCIBLE_DIALOG_IMPORTS], providers: [
         SignalRService,
         {
             provide: BASE_PATH,
             useFactory: getBasePath,
             deps: [ComnSettingsService],
         },
-        DialogService,
         provideHttpClient(withInterceptorsFromDi()),
     ] })
 export class AppModule {}

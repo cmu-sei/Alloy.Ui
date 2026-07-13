@@ -30,7 +30,6 @@ import {
   sortRows,
 } from 'src/app/datasource-utils';
 import { Event as AlloyEvent, EventService } from 'src/app/generated/alloy.api';
-import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
@@ -92,7 +91,6 @@ export class AdminEventListComponent implements OnInit {
 
   constructor(
     private eventService: EventService,
-    public dialogService: DialogService,
     private dialog: MatDialog,
     private settingsService: ComnSettingsService,
     private permissionDataService: PermissionDataService
@@ -236,7 +234,7 @@ export class AdminEventListComponent implements OnInit {
     const dialogRef = this.dialog.open(EventEditComponent, {
       minWidth: '400px',
       maxWidth: '90vw',
-      width: 'auto',
+      width: '640px',
       data: {
         event: { ...event },
         canEdit: this.canEdit(event.id),

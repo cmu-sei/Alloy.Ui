@@ -16,6 +16,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { CrucibleDialogService } from '@cmusei/crucible-common';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
@@ -25,11 +26,9 @@ import {
   View,
 } from 'src/app/generated/alloy.api';
 import {
-  MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DialogService } from 'src/app/services/dialog/dialog.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class UserErrorStateMatcher implements ErrorStateMatcher {
@@ -85,13 +84,10 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject();
 
   constructor(
-    public dialogService: DialogService,
-    dialogRef: MatDialogRef<EventTemplateEditComponent>,
+    public crucibleDialog: CrucibleDialogService,
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-    dialogRef.disableClose = true;
-  }
+  ) { }
 
   /**
    * Notifies the user after a value is copied to the clipboard
@@ -167,21 +163,33 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
    * Delete an event template after confirmation
    */
   deleteEventTemplate(): void {
-    this.dialogService
-      .confirm(
-        'Delete Event Template',
-        'Are you sure that you want to delete Event Template ' +
+    this.crucibleDialog
+      .confirm({
+        title: 'Delete Event Template',
+        message:
+          'Are you sure that you want to delete Event Template ' +
           this.data.eventTemplate.name +
-          '?'
-      )
-      .subscribe((result) => {
-        if (result['confirm']) {
+          '?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
           this.editComplete.emit({
             action: 'delete',
             eventTemplate: this.data.eventTemplate,
           });
         }
       });
+  }
+
+  get dialogTitle(): string {
+    if (this.data.isNew) {
+      return 'Create New Event Template';
+    }
+
+    return this.data.canEdit ? 'Edit Event Template' : 'View Event Template';
   }
 
   /**

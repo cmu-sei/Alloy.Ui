@@ -3,21 +3,13 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 
-<div mat-dialog-container>
-  <div mat-dialog-title>
-    @if (data.isNew) {
-    Create New Event Template
-    } @else if (data.canEdit) {
-    Edit Event Template
-    } @else {
-    View Event Template
-    }
-    <button mat-icon-button (click)="handleEditComplete(false)" title="Cancel" class="close-button" tabindex="-1">
-      <mat-icon class="mdi-24px self-center" fontIcon="mdi-close-circle-outline"></mat-icon>
-    </button>
-  </div>
+<crucible-dialog
+  [dialogTitle]="dialogTitle"
+  [hideDefaultActions]="true"
+  [guardUnsavedWork]="true"
+>
   @if (data.eventTemplate) {
-  <mat-dialog-content mat-dialog-content>
+  <div crucibleDialogContent class="event-template-edit-content">
     <div class="add-margin">
       <mat-form-field class="full-width">
         <mat-label>Name (required)</mat-label>
@@ -146,26 +138,26 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         [disabled]="!data.canEdit">Use Dynamic
         Host</mat-checkbox>
     </div>
-  </mat-dialog-content>
+  </div>
   }
 
-  <div class="bottom-button" mat-dialog-actions>
-    <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template"
+  <div crucibleDialogActions class="bottom-button">
+    <button matButton="outlined" (click)="handleEditComplete(false)">Cancel</button>
+    <button matButton="filled" (click)="handleEditComplete(true)"
       [disabled]="!data.canEdit">Save</button>
-    <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
     @if (!data.isNew) {
     <span class="spacer"></span>
-    <button mat-stroked-button (click)="cloneEventTemplate()" title="Clone this event template"
+    <button matButton="outlined" (click)="cloneEventTemplate()"
       [disabled]="!data.canCreate">
       Clone
     </button>
     <span
       [matTooltip]="data.hasEvents ? 'Cannot delete template with existing events' : 'Delete this event template'">
-      <button mat-stroked-button (click)="deleteEventTemplate()"
+      <button matButton="outlined" (click)="deleteEventTemplate()"
         [disabled]="!data.canManage || data.hasEvents">
         Delete
       </button>
     </span>
     }
   </div>
-</div>
+</crucible-dialog>

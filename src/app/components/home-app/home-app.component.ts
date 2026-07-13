@@ -4,7 +4,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { combineLatest, Subject } from 'rxjs';
+import { combineLatest, forkJoin, Subject } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { UserDataService } from 'src/app/data/user/user-data.service';
@@ -52,13 +52,16 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     this.hideTopbar = this.inIframe();
 
     // Load permissions
-    this.permissionDataService
-      .load()
+    forkJoin([
+      this.permissionDataService.load(),
+      this.permissionDataService.loadGroupPermissions(),
+    ])
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         (x) => {
           this.permissions = this.permissionDataService.permissions;
-          this.canViewAdministration = this.permissions.some((y) => y.startsWith('View'));
+          this.canViewAdministration =
+            this.permissionDataService.canViewAdministration();
         }
       );
 

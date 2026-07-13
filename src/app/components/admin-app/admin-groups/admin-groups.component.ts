@@ -74,6 +74,7 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
     forkJoin([
       this.groupDataService.load(),
       this.userDataService.load(),
+      this.permissionDataService.loadGroupPermissions(),
     ]).subscribe();
   }
 
@@ -92,6 +93,10 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
 
   toggleExpand(groupId: string) {
     this.expandedGroupId = this.expandedGroupId === groupId ? null : groupId;
+  }
+
+  canManageGroup(groupId: string): boolean {
+    return this.permissionDataService.canManageGroup(groupId);
   }
 
   createGroup() {

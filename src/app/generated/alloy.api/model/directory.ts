@@ -14,6 +14,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { Design } from './design';
 import { Workspace } from './workspace';
 
 
@@ -24,6 +25,10 @@ export interface Directory {
     parentId?: string | null;
     files?: Array<any> | null;
     workspaces?: Array<Workspace> | null;
+    designs?: Array<Design> | null;
     terraformVersion?: string | null;
+    parallelism?: number | null;
+    azureDestroyFailureThreshold?: number | null;
+    azureDestroyFailureThresholdEnabled?: boolean;
 }
 

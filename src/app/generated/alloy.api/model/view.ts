@@ -24,5 +24,10 @@ export interface View {
     status?: ViewStatus;
     parentViewId?: string | null;
     isTemplate?: boolean;
+    dateCreated?: Date;
+    defaultTeamId?: string | null;
 }
+export namespace View {
+}
+
 

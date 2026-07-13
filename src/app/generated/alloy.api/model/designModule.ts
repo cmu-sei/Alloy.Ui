@@ -14,16 +14,16 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ModuleValue } from './moduleValue';
 
 
-export interface ProblemDetails { 
-  [key: string]: any | any;
-
-
-    type?: string | null;
-    title?: string | null;
-    status?: number | null;
-    detail?: string | null;
-    instance?: string | null;
+export interface DesignModule { 
+    id?: string;
+    designId?: string;
+    moduleId?: string;
+    name?: string | null;
+    moduleVersion?: string | null;
+    enabled?: boolean;
+    values?: Array<ModuleValue> | null;
 }
 

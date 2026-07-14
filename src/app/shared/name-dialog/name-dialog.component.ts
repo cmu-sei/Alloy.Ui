@@ -1,19 +1,24 @@
 // Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 import { Component, Inject } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NameValidatorModel } from './name-dialog.models';
 
 @Component({
-    selector: 'name-dialog',
-    templateUrl: './name-dialog.component.html',
-    styleUrls: ['./name-dialog.component.scss'],
-    standalone: false
+  selector: 'name-dialog',
+  templateUrl: './name-dialog.component.html',
+  styleUrls: ['./name-dialog.component.scss'],
+  standalone: false,
 })
 export class NameDialogComponent {
-  public title: string;
-  public message: string;
+  public title = '';
+  public message = '';
   public removeArtifacts = true;
   public form: UntypedFormGroup;
   public validators: Array<NameValidatorModel> = [];
@@ -43,15 +48,15 @@ export class NameDialogComponent {
     }
   }
 
-  get name() {
-    return this.form.get('name');
+  get name(): AbstractControl {
+    return this.form.controls['name'];
   }
 
   onClick(): void {
     this.data.artifacts && this.data.artifacts.length > 0
       ? (this.data.removeArtifacts = this.removeArtifacts)
       : (this.data.removeArtifacts = false);
-    this.data.nameValue = this.form?.get('name').value;
+    this.data.nameValue = this.name.value;
     if (this.data.showDescription) {
       this.data.descriptionValue = this.form?.get('description')?.value;
     }

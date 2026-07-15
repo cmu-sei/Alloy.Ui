@@ -18,7 +18,6 @@ import { NameDialogComponent } from 'src/app/shared/name-dialog/name-dialog.comp
 import { SignalRService } from 'src/app/shared/signalr/signalr.service';
 
 const NAME_VALUE = 'nameValue';
-const WAS_CANCELLED = 'wasCancelled';
 
 @Component({
   selector: 'app-admin-system-roles',
@@ -112,7 +111,7 @@ export class AdminSystemRolesComponent implements OnInit {
     this.nameDialog('Create New Role?', '', { nameValue: '' })
       .pipe(take(1))
       .subscribe((result) => {
-        if (!result[WAS_CANCELLED]) {
+        if (!result.wasCancelled) {
           this.roleService.createRole({ name: result[NAME_VALUE] }).subscribe();
         }
       });
@@ -122,7 +121,7 @@ export class AdminSystemRolesComponent implements OnInit {
     this.nameDialog('Rename Role?', '', { nameValue: role.name })
       .pipe(take(1))
       .subscribe((result) => {
-        if (!result[WAS_CANCELLED]) {
+        if (!result.wasCancelled) {
           role.name = result[NAME_VALUE];
           this.roleService.editRole(role).subscribe();
         }
@@ -155,6 +154,8 @@ export class AdminSystemRolesComponent implements OnInit {
     dialogRef.componentInstance.title = title;
     dialogRef.componentInstance.message = message;
 
-    return dialogRef.afterClosed();
+    return dialogRef
+      .afterClosed()
+      .pipe(map((result) => result ?? { wasCancelled: true }));
   }
 }

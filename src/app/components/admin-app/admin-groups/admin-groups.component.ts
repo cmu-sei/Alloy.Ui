@@ -27,7 +27,6 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 import { NameDialogComponent } from 'src/app/shared/name-dialog/name-dialog.component';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 
-const WAS_CANCELLED = 'wasCancelled';
 const NAME_VALUE = 'nameValue';
 
 @Component({
@@ -103,7 +102,7 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
   createGroup() {
     this.nameDialog('Create New Group?', '', { nameValue: '' }).subscribe(
       (result) => {
-        if (!result[WAS_CANCELLED]) {
+        if (!result.wasCancelled) {
           this.groupDataService
             .create({ name: result[NAME_VALUE] })
             .subscribe();
@@ -116,7 +115,7 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
     this.nameDialog('Rename ' + group.name, '', {
       nameValue: group.name,
     }).subscribe((result) => {
-      if (!result[WAS_CANCELLED]) {
+      if (!result.wasCancelled) {
         this.groupDataService
           .edit({ id: group.id, name: result[NAME_VALUE] })
           .subscribe();
@@ -150,6 +149,8 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
     dialogRef.componentInstance.title = title;
     dialogRef.componentInstance.message = message;
 
-    return dialogRef.afterClosed();
+    return dialogRef
+      .afterClosed()
+      .pipe(map((result) => result ?? { wasCancelled: true }));
   }
 }

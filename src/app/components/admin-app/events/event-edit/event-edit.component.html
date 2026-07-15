@@ -3,15 +3,13 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 
-<div mat-dialog-container>
-  <div mat-dialog-title>
-    Edit Event
-    <button mat-icon-button (click)="handleEditComplete(false)" title="Cancel" class="close-button" tabindex="-1">
-      <mat-icon class="mdi-24px self-center" fontIcon="mdi-close-circle-outline"></mat-icon>
-    </button>
-  </div>
+<crucible-dialog
+  dialogTitle="Edit Event"
+  [hideDefaultActions]="true"
+  [guardUnsavedWork]="true"
+>
   @if (data.event) {
-    <mat-dialog-content mat-dialog-content>
+    <div crucibleDialogContent class="event-edit-content">
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
@@ -213,24 +211,25 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </mat-form-field>
         </div>
       </div>
-    </mat-dialog-content>
+    </div>
   }
-  <div class="bottom-button cssLayoutRowCenterCenter">
+  <div crucibleDialogActions class="bottom-button">
     <div class="delete-button">
-      <button mat-stroked-button (click)="handleEditComplete(true)" title="Save this event template" [disabled]="!data.canEdit">Save</button>
+      <button matButton="outlined" (click)="handleEditComplete(false)">Cancel</button>
     </div>
     <div class="delete-button">
-      <button mat-stroked-button (click)="handleEditComplete(false)" title="Discard changes">Cancel</button>
+      <button matButton="filled" (click)="handleEditComplete(true)" [disabled]="!data.canEdit">Save</button>
     </div>
+    <span class="spacer"></span>
     <div class="delete-button">
       @if (data.event.status !== 'Ended') {
-        <button mat-stroked-button (click)="endEvent()" style="margin-left: 80px" [disabled]="!data.canManage">
+        <button matButton="outlined" (click)="endEvent()" [disabled]="!data.canManage">
           End Event Now
         </button>
       }
     </div>
     <div class="delete-button">
-      <button mat-stroked-button (click)="deleteEvent()" style="margin-left: 80px" [disabled]="!data.canManage">Delete Event</button>
+      <button matButton="outlined" (click)="deleteEvent()" [disabled]="!data.canManage">Delete Event</button>
     </div>
   </div>
-</div>
+</crucible-dialog>

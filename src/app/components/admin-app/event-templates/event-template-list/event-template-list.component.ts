@@ -39,7 +39,6 @@ import {
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
-import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { EventService } from 'src/app/generated/alloy.api';
 
@@ -79,7 +78,6 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
 
   constructor(
     public dialog: MatDialog,
-    public dialogService: DialogService,
     private eventTemplateDataService: EventTemplateDataService,
     private settingsService: ComnSettingsService,
     private permissionDataService: PermissionDataService,

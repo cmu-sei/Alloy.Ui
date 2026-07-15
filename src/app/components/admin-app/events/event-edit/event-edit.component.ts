@@ -16,12 +16,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { CrucibleDialogService } from '@cmusei/crucible-common';
 import { Event, EventStatus } from '../../../../generated/alloy.api';
 import {
-  MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { DialogService } from 'src/app/services/dialog/dialog.service';
 
 @Component({
     selector: 'app-event-edit',
@@ -54,12 +53,9 @@ export class EventEditComponent implements OnInit {
   public changesWereMade = false;
 
   constructor(
-    public dialogService: DialogService,
-    dialogRef: MatDialogRef<EventEditComponent>,
+    public crucibleDialog: CrucibleDialogService,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-    dialogRef.disableClose = true;
-  }
+  ) { }
 
   /**
    * Initialize component
@@ -166,15 +162,19 @@ export class EventEditComponent implements OnInit {
    * Delete an event after confirmation
    */
   deleteEvent(): void {
-    this.dialogService
-      .confirm(
-        'Delete Event',
-        'Are you sure that you want to delete event ' +
+    this.crucibleDialog
+      .confirm({
+        title: 'Delete Event',
+        message:
+          'Are you sure that you want to delete event ' +
           this.data.event.name +
-          '?'
-      )
-      .subscribe((result) => {
-        if (result['confirm']) {
+          '?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
           this.editComplete.emit({
             action: 'delete',
             event: this.data.event,
@@ -187,13 +187,17 @@ export class EventEditComponent implements OnInit {
    * End an event
    */
   endEvent(): void {
-    this.dialogService
-      .confirm(
-        'End Event Now',
-        'Are you sure that you want to end event ' + this.data.event.name + '?'
-      )
-      .subscribe((result) => {
-        if (result['confirm']) {
+    this.crucibleDialog
+      .confirm({
+        title: 'End Event Now',
+        message:
+          'Are you sure that you want to end event ' +
+          this.data.event.name +
+          '?',
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
           this.editComplete.emit({
             action: 'end',
             event: this.data.event,

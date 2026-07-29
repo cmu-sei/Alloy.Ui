@@ -102,7 +102,7 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
   createGroup() {
     this.nameDialog('Create New Group?', '', { nameValue: '' }).subscribe(
       (result) => {
-        if (!result.wasCancelled) {
+        if (result) {
           this.groupDataService
             .create({ name: result[NAME_VALUE] })
             .subscribe();
@@ -115,7 +115,7 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
     this.nameDialog('Rename ' + group.name, '', {
       nameValue: group.name,
     }).subscribe((result) => {
-      if (!result.wasCancelled) {
+      if (result) {
         this.groupDataService
           .edit({ id: group.id, name: result[NAME_VALUE] })
           .subscribe();
@@ -149,8 +149,6 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
     dialogRef.componentInstance.title = title;
     dialogRef.componentInstance.message = message;
 
-    return dialogRef
-      .afterClosed()
-      .pipe(map((result) => result ?? { wasCancelled: true }));
+    return dialogRef.afterClosed();
   }
 }

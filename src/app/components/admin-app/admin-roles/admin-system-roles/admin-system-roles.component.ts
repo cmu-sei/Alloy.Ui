@@ -111,7 +111,7 @@ export class AdminSystemRolesComponent implements OnInit {
     this.nameDialog('Create New Role?', '', { nameValue: '' })
       .pipe(take(1))
       .subscribe((result) => {
-        if (!result.wasCancelled) {
+        if (result) {
           this.roleService.createRole({ name: result[NAME_VALUE] }).subscribe();
         }
       });
@@ -121,7 +121,7 @@ export class AdminSystemRolesComponent implements OnInit {
     this.nameDialog('Rename Role?', '', { nameValue: role.name })
       .pipe(take(1))
       .subscribe((result) => {
-        if (!result.wasCancelled) {
+        if (result) {
           role.name = result[NAME_VALUE];
           this.roleService.editRole(role).subscribe();
         }
@@ -154,8 +154,6 @@ export class AdminSystemRolesComponent implements OnInit {
     dialogRef.componentInstance.title = title;
     dialogRef.componentInstance.message = message;
 
-    return dialogRef
-      .afterClosed()
-      .pipe(map((result) => result ?? { wasCancelled: true }));
+    return dialogRef.afterClosed();
   }
 }

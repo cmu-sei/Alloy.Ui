@@ -55,7 +55,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <div [@detailExpand]="element.id === expandedGroupId ? 'expanded' : 'collapsed'"
           (click)="$event.stopPropagation()">
           @if (element.id === expandedGroupId) {
-            <app-admin-groups-detail [groupId]="element.id" [canEdit]="canEdit"></app-admin-groups-detail>
+            <app-admin-groups-detail [groupId]="element.id" [canEdit]="canManageGroup(element.id)"></app-admin-groups-detail>
           }
         </div>
       </td>

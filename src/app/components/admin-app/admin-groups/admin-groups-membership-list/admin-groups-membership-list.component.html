@@ -25,12 +25,15 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
       <td mat-cell *matCellDef="let user">
-        <button mat-icon-button ngxClipboard [cbContent]="user.id"
-          (cbOnSuccess)="snackBar.open('Copied to clipboard', 'Dismiss')" (click)="$event.stopPropagation()"
-          title="Copy:  {{ user.id }}">
-          <mat-icon class="mdi-24px" fontIcon="mdi-content-copy"></mat-icon>
-        </button>
-        {{ user.name }}
+        <div class="member-name">
+          <button mat-icon-button ngxClipboard [cbContent]="user.id"
+            (cbOnSuccess)="snackBar.open('Copied to clipboard', 'Dismiss')" (click)="$event.stopPropagation()"
+            title="Copy:  {{ user.id }}">
+            <mat-icon class="mdi-24px" fontIcon="mdi-content-copy"></mat-icon>
+          </button>
+          <span>{{ user.name }}</span>
+          <app-current-user-badge [userId]="user.id"></app-current-user-badge>
+        </div>
       </td>
     </ng-container>
 

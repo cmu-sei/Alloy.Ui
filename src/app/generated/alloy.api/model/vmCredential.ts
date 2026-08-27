@@ -17,18 +17,15 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 
 export interface VmCredential { 
-  [key: string]: object | any;
-
-
+    dateCreated?: Date;
+    dateModified?: Date | null;
+    createdBy?: string;
+    modifiedBy?: string | null;
     id?: string;
     scenarioTemplateId?: string | null;
     scenarioId?: string | null;
     username?: string | null;
     password?: string | null;
     description?: string | null;
-    dateCreated?: Date;
-    dateModified?: Date | null;
-    createdBy?: string;
-    modifiedBy?: string | null;
 }
 

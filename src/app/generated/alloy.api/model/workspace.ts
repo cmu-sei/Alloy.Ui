@@ -22,5 +22,7 @@ export interface Workspace {
     directoryId?: string;
     dynamicHost?: boolean;
     terraformVersion?: string | null;
+    parallelism?: number | null;
+    azureDestroyFailureThreshold?: number | null;
 }
 

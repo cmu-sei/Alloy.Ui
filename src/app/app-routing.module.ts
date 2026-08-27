@@ -56,7 +56,11 @@ export const ROUTES: Routes = [
     component: EnlistComponent,
     canActivate: [ComnAuthGuardService],
   },
-  { path: 'admin', component: AdminAppComponent },
+  {
+    path: 'admin',
+    component: AdminAppComponent,
+    canActivate: [ComnAuthGuardService],
+  },
 ];
 
 @NgModule({

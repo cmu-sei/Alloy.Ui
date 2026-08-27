@@ -14,16 +14,11 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { GroupPermission } from './groupPermission';
 
 
-export interface ProblemDetails { 
-  [key: string]: any | any;
-
-
-    type?: string | null;
-    title?: string | null;
-    status?: number | null;
-    detail?: string | null;
-    instance?: string | null;
+export interface GroupPermissionsClaim { 
+    groupId?: string;
+    permissions?: Array<GroupPermission> | null;
 }
 

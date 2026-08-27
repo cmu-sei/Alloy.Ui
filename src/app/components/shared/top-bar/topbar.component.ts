@@ -16,7 +16,7 @@ import {
   ComnSettingsService,
   Theme,
 } from '@cmusei/crucible-common';
-import { Observable, Subject } from 'rxjs';
+import { forkJoin, Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
@@ -55,8 +55,10 @@ export class TopbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.permissionDataService
-      .load()
+    forkJoin([
+      this.permissionDataService.load(),
+      this.permissionDataService.loadGroupPermissions(),
+    ])
       .subscribe(
         (x) =>
           (this.canViewAdmin =

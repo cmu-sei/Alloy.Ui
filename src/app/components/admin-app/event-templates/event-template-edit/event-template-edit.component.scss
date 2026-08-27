@@ -6,6 +6,14 @@
   margin-bottom: 8px;
 }
 
+.event-template-edit-content {
+  display: block;
+}
+
+.full-width {
+  width: 100%;
+}
+
 .bottom-button {
   display: flex;
   align-items: center;
@@ -22,8 +30,4 @@
   border-style: solid;
   border-color: var(--mat-sys-outline);
   border-width: 1px;
-}
-
-.close-button {
-  float: right;
 }

@@ -11,10 +11,15 @@ import {
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { ComnAuthQuery, ComnSettingsService, Theme } from '@cmusei/crucible-common';
+import {
+  ComnAuthQuery,
+  ComnSettingsService,
+  CrucibleDialogService,
+  Theme,
+} from '@cmusei/crucible-common';
 import { ActivatedRoute } from '@angular/router';
 import { ClipboardService } from 'ngx-clipboard';
-import { combineLatest, interval, Observable, of, Subject } from 'rxjs';
+import { combineLatest, forkJoin, interval, Observable, of, Subject } from 'rxjs';
 import {
   filter,
   map,
@@ -30,7 +35,6 @@ import {
 import { EventService, EventStatus, SystemPermission } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
-import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { ALLOY_CURRENT_EVENT_STATUS } from 'src/app/shared/models/enums';
@@ -99,7 +103,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
   constructor(
     private settingsService: ComnSettingsService,
-    private dialogService: DialogService,
+    private crucibleDialog: CrucibleDialogService,
     public eventTemplateDataService: EventTemplateDataService,
     public eventDataService: EventDataService,
     private eventService: EventService,
@@ -135,13 +139,16 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     this.isIFrame = this.isIframe();
 
     // Load permissions
-    this.permissionDataService
-      .load()
+    forkJoin([
+      this.permissionDataService.load(),
+      this.permissionDataService.loadGroupPermissions(),
+    ])
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         (x) => {
           this.permissions = this.permissionDataService.permissions;
-          this.canViewAdministration = this.permissions.some((y) => y.startsWith('View'));
+          this.canViewAdministration =
+            this.permissionDataService.canViewAdministration();
         }
       );
 
@@ -423,11 +430,15 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
   endEvent(event: AlloyEvent) {
     if (event) {
-      this.dialogService
-        .confirm('End Event', 'Are you sure that you want to end this event?')
+      this.crucibleDialog
+        .confirm({
+          title: 'End Event',
+          message: 'Are you sure that you want to end this event?',
+        })
+        .afterClosed()
         .pipe(take(1))
-        .subscribe((result) => {
-          if (result['confirm']) {
+        .subscribe((confirmed) => {
+          if (confirmed) {
             this.eventDataService.endEvent(event.id);
           }
         });
@@ -436,14 +447,15 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
   redeployEvent(event: AlloyEvent) {
     if (event) {
-      this.dialogService
-        .confirm(
-          'Redeploy Event',
-          'Are you sure that you want to redeploy this event?'
-        )
+      this.crucibleDialog
+        .confirm({
+          title: 'Redeploy Event',
+          message: 'Are you sure that you want to redeploy this event?',
+        })
+        .afterClosed()
         .pipe(take(1))
-        .subscribe((result) => {
-          if (result['confirm']) {
+        .subscribe((confirmed) => {
+          if (confirmed) {
             this.redeploying = true;
             this.eventDataService.redeployEvent(event.id);
           }

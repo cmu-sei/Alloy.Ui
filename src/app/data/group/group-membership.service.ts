@@ -7,6 +7,7 @@ import { map, tap } from 'rxjs/operators';
 import {
   Group,
   GroupMembership,
+  GroupMembershipRole,
   GroupService,
 } from 'src/app/generated/alloy.api';
 
@@ -46,7 +47,16 @@ export class GroupMembershipService {
   }
 
   createMembership(groupId: string, group: GroupMembership) {
+    group.role = group.role || GroupMembershipRole.Member;
     return this.groupService.createGroupMembership(groupId, group).pipe(
+      tap((x) => {
+        this.upsert(x.id, x);
+      })
+    );
+  }
+
+  editMembership(id: string, group: GroupMembership) {
+    return this.groupService.editGroupMembership(id, group).pipe(
       tap((x) => {
         this.upsert(x.id, x);
       })

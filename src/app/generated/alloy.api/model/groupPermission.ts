@@ -16,14 +16,10 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  */
 
 
-export interface ProblemDetails { 
-  [key: string]: any | any;
+export type GroupPermission = 'ManageMembership' | 'EditGroup';
 
-
-    type?: string | null;
-    title?: string | null;
-    status?: number | null;
-    detail?: string | null;
-    instance?: string | null;
-}
+export const GroupPermission = {
+    ManageMembership: 'ManageMembership' as GroupPermission,
+    EditGroup: 'EditGroup' as GroupPermission
+};
 

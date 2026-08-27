@@ -48,4 +48,7 @@ export interface Event {
     expirationDate?: Date | null;
     eventPermissions?: Array<string> | null;
 }
+export namespace Event {
+}
+
 

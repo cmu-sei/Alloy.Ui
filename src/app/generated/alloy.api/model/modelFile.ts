@@ -16,14 +16,18 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  */
 
 
-export interface ProblemDetails { 
-  [key: string]: any | any;
-
-
-    type?: string | null;
-    title?: string | null;
-    status?: number | null;
-    detail?: string | null;
-    instance?: string | null;
+export interface ModelFile { 
+    id?: string;
+    name?: string | null;
+    directoryId?: string;
+    workspaceId?: string | null;
+    content?: string | null;
+    modifiedById?: string | null;
+    modifiedByName?: string | null;
+    dateSaved?: Date | null;
+    isDeleted?: boolean;
+    lockedById?: string | null;
+    lockedByName?: string | null;
+    administrativelyLocked?: boolean;
 }
 

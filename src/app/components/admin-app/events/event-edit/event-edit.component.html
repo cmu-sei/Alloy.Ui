@@ -32,20 +32,21 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </mat-form-field>
         </div>
       </div>
+      <!-- Text and the error system token only - design-specs/angular/modals.md 1.6 rules out
+           a decorative banner or accent background for a server error. The full diagnostic
+           output lives in the event list's expanded row, not in this dialog. -->
       @if (data.event.errorMessage) {
-      <div class="add-margin">
-        <mat-card style="background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); padding: 12px;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <mat-icon class="mdi-24px" fontIcon="mdi-alert-circle-outline"></mat-icon>
-            <strong>Error Message</strong>
-          </div>
-          <div style="word-break: break-word;">{{ data.event.errorMessage }}</div>
-          @if (data.event.lastLaunchInternalStatus) {
-          <div style="margin-top: 8px; font-size: 0.9em; opacity: 0.9;">
-            Last Internal Status: {{ data.event.lastLaunchInternalStatus }}
-          </div>
-          }
-        </mat-card>
+      <div class="add-margin error-block">
+        <div class="error-heading">
+          <mat-icon class="mdi-24px error-indicator" fontIcon="mdi-alert-circle-outline"></mat-icon>
+          <strong>Failure</strong>
+        </div>
+        <div class="error-text">{{ data.event.errorMessage }}</div>
+        @if (data.event.lastLaunchInternalStatus) {
+        <div class="error-meta">
+          Failed at: {{ data.event.lastLaunchInternalStatus }}
+        </div>
+        }
       </div>
       }
       <div class="add-margin">
@@ -239,7 +240,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <span class="spacer"></span>
     <div class="delete-button">
       @if (data.event.status !== 'Ended') {
-        <button matButton="outlined" (click)="endEvent()" [disabled]="!data.canManage || data.event.status === 'Failed'">
+        <button matButton="outlined" (click)="endEvent()" [disabled]="!data.canManage">
           End Event Now
         </button>
       }

@@ -16,6 +16,7 @@
   "AppTopBarHexColor": "#006B6D",
   "AppTopBarHexTextColor": "#FFFFFF",
   "PlayerUIAddress": "http://localhost:4301",
+  "CasterUIAddress": "http://localhost:4310",
   "PollingIntervalMS": "3500",
   "UseLocalAuthStorage": false,
   "HeaderBarSettings": {

@@ -97,3 +97,79 @@ tr.detail-row {
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
+
+.error-indicator {
+  color: var(--mat-sys-error);
+  vertical-align: middle;
+}
+
+// Borrows .memberships-container's geometry so the two expanded-row panels line up, but
+// carries no background of its own - design-specs/angular/modals.md 1.6 rules out a
+// decorative banner or accent background for a server error.
+.error-container {
+  width: 90%;
+  margin: 1rem auto 0;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.error-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--mat-sys-error);
+}
+
+.error-meta {
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error-link-icon {
+  vertical-align: middle;
+}
+
+.error-ids {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.error-id-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-copy-button {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  padding: 0;
+}
+
+// Terraform output arrives pre-wrapped and can run to thousands of lines, so scroll it
+// rather than letting it push the memberships panel off the page.
+.error-detail {
+  max-height: 20rem;
+  margin: 8px 0 0;
+  padding: 8px;
+  overflow: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.error-copy-detail {
+  margin-top: 8px;
+}

@@ -41,6 +41,9 @@ export interface Event {
     lastLaunchInternalStatus?: InternalEventStatus;
     lastEndStatus?: EventStatus;
     lastEndInternalStatus?: InternalEventStatus;
+    /**
+     * A short description of why the Event failed, safe to show to any user. The full diagnostic text behind it is not carried here - see GET /api/events/{id}/error-detail, which requires the system-wide ManageEvents permission. Read-only: PUT /api/events/{id} ignores it.
+     */
     errorMessage?: string | null;
     statusDate?: Date;
     launchDate?: Date | null;

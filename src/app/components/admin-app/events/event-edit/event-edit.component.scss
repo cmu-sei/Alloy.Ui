@@ -35,3 +35,32 @@
   border-color: var(--mat-sys-outline);
   border-width: 1px;
 }
+
+.error-indicator {
+  color: var(--mat-sys-error);
+  vertical-align: middle;
+}
+
+.error-block {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.error-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--mat-sys-error);
+}
+
+.error-text {
+  word-break: break-word;
+}
+
+.error-meta {
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: var(--mat-sys-on-surface-variant);
+}

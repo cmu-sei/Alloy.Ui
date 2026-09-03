@@ -58,12 +58,13 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
       <td mat-cell *matCellDef="let element">
         {{ element.status }}
+        <!-- Deliberately not the error text itself: a tooltip cannot hold multi-KB Terraform
+             output. Expanding the row shows the summary and the full detail. -->
         @if (element.errorMessage) {
         <mat-icon
-          class="mdi-18px"
+          class="mdi-18px error-indicator"
           fontIcon="mdi-alert-circle-outline"
-          style="color: var(--mat-sys-error); vertical-align: middle; cursor: help;"
-          [matTooltip]="element.errorMessage"
+          matTooltip="This event failed - expand the row to see why"
           matTooltipPosition="right">
         </mat-icon>
         }
@@ -97,39 +98,63 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           (click)="$event.stopPropagation()">
           @if (element.id === expandedEventId) {
           @if (element.errorMessage) {
-          <div class="error-container" style="padding: 12px; background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); margin-bottom: 12px; border-radius: 4px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-              <mat-icon class="mdi-24px" fontIcon="mdi-alert-circle-outline"></mat-icon>
-              <strong>Error Details</strong>
+          <!-- Text and the error system token only - design-specs/angular/modals.md 1.6 rules
+               out a decorative banner or accent background for a server error. -->
+          <div class="error-container">
+            <div class="error-heading">
+              <mat-icon class="mdi-24px error-indicator" fontIcon="mdi-alert-circle-outline"></mat-icon>
+              <strong>Failure</strong>
             </div>
             <div>{{ element.errorMessage }}</div>
-            @if (element.workspaceId) {
-            <div style="margin-top: 8px;">
-              <a href="http://localhost:4310" target="_blank" style="color: inherit; text-decoration: underline;">
-                Open Caster <mat-icon class="mdi-18px" fontIcon="mdi-open-in-new" style="vertical-align: middle;"></mat-icon>
-              </a>
-              <div style="margin-top: 4px; font-size: 0.9em; opacity: 0.9; font-family: monospace; display: flex; flex-direction: column; gap: 2px;">
-                <div style="display: flex; align-items: center; gap: 4px;">
-                  <button mat-icon-button ngxClipboard [cbContent]="element.workspaceId" (click)="$event.stopPropagation()" title="Copy Workspace ID" style="width: 20px; height: 20px; line-height: 20px; padding: 0;">
-                    <mat-icon class="mdi-14px" fontIcon="mdi-content-copy"></mat-icon>
-                  </button>
-                  <span>Workspace: {{ element.workspaceId }}</span>
-                </div>
-                @if (element.runId) {
-                <div style="display: flex; align-items: center; gap: 4px;">
-                  <button mat-icon-button ngxClipboard [cbContent]="element.runId" (click)="$event.stopPropagation()" title="Copy Run ID" style="width: 20px; height: 20px; line-height: 20px; padding: 0;">
-                    <mat-icon class="mdi-14px" fontIcon="mdi-content-copy"></mat-icon>
-                  </button>
-                  <span>Run: {{ element.runId }}</span>
-                </div>
-                }
-              </div>
+            @if (element.lastLaunchInternalStatus) {
+            <div class="error-meta">
+              Failed at: {{ element.lastLaunchInternalStatus }}
             </div>
             }
-            @if (element.lastLaunchInternalStatus) {
-            <div style="margin-top: 8px; font-size: 0.9em; opacity: 0.9;">
-              Last Internal Status: {{ element.lastLaunchInternalStatus }}
+            @if (element.workspaceId) {
+            <div class="error-ids">
+              <div class="error-id-row">
+                <button mat-icon-button class="error-copy-button" ngxClipboard
+                  [cbContent]="element.workspaceId"
+                  (cbOnSuccess)="snackBar.open('Copied to clipboard', 'Dismiss')"
+                  (click)="$event.stopPropagation()" title="Copy Workspace ID">
+                  <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+                </button>
+                <span>Workspace: {{ element.workspaceId }}</span>
+              </div>
+              @if (element.runId) {
+              <div class="error-id-row">
+                <button mat-icon-button class="error-copy-button" ngxClipboard [cbContent]="element.runId"
+                  (cbOnSuccess)="snackBar.open('Copied to clipboard', 'Dismiss')"
+                  (click)="$event.stopPropagation()" title="Copy Run ID">
+                  <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+                </button>
+                <span>Run: {{ element.runId }}</span>
+              </div>
+              }
             </div>
+            <!-- Caster UI has no per-workspace route yet, so this is a link to Caster itself;
+                 without a configured address there is nowhere to send the operator. -->
+            @if (casterUIAddress) {
+            <div class="error-meta">
+              <a [href]="casterUIAddress" target="_blank" rel="noopener">
+                Open Caster
+                <mat-icon class="mdi-18px error-link-icon" fontIcon="mdi-open-in-new"></mat-icon>
+              </a>
+            </div>
+            }
+            }
+            @if (loadingErrorDetailFor === element.id) {
+            <div class="error-meta">Loading details...</div>
+            }
+            @if (errorDetail(element.id); as detail) {
+            <pre class="error-detail">{{ detail }}</pre>
+            <button matButton="outlined" class="error-copy-detail" ngxClipboard [cbContent]="detail"
+              (cbOnSuccess)="snackBar.open('Copied to clipboard', 'Dismiss')"
+              (click)="$event.stopPropagation()">
+              <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+              Copy Details
+            </button>
             }
           </div>
           }

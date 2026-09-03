@@ -27,7 +27,7 @@ import { GroupMembershipService } from 'src/app/data/group/group-membership.serv
 })
 export class SignalRService {
   private hubConnection: SignalR.HubConnection;
-  private eventId: string;
+  private eventIds = new Set<string>();
   private connectionObservable: Observable<SignalR.HubConnection>;
   private connectionPromise: Promise<void>;
   private systemGroupJoined = false;
@@ -65,16 +65,46 @@ export class SignalRService {
   }
 
   private joinGroups() {
-    if (this.eventId) {
-      this.joinEvent(this.eventId);
+    if (!this.isConnected()) {
+      // onreconnected() replays the joins, so there is nothing to do while the socket is down
+      return;
     }
+
+    this.eventIds.forEach((eventId) =>
+      this.hubConnection.invoke('JoinEvent', eventId)
+    );
   }
-  public joinEvent(eventId: string) {
-    this.hubConnection.invoke('JoinEvent', eventId);
+
+  private isConnected(): boolean {
+    return this.hubConnection?.state === SignalR.HubConnectionState.Connected;
   }
-  public leaveEvent(eventId: string) {
-    eventId = null;
-    this.hubConnection.invoke('LeaveEvent', eventId);
+
+  /**
+   * The server only sends EventUpdated to the event's own group, so an event whose group
+   * was never joined - or was joined and then dropped by a reconnect - silently stops
+   * reporting status. Record the id so joinGroups() can replay it both on connect and on
+   * every automatic reconnect. A user viewing their own event alongside events they were
+   * invited to needs several groups at once, so this is a set rather than a single id.
+   */
+  public joinEvent(eventId: string): Promise<void> {
+    const alreadyStarted = this.connectionPromise != null;
+    this.eventIds.add(eventId);
+
+    // startConnection() calls joinGroups() itself the first time through, so only replay
+    // the joins here when the connection was already up.
+    return alreadyStarted
+      ? this.startConnection().then(() => this.joinGroups())
+      : this.startConnection();
+  }
+
+  public leaveEvent(eventId: string): Promise<void> {
+    this.eventIds.delete(eventId);
+
+    return this.startConnection().then(() => {
+      if (this.isConnected()) {
+        this.hubConnection.invoke('LeaveEvent', eventId);
+      }
+    });
   }
   public joinAdmin() {
     this.systemGroupJoined = true;

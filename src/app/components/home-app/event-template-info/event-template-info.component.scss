@@ -87,6 +87,26 @@
   color: var(--mat-sys-error);
 }
 
+// Text and the error system token only - design-specs/angular/modals.md 1.6 rules out a
+// decorative banner or accent background for a server error.
+.failure-block {
+  padding: 0 24px 16px;
+  text-align: center;
+
+  p {
+    margin: 4px 0;
+  }
+}
+
+.failure-detail-text {
+  max-width: 640px;
+}
+
+.failure-stage-text {
+  font-size: smaller;
+  color: var(--mat-sys-on-surface-variant);
+}
+
 .title-text {
   margin-left: 20px;
 }

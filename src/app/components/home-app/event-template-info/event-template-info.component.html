@@ -95,16 +95,27 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         @switch (determineEventStatus(currentEvent)) {
         <!-- FAILED EVENT -->
         @case (ALLOY_CURRENT_EVENT_STATUS.FAILED) {
-        Event Failed
-        @if (failureMessage !== '') {
-        <div>
-          <div class="failure-text">Failure: {{ failureMessage }}</div>
-          <div>
-            Event ended. Please try again later or contact an
-            administrator.
-          </div>
+        <div class="cssLayoutColumnSpaceCenter failure-block">
+          <p class="failure-text" role="alert">
+            This event could not be launched.
+          </p>
+          @if (currentEvent.errorMessage) {
+          <p class="failure-detail-text">{{ currentEvent.errorMessage }}</p>
+          }
+          @if (failureStage(currentEvent); as stage) {
+          <p class="failure-stage-text">Stage: {{ stage }}</p>
+          }
+          <p class="failure-detail-text">
+            Anything that was created has been cleaned up. Try launching again, or contact an
+            administrator if it keeps failing.
+          </p>
+          @if (!isIFrame) {
+          <button class="event-button" matButton="filled" (click)="launchEvent(eventTemplate.id)">
+            Launch Again
+          </button>
+          }
+          <label class="duration-label">Duration: {{ eventTemplate.durationHours }} hours</label>
         </div>
-        }
         }
         <!-- ACTIVE EVENT -->
         @case (ALLOY_CURRENT_EVENT_STATUS.LAUNCHED) {

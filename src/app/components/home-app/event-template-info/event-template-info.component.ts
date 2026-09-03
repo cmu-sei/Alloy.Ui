@@ -32,7 +32,7 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs/operators';
-import { EventService, EventStatus, SystemPermission } from 'src/app/generated/alloy.api';
+import { EventStatus, SystemPermission } from 'src/app/generated/alloy.api';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api/model/event';
 import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
@@ -87,10 +87,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public remainingTime: string;
   public timeRunningLow: boolean;
   public redeploying: boolean;
-  public failureMessage: string;
-  public failureDate: Date;
   public theme$: Observable<Theme>;
-  private failedEvent: AlloyEvent;
   public inviteShown: boolean = false;
   public isOwner: boolean = false;
   public viewId: string;
@@ -106,7 +103,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private crucibleDialog: CrucibleDialogService,
     public eventTemplateDataService: EventTemplateDataService,
     public eventDataService: EventDataService,
-    private eventService: EventService,
     private eventTemplateQuery: EventTemplateQuery,
     private eventQuery: EventQuery,
     private userDataService: UserDataService,
@@ -127,8 +123,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     );
     this.remainingTime = '';
     this.timeRunningLow = false;
-    this.failureMessage = '';
-    this.failedEvent = undefined;
     this.pollingIntervalMS = parseInt(
       this.settingsService.settings.PollingIntervalMS,
       10
@@ -219,24 +213,21 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           let currentEvent: AlloyEvent = null;
 
           if (this.viewId != null) {
-            currentEvent = events.find(
-              (e) => e.viewId === this.viewId && this.isEventActive(e.status)
+            currentEvent = this.resolveCurrentEvent(
+              events.filter((e) => e.viewId === this.viewId)
             );
           } else {
-            currentEvent = events.find(
-              (e) =>
-                e.userId === user.id &&
-                e.eventTemplateId === id &&
-                this.isEventActive(e.status)
+            currentEvent = this.resolveCurrentEvent(
+              events.filter(
+                (e) => e.userId === user.id && e.eventTemplateId === id
+              )
             );
           }
 
           if (currentEvent != null) {
             this.isOwner = currentEvent.userId === user.id;
 
-            this.signalRService.startConnection().then(() => {
-              this.signalRService.joinEvent(currentEvent.id);
-            });
+            this.signalRService.joinEvent(currentEvent.id);
 
             this.expirationDate = currentEvent.expirationDate;
             this.remainingTime = this.calculateRemainingTime(
@@ -270,12 +261,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       filter((events) => events.length >= 1),
       map((events) => events.filter((e) => this.isEventActive(e.status))),
       tap((events) => {
-        events.forEach((e) => {
-          this.signalRService.startConnection().then(() => {
-            this.signalRService.joinEvent(e.id);
-          });
-        });
-        this.userEvents = events.filter((m) => m.createdBy !== this.currentUserId)
+        events.forEach((e) => this.signalRService.joinEvent(e.id));
+        this.userEvents = events.filter(
+          (m) => m.createdBy !== this.currentUserId
+        );
       }),
       shareReplay(),
       // share({
@@ -340,6 +329,22 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   copyInviteLink(event: AlloyEvent) {
     this.clipboardService.copy(this.getInviteLink(event));
   }
+  /**
+   * Picks the one event this page is about. A Failed event counts, because a user whose
+   * launch broke needs to be told so - the old filter dropped it, the Launch button
+   * silently came back, and the failure was never reported. An event that is still going
+   * wins over a failed one, since a user who launched again cares about the new attempt.
+   */
+  private resolveCurrentEvent(candidates: AlloyEvent[]): AlloyEvent {
+    const active = candidates.find((e) => this.isEventActive(e.status));
+
+    if (active) {
+      return active;
+    }
+
+    return candidates.find((e) => e.status === EventStatus.Failed) ?? null;
+  }
+
   isEventActive(s: EventStatus) {
     switch (s) {
       case EventStatus.Creating:
@@ -354,6 +359,23 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         return false;
       }
     }
+  }
+
+  /**
+   * lastLaunchInternalStatus is a PascalCase enum name ("PlanningLaunch"); split it so the
+   * page reads as prose rather than as an identifier.
+   */
+  failureStage(event: AlloyEvent): string {
+    const stage = event?.lastLaunchInternalStatus ?? event?.internalStatus;
+
+    if (!stage) {
+      return '';
+    }
+
+    return stage
+      .toString()
+      .replace(/([A-Z])/g, ' $1')
+      .trim();
   }
 
   determineEventStatus(event?: AlloyEvent) {
@@ -379,46 +401,21 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   }
 
   launchEvent(id: string) {
-    this.failedEvent = undefined;
-    this.failureMessage = '';
-
     this.eventDataService
       .launchEvent(id)
       .pipe(
-        tap((event: AlloyEvent) => {
-          this.signalRService.startConnection().then(() => {
-            this.signalRService.joinEvent(event.id);
-          });
-          // Poll for early failures (first 30 seconds)
-          this.pollEventStatus(event.id, 30);
-        })
-      )
-      .subscribe();
-  }
-
-  private pollEventStatus(eventId: string, durationSeconds: number) {
-    const pollInterval = 2000; // Poll every 2 seconds
-    const endTime = Date.now() + (durationSeconds * 1000);
-    const stopPolling$ = new Subject<void>();
-
-    interval(pollInterval)
-      .pipe(
-        takeUntil(stopPolling$),
-        takeUntil(this.unsubscribe$),
-        switchMap(() => this.eventService.getEvent(eventId)),
-        tap((event) => {
-          // Update the store so UI refreshes
-          this.eventDataService.stateUpdate(event);
-
-          // Stop polling if event reaches a final state or time expires
-          if (event.status === EventStatus.Active ||
-              event.status === EventStatus.Failed ||
-              event.status === EventStatus.Ended ||
-              Date.now() >= endTime) {
-            stopPolling$.next();
-            stopPolling$.complete();
-          }
-        })
+        // Join the event's SignalR group first, then read the event back once. The API only
+        // broadcasts EventUpdated to that group, so anything that happened between the
+        // launch response and the join - which is where a fast failure lands - would
+        // otherwise never reach us, and the page would sit on "Please wait!" forever.
+        switchMap((event: AlloyEvent) =>
+          this.signalRService
+            .joinEvent(event.id)
+            .then(() => event.id)
+        ),
+        switchMap((eventId: string) => this.eventDataService.getEvent(eventId)),
+        tap((event: AlloyEvent) => this.eventDataService.stateUpdate(event)),
+        takeUntil(this.unsubscribe$)
       )
       .subscribe();
   }
@@ -507,32 +504,5 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     }
 
     return timeLeft;
-  }
-
-  processFailureStatus(imp: AlloyEvent) {
-    if (imp) {
-      if (
-        (imp.status === EventStatus.Failed || imp.lastLaunchInternalStatus) &&
-        !this.failedEvent
-      ) {
-        // Failed event and endEvent not sent yet
-        this.failureDate = imp.dateCreated;
-        if (imp.lastLaunchInternalStatus) {
-          this.failureMessage = imp.lastLaunchInternalStatus
-            .toString()
-            .replace(/([A-Z])/g, ' $1')
-            .trim();
-        } else {
-          this.failureMessage = imp.internalStatus
-            .toString()
-            .replace(/([A-Z])/g, ' $1')
-            .trim();
-        }
-        this.failedEvent = imp;
-      }
-    } else {
-      this.failureMessage = '';
-      this.failureDate = undefined;
-    }
   }
 }

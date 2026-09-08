@@ -239,11 +239,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </div>
     <span class="spacer"></span>
     <div class="delete-button">
-      @if (data.event.status !== 'Ended') {
-        <button matButton="outlined" (click)="endEvent()" [disabled]="!data.canManage">
-          End Event Now
-        </button>
-      }
+      <button
+        matButton="outlined"
+        (click)="endEvent()"
+        [disabled]="!data.canManage || data.event.status === 'Ended' || data.event.status === 'Failed'">
+        End Event Now
+      </button>
     </div>
     <div class="delete-button">
       <button matButton="outlined" (click)="deleteEvent()" [disabled]="!data.canManage">Delete Event</button>

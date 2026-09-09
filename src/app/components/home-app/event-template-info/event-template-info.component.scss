@@ -82,9 +82,45 @@
   font-size: smaller;
 }
 
+// Matches the admin event list's .error-indicator so the failure marker is identical in both
+// tables. The left margin is extra: this cell stacks its text in divs, so unlike the admin
+// cell there is no whitespace text node to separate the icon from the status.
+.error-indicator {
+  color: var(--mat-sys-error);
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
 .failure-text {
   font-weight: bold;
   color: var(--mat-sys-error);
+}
+
+.failure-block {
+  padding: 0 24px 16px;
+  text-align: center;
+
+  p {
+    margin: 4px 0;
+  }
+}
+
+// A thin outline so the message reads as an error box rather than as body copy. Border only,
+// no fill: design-specs/angular/modals.md 1.6 rules out an accent background for a server
+// error, and an untinted 1px rule is delineation rather than decoration.
+.failure-message {
+  border: 1px solid var(--mat-sys-error);
+  border-radius: 4px;
+  padding: 12px 16px;
+  // Only a top margin: the box sits in a flex column, so the Launch Again button's own 20px
+  // margin-top already supplies the gap below. Matching it here leaves the box evenly spaced
+  // instead of jammed against the description above it.
+  margin-top: 20px;
+  max-width: 640px;
+}
+
+.failure-detail-text {
+  max-width: 640px;
 }
 
 .title-text {

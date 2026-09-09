@@ -32,6 +32,23 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           </mat-form-field>
         </div>
       </div>
+      <!-- Text and the error system token only - design-specs/angular/modals.md 1.6 rules out
+           a decorative banner or accent background for a server error. The full diagnostic
+           output lives in the event list's expanded row, not in this dialog. -->
+      @if (data.event.errorMessage) {
+      <div class="add-margin error-block">
+        <div class="error-heading">
+          <mat-icon class="mdi-24px error-indicator" fontIcon="mdi-alert-circle-outline"></mat-icon>
+          <strong>Failure</strong>
+        </div>
+        <div class="error-text">{{ data.event.errorMessage }}</div>
+        @if (data.event.lastLaunchInternalStatus) {
+        <div class="error-meta">
+          Failed at: {{ data.event.lastLaunchInternalStatus }}
+        </div>
+        }
+      </div>
+      }
       <div class="add-margin">
         <div>
           <mat-form-field class="full-width">
@@ -222,11 +239,21 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </div>
     <span class="spacer"></span>
     <div class="delete-button">
-      @if (data.event.status !== 'Ended') {
-        <button matButton="outlined" (click)="endEvent()" [disabled]="!data.canManage">
-          End Event Now
-        </button>
-      }
+      <!--
+        Mirrors the terminal statuses in EventService.EndAsync: only Ended and Expired are done.
+        A Failed Event stays endable on purpose - it can still hold a Caster Workspace, Player View
+        or Steamfitter Scenario, and ending it is the only supported way to retry that teardown.
+      -->
+      <button
+        matButton="outlined"
+        (click)="endEvent()"
+        [disabled]="
+          !data.canManage ||
+          data.event.status === 'Ended' ||
+          data.event.status === 'Expired'
+        ">
+        End Event Now
+      </button>
     </div>
     <div class="delete-button">
       <button matButton="outlined" (click)="deleteEvent()" [disabled]="!data.canManage">Delete Event</button>

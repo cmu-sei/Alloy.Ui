@@ -154,16 +154,4 @@ describe('EventTemplateInfoComponent', () => {
 
     expect(component.currentEvent).toBeNull();
   });
-
-  it('renders the failure stage as prose', () => {
-    expect(
-      component.failureStage({ lastLaunchInternalStatus: 'PlanningLaunch' })
-    ).toEqual('Planning Launch');
-    // Falls back to the live internal status when the launch fields were never written.
-    expect(component.failureStage({ internalStatus: 'FailedLaunch' })).toEqual(
-      'Failed Launch'
-    );
-    expect(component.failureStage({})).toEqual('');
-    expect(component.failureStage(null)).toEqual('');
-  });
 });

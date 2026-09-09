@@ -68,10 +68,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public displayedColumns: string[] = [
     'username',
     'status',
-    'lastLaunchStatus',
-    'lastEndStatus',
     'dateCreated',
-    'endDate',
     'statusDate',
   ];
   public templateId$: Observable<string>;
@@ -359,23 +356,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         return false;
       }
     }
-  }
-
-  /**
-   * lastLaunchInternalStatus is a PascalCase enum name ("PlanningLaunch"); split it so the
-   * page reads as prose rather than as an identifier.
-   */
-  failureStage(event: AlloyEvent): string {
-    const stage = event?.lastLaunchInternalStatus ?? event?.internalStatus;
-
-    if (!stage) {
-      return '';
-    }
-
-    return stage
-      .toString()
-      .replace(/([A-Z])/g, ' $1')
-      .trim();
   }
 
   determineEventStatus(event?: AlloyEvent) {

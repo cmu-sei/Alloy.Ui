@@ -19,8 +19,17 @@ import {
 } from '@cmusei/crucible-common';
 import { ActivatedRoute } from '@angular/router';
 import { ClipboardService } from 'ngx-clipboard';
-import { combineLatest, forkJoin, interval, Observable, of, Subject } from 'rxjs';
 import {
+  combineLatest,
+  forkJoin,
+  from,
+  interval,
+  Observable,
+  of,
+  Subject,
+} from 'rxjs';
+import {
+  catchError,
   filter,
   map,
   shareReplay,
@@ -331,6 +340,12 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
    * launch broke needs to be told so - the old filter dropped it, the Launch button
    * silently came back, and the failure was never reported. An event that is still going
    * wins over a failed one, since a user who launched again cares about the new attempt.
+   * <p>
+   * Only the newest attempt can report a failure, and only while nothing newer exists.
+   * Failed is terminal and the event stays in the store, so reporting any failure found
+   * would pin this page to the failure card for the life of the account - hiding the
+   * Launch and Join controls the user needs next, long after a later attempt succeeded
+   * and ended.
    */
   private resolveCurrentEvent(candidates: AlloyEvent[]): AlloyEvent {
     const active = candidates.find((e) => this.isEventActive(e.status));
@@ -339,7 +354,20 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       return active;
     }
 
-    return candidates.find((e) => e.status === EventStatus.Failed) ?? null;
+    const newest = [...candidates].sort(
+      (a, b) => this.attemptedAt(b) - this.attemptedAt(a)
+    )[0];
+
+    return newest?.status === EventStatus.Failed ? newest : null;
+  }
+
+  /**
+   * When an attempt was made, for ordering. dateCreated is when the launch was requested and
+   * is set on every Event; launchDate is not - a launch that failed before the scenario
+   * started never gets one - so it cannot order failures against successes.
+   */
+  private attemptedAt(event: AlloyEvent): number {
+    return event.dateCreated ? new Date(event.dateCreated).getTime() : 0;
   }
 
   isEventActive(s: EventStatus) {
@@ -389,12 +417,23 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         // launch response and the join - which is where a fast failure lands - would
         // otherwise never reach us, and the page would sit on "Please wait!" forever.
         switchMap((event: AlloyEvent) =>
-          this.signalRService
-            .joinEvent(event.id)
-            .then(() => event.id)
+          from(this.signalRService.joinEvent(event.id)).pipe(
+            // A hub that cannot be reached must not stop the read-back below. Losing live
+            // updates costs the user a stale card they can refresh; skipping the read-back
+            // leaves them on "Please wait!" with no way to find out what happened.
+            catchError((err) => {
+              console.log(err);
+              return of(null);
+            }),
+            map(() => event.id)
+          )
         ),
         switchMap((eventId: string) => this.eventDataService.getEvent(eventId)),
         tap((event: AlloyEvent) => this.eventDataService.stateUpdate(event)),
+        catchError((err) => {
+          console.log(err);
+          return of(null);
+        }),
         takeUntil(this.unsubscribe$)
       )
       .subscribe();

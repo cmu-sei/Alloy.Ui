@@ -133,6 +133,59 @@ describe('EventTemplateInfoComponent', () => {
     );
   });
 
+  // Failed is terminal and the event is never removed from the store, so a failure that keeps
+  // winning after a later attempt succeeded and ended would pin the page to the failure card
+  // for good - hiding the Launch and Join controls the user needs next.
+  it('stops reporting a failure once a newer attempt has come and gone', () => {
+    component.ngOnInit();
+    component.currentEvent$.subscribe();
+
+    events$.next([
+      {
+        id: 'event-1',
+        userId: USER_ID,
+        eventTemplateId: TEMPLATE_ID,
+        status: 'Failed',
+        dateCreated: new Date('2026-09-01T10:00:00Z'),
+      },
+      {
+        id: 'event-2',
+        userId: USER_ID,
+        eventTemplateId: TEMPLATE_ID,
+        status: 'Ended',
+        dateCreated: new Date('2026-09-01T11:00:00Z'),
+      },
+    ]);
+
+    expect(component.currentEvent).toBeNull();
+  });
+
+  // Store order is not attempt order, so the newest failure - not the first one found - is the
+  // one the user is told about.
+  it('reports the newest failure when there are several', () => {
+    component.ngOnInit();
+    component.currentEvent$.subscribe();
+
+    events$.next([
+      {
+        id: 'event-1',
+        userId: USER_ID,
+        eventTemplateId: TEMPLATE_ID,
+        status: 'Failed',
+        dateCreated: new Date('2026-09-01T10:00:00Z'),
+      },
+      {
+        id: 'event-2',
+        userId: USER_ID,
+        eventTemplateId: TEMPLATE_ID,
+        status: 'Failed',
+        dateCreated: new Date('2026-09-01T12:00:00Z'),
+      },
+    ]);
+
+    expect(component.currentEvent.id).toEqual('event-2');
+  });
+
   it('ignores events belonging to another user or template', () => {
     component.ngOnInit();
     component.currentEvent$.subscribe();

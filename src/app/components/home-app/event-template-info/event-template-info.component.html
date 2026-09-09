@@ -106,11 +106,34 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
               Please try again. Contact an administrator if it continues to fail.
             </p>
           </div>
-          @if (!isIFrame) {
-          <button class="event-button" matButton="filled" (click)="launchEvent(eventTemplate.id)">
-            Launch Again
-          </button>
-          }
+          <div class="cssLayoutRowCenterCenter">
+            <!--
+              Present here for the same reason as on the Launch and Active cards: the events a
+              user was invited to are other people's events, and this user's own launch failing
+              says nothing about them. Leaving it out of this one branch made a single failed
+              attempt hide every invitation on this template.
+            -->
+            @if (userEvents.length > 0) {
+            <div>
+              <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
+                Join
+                <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+              </button>
+              <mat-menu #join="matMenu" [overlapTrigger]="false">
+                @for (element of userEvents; track element) {
+                <button mat-menu-item (click)="rejoinEvent(element)">
+                  Invited By: {{ element.username }}
+                </button>
+                }
+              </mat-menu>
+            </div>
+            }
+            @if (!isIFrame) {
+            <button class="event-button" matButton="filled" (click)="launchEvent(eventTemplate.id)">
+              Launch Again
+            </button>
+            }
+          </div>
           <label class="duration-label">Duration: {{ eventTemplate.durationHours }} hours</label>
         </div>
         }

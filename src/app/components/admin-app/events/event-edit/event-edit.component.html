@@ -239,10 +239,19 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </div>
     <span class="spacer"></span>
     <div class="delete-button">
+      <!--
+        Mirrors the terminal statuses in EventService.EndAsync: only Ended and Expired are done.
+        A Failed Event stays endable on purpose - it can still hold a Caster Workspace, Player View
+        or Steamfitter Scenario, and ending it is the only supported way to retry that teardown.
+      -->
       <button
         matButton="outlined"
         (click)="endEvent()"
-        [disabled]="!data.canManage || data.event.status === 'Ended' || data.event.status === 'Failed'">
+        [disabled]="
+          !data.canManage ||
+          data.event.status === 'Ended' ||
+          data.event.status === 'Expired'
+        ">
         End Event Now
       </button>
     </div>

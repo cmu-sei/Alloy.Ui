@@ -28,6 +28,8 @@ import { GroupMembershipService } from 'src/app/data/group/group-membership.serv
 export class SignalRService {
   private hubConnection: SignalR.HubConnection;
   private eventIds = new Set<string>();
+  /** Ids the server has confirmed a JoinEvent for on the current connection. */
+  private joinedEventIds = new Set<string>();
   private connectionObservable: Observable<SignalR.HubConnection>;
   private connectionPromise: Promise<void>;
   private systemGroupJoined = false;
@@ -55,23 +57,52 @@ export class SignalRService {
       .withAutomaticReconnect(new RetryPolicy(60, 0, 5))
       .build();
     this.hubConnection.onreconnected(() => {
-      this.joinGroups();
+      // a reconnect is a new connection to the server, which knows nothing of the old groups
+      this.joinedEventIds.clear();
+      this.joinGroups().catch((err) => console.log(err));
     });
     this.addHandlers();
-    this.connectionPromise = this.hubConnection.start();
-    this.connectionPromise.then((x) => this.joinGroups());
+
+    // withAutomaticReconnect() does not cover a failed *initial* start(), so a rejection here
+    // must not stay memoized: handing the same rejection to every later caller would let one
+    // expired token or one API restart stop this client from ever joining a group again.
+    // Forget the failed attempt instead, so the next caller builds a fresh connection with a
+    // fresh token. Only start() failures clear it - a connection that is up stays memoized
+    // however the joins below go, or the next caller would build a second one on top of it.
+    this.connectionPromise = this.hubConnection.start().catch((err) => {
+      this.connectionPromise = null;
+      throw err;
+    });
+
+    // Nobody is waiting on these, so their failure is logged rather than thrown: joinEvent()
+    // awaits its own join and reports it to the caller that asked for it.
+    this.connectionPromise
+      .then(() => this.joinGroups())
+      .catch((err) => console.log(err));
 
     return this.connectionPromise;
   }
 
-  private joinGroups() {
+  private async joinGroups(): Promise<void> {
     if (!this.isConnected()) {
       // onreconnected() replays the joins, so there is nothing to do while the socket is down
       return;
     }
 
-    this.eventIds.forEach((eventId) =>
-      this.hubConnection.invoke('JoinEvent', eventId)
+    // Only the ids this connection has not joined yet. joinEvent() replays the set on every
+    // call, and its callers re-run on every store emission, so without this the awaits below
+    // would re-invoke JoinEvent for every known event on every status change.
+    const pending = [...this.eventIds].filter(
+      (eventId) => !this.joinedEventIds.has(eventId)
+    );
+
+    await Promise.all(
+      pending.map(async (eventId) => {
+        // Awaited: until the server answers, the caller is not in the group yet and a
+        // broadcast sent in the meantime is lost.
+        await this.hubConnection.invoke('JoinEvent', eventId);
+        this.joinedEventIds.add(eventId);
+      })
     );
   }
 
@@ -87,22 +118,21 @@ export class SignalRService {
    * invited to needs several groups at once, so this is a set rather than a single id.
    */
   public joinEvent(eventId: string): Promise<void> {
-    const alreadyStarted = this.connectionPromise != null;
     this.eventIds.add(eventId);
 
-    // startConnection() calls joinGroups() itself the first time through, so only replay
-    // the joins here when the connection was already up.
-    return alreadyStarted
-      ? this.startConnection().then(() => this.joinGroups())
-      : this.startConnection();
+    // Awaited here, not left to startConnection(): the returned promise is what callers use to
+    // know they are in the group before reading the event back. joinGroups() skips ids already
+    // joined, so this only ever invokes what an earlier call has not covered.
+    return this.startConnection().then(() => this.joinGroups());
   }
 
   public leaveEvent(eventId: string): Promise<void> {
     this.eventIds.delete(eventId);
+    this.joinedEventIds.delete(eventId);
 
     return this.startConnection().then(() => {
       if (this.isConnected()) {
-        this.hubConnection.invoke('LeaveEvent', eventId);
+        return this.hubConnection.invoke('LeaveEvent', eventId);
       }
     });
   }

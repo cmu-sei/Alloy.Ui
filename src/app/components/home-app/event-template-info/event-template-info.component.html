@@ -95,16 +95,47 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         @switch (determineEventStatus(currentEvent)) {
         <!-- FAILED EVENT -->
         @case (ALLOY_CURRENT_EVENT_STATUS.FAILED) {
-        Event Failed
-        @if (failureMessage !== '') {
-        <div>
-          <div class="failure-text">Failure: {{ failureMessage }}</div>
-          <div>
-            Event ended. Please try again later or contact an
-            administrator.
+        <div class="cssLayoutColumnSpaceCenter failure-block">
+          <!-- Deliberately generic: the specific diagnosis (upstream API response, Terraform
+               output) is admin-only, behind GET /api/events/{id}/error-detail. "failed" states
+               the problem in words, so the message does not depend on the red error token
+               alone - WCAG 1.4.1. -->
+          <div class="failure-message" role="alert">
+            <p class="failure-text">This event failed to launch.</p>
+            <p class="failure-detail-text">
+              Please try again. Contact an administrator if it continues to fail.
+            </p>
           </div>
+          <div class="cssLayoutRowCenterCenter">
+            <!--
+              Present here for the same reason as on the Launch and Active cards: the events a
+              user was invited to are other people's events, and this user's own launch failing
+              says nothing about them. Leaving it out of this one branch made a single failed
+              attempt hide every invitation on this template.
+            -->
+            @if (userEvents.length > 0) {
+            <div>
+              <button mat-raised-button [matMenuTriggerFor]="join" class="event-button">
+                Join
+                <mat-icon svgIcon="ic_expand_more_black_24px"></mat-icon>
+              </button>
+              <mat-menu #join="matMenu" [overlapTrigger]="false">
+                @for (element of userEvents; track element) {
+                <button mat-menu-item (click)="rejoinEvent(element)">
+                  Invited By: {{ element.username }}
+                </button>
+                }
+              </mat-menu>
+            </div>
+            }
+            @if (!isIFrame) {
+            <button class="event-button" matButton="filled" (click)="launchEvent(eventTemplate.id)">
+              Launch Again
+            </button>
+            }
+          </div>
+          <label class="duration-label">Duration: {{ eventTemplate.durationHours }} hours</label>
         </div>
-        }
         }
         <!-- ACTIVE EVENT -->
         @case (ALLOY_CURRENT_EVENT_STATUS.LAUNCHED) {
@@ -245,61 +276,35 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                   <div class="small-font">
                     &nbsp;{{ element.internalStatus }}
                   </div>
-                  }
-                </mat-cell>
-              </ng-container>
-              <ng-container matColumnDef="lastLaunchStatus">
-                <mat-header-cell *matHeaderCellDef mat-sort-header>
-                  Last Launch
-                </mat-header-cell>
-                <mat-cell *matCellDef="let element">
-                  @if (element.lastLaunchStatus) {
-                  <div class="small-font">
-                    {{ element.lastLaunchStatus }}
-                    {{ element.lastLaunchInternalStatus }}
-                  </div>
-                  }
-                </mat-cell>
-              </ng-container>
-              <ng-container matColumnDef="lastEndStatus">
-                <mat-header-cell *matHeaderCellDef mat-sort-header>
-                  Last End Status</mat-header-cell>
-                <mat-cell *matCellDef="let element">
-                  @if (element.lastEndStatus) {
-                  <div class="small-font">
-                    {{ element.lastEndStatus }}
-                    {{ element.lastEndInternalStatus }}
-                  </div>
+                  <!-- Same indicator as the admin event list's Status column, so a failed row
+                       reads the same in both places. The tooltip stops at the fact of the
+                       failure: the diagnosis is admin-only. -->
+                  <mat-icon
+                    class="mdi-18px error-indicator"
+                    fontIcon="mdi-alert-circle-outline"
+                    matTooltip="This event failed"
+                    matTooltipPosition="right">
+                  </mat-icon>
                   }
                 </mat-cell>
               </ng-container>
               <ng-container matColumnDef="dateCreated">
                 <mat-header-cell *matHeaderCellDef mat-sort-header>
-                  Start Date Status</mat-header-cell>
+                  Launch Date</mat-header-cell>
                 <mat-cell *matCellDef="let element">
                   <div class="small-font">
                     {{ element.dateCreated | date: 'long' }}
                   </div>
                 </mat-cell>
               </ng-container>
-              <ng-container matColumnDef="endDate">
-                <mat-header-cell *matHeaderCellDef mat-sort-header> End Date </mat-header-cell>
-                <mat-cell *matCellDef="let element">
-                  <div class="small-font">
-                    {{ element.endDate | date: 'long' }}
-                  </div>
-                </mat-cell>
-              </ng-container>
               <ng-container matColumnDef="statusDate">
                 <mat-header-cell *matHeaderCellDef mat-sort-header>
-                  Last Status Date
+                  Status Date
                 </mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                  @if (element.status === 'Failed') {
                   <div class="small-font">
                     {{ element.statusDate | date: 'long' }}
                   </div>
-                  }
                 </mat-cell>
               </ng-container>
               <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>

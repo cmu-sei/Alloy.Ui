@@ -27,7 +27,9 @@ model/createEventCommand.ts
 model/design.ts
 model/designModule.ts
 model/directory.ts
+model/enlistUserCommand.ts
 model/event.ts
+model/eventErrorDetail.ts
 model/eventMembership.ts
 model/eventPermission.ts
 model/eventPermissionClaim.ts

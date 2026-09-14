@@ -16,6 +16,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   MatPaginator,
   PageEvent,
@@ -30,7 +31,11 @@ import {
   paginateRows,
   sortRows,
 } from 'src/app/datasource-utils';
-import { Event as AlloyEvent, EventService } from 'src/app/generated/alloy.api';
+import {
+  Event as AlloyEvent,
+  EventErrorDetail,
+  EventService,
+} from 'src/app/generated/alloy.api';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
@@ -68,6 +73,17 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
   expandedEventId: string | null = null;
   filterString: string;
 
+  /**
+   * The full diagnostic text is not on the Event view model - it can run to kilobytes of
+   * Terraform output - so it is fetched from GET /api/events/{id}/error-detail only when a
+   * row is expanded, and cached per event for as long as the list is open.
+   */
+  errorDetails = new Map<string, EventErrorDetail>();
+  loadingErrorDetailFor: string | null = null;
+
+  /** Empty when no CasterUIAddress is configured, in which case no Caster link is offered. */
+  casterUIAddress: string;
+
   editEventText = 'Edit Event';
   eventToEdit: AlloyEvent;
   eventDataSource = new MatTableDataSource<AlloyEvent>(new Array<AlloyEvent>());
@@ -99,8 +115,11 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
     private settingsService: ComnSettingsService,
     private permissionDataService: PermissionDataService,
     private eventDataService: EventDataService,
-    private eventQuery: EventQuery
+    private eventQuery: EventQuery,
+    public snackBar: MatSnackBar
   ) {
+    this.casterUIAddress = this.settingsService.settings.CasterUIAddress;
+
     // Set the topbar color from config file
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
       ? this.settingsService.settings.AppTopBarHexColor
@@ -295,6 +314,37 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
 
   selectEvent(id: string) {
     this.expandedEventId = this.expandedEventId === id ? null : id;
+
+    if (this.expandedEventId) {
+      this.loadErrorDetail(this.expandedEventId);
+    }
+  }
+
+  private loadErrorDetail(id: string) {
+    if (this.errorDetails.has(id) || this.loadingErrorDetailFor === id) {
+      return;
+    }
+
+    this.loadingErrorDetailFor = id;
+    this.eventService
+      .getEventErrorDetail(id)
+      .pipe(take(1))
+      .subscribe({
+        next: (detail) => {
+          this.errorDetails.set(id, detail);
+          this.loadingErrorDetailFor = null;
+        },
+        // A 403 here is normal - the endpoint needs system-wide ManageEvents, which an
+        // Event-scoped manager does not have - so leave the panel
+        // showing just the summary rather than surfacing an error the user cannot act on.
+        error: () => {
+          this.loadingErrorDetailFor = null;
+        },
+      });
+  }
+
+  errorDetail(id: string): string {
+    return this.errorDetails.get(id)?.errorDetail;
   }
 
   canEdit(id: string): boolean {

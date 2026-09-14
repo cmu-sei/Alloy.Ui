@@ -31,3 +31,22 @@
   border-color: var(--mat-sys-outline);
   border-width: 1px;
 }
+
+.save-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--mat-sys-error);
+}
+
+// Material sets pointer-events: none on disabled options, which would stop the tooltip
+// explaining why a view cannot be selected from ever opening. Re-enable it on the label only.
+::ng-deep .mat-mdc-option.mdc-list-item--disabled .view-option-label {
+  pointer-events: auto;
+}
+
+.no-default-team-text {
+  margin-left: 8px;
+  color: var(--mat-sys-on-surface-variant);
+}

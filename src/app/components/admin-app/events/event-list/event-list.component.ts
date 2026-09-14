@@ -11,17 +11,19 @@ import {
 import {
   Component,
   Input,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   MatPaginator,
   PageEvent,
 } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { map, take } from 'rxjs/operators';
+import { map, take, takeUntil } from 'rxjs/operators';
 import { Subject, Observable, of } from 'rxjs';
 import {
   fromMatPaginator,
@@ -29,10 +31,16 @@ import {
   paginateRows,
   sortRows,
 } from 'src/app/datasource-utils';
-import { Event as AlloyEvent, EventService } from 'src/app/generated/alloy.api';
+import {
+  Event as AlloyEvent,
+  EventErrorDetail,
+  EventService,
+} from 'src/app/generated/alloy.api';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { EventDataService } from 'src/app/data/event/event-data.service';
+import { EventQuery } from 'src/app/data/event/event.query';
 
 export interface Action {
   Value: string;
@@ -52,7 +60,7 @@ export interface Action {
   ],
   standalone: false
 })
-export class AdminEventListComponent implements OnInit {
+export class AdminEventListComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = [
     'actions',
     'name',
@@ -64,6 +72,17 @@ export class AdminEventListComponent implements OnInit {
   ];
   expandedEventId: string | null = null;
   filterString: string;
+
+  /**
+   * The full diagnostic text is not on the Event view model - it can run to kilobytes of
+   * Terraform output - so it is fetched from GET /api/events/{id}/error-detail only when a
+   * row is expanded, and cached per event for as long as the list is open.
+   */
+  errorDetails = new Map<string, EventErrorDetail>();
+  loadingErrorDetailFor: string | null = null;
+
+  /** Empty when no CasterUIAddress is configured, in which case no Caster link is offered. */
+  casterUIAddress: string;
 
   editEventText = 'Edit Event';
   eventToEdit: AlloyEvent;
@@ -88,13 +107,19 @@ export class AdminEventListComponent implements OnInit {
   @Input() refresh: Subject<boolean>;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private eventService: EventService,
     private dialog: MatDialog,
     private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
+    private eventDataService: EventDataService,
+    private eventQuery: EventQuery,
+    public snackBar: MatSnackBar
   ) {
+    this.casterUIAddress = this.settingsService.settings.CasterUIAddress;
+
     // Set the topbar color from config file
     this.topBarColor = this.settingsService.settings.AppTopBarHexColor
       ? this.settingsService.settings.AppTopBarHexColor
@@ -110,11 +135,17 @@ export class AdminEventListComponent implements OnInit {
   ngOnInit() {
     this.sortEvents$ = fromMatSort(this.sort);
     this.pageEvents$ = fromMatPaginator(this.paginator);
-    this.refresh.subscribe((shouldRefresh) => {
-      if (shouldRefresh) {
-        this.refreshEvents();
-      }
-    });
+    this.eventQuery
+      .selectAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((events) => this.updateEvents(events));
+    this.refresh
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe((shouldRefresh) => {
+        if (shouldRefresh) {
+          this.refreshEvents();
+        }
+      });
     this.refreshEvents();
   }
 
@@ -142,40 +173,47 @@ export class AdminEventListComponent implements OnInit {
   refreshEvents() {
     this.isLoading = true;
     this.eventToEdit = undefined;
-    this.eventService.getEvents().subscribe((events) => {
-      this.activeEvents.length = 0;
-      this.endedEvents.length = 0;
-      this.failedEvents.length = 0;
-      events.forEach((event) => {
-        event.launchDate = !event.launchDate
-          ? null
-          : new Date(event.launchDate);
-        event.endDate = !event.endDate ? null : new Date(event.endDate);
-        event.expirationDate = !event.expirationDate
-          ? null
-          : new Date(event.expirationDate);
-        event.statusDate = !event.statusDate
-          ? null
-          : new Date(event.statusDate);
-        switch (event.status) {
-          case 'Failed': {
-            this.failedEvents.push(event);
-            break;
-          }
-          case 'Ended':
-          case 'Expired': {
-            this.endedEvents.push(event);
-            break;
-          }
-          default: {
-            this.activeEvents.push(event);
-            break;
-          }
-        }
-      });
-      this.filterAndSort();
-      this.isLoading = false;
+    this.eventDataService.getAllEvents().pipe(take(1)).subscribe({
+      next: () => {
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
     });
+  }
+
+  private updateEvents(events: AlloyEvent[]) {
+    this.activeEvents.length = 0;
+    this.endedEvents.length = 0;
+    this.failedEvents.length = 0;
+    events.forEach((event) => {
+      const normalizedEvent: AlloyEvent = {
+        ...event,
+        launchDate: !event.launchDate ? null : new Date(event.launchDate),
+        endDate: !event.endDate ? null : new Date(event.endDate),
+        expirationDate: !event.expirationDate
+          ? null
+          : new Date(event.expirationDate),
+        statusDate: !event.statusDate ? null : new Date(event.statusDate),
+      };
+      switch (normalizedEvent.status) {
+        case 'Failed': {
+          this.failedEvents.push(normalizedEvent);
+          break;
+        }
+        case 'Ended':
+        case 'Expired': {
+          this.endedEvents.push(normalizedEvent);
+          break;
+        }
+        default: {
+          this.activeEvents.push(normalizedEvent);
+          break;
+        }
+      }
+    });
+    this.filterAndSort();
   }
 
   /**
@@ -276,6 +314,37 @@ export class AdminEventListComponent implements OnInit {
 
   selectEvent(id: string) {
     this.expandedEventId = this.expandedEventId === id ? null : id;
+
+    if (this.expandedEventId) {
+      this.loadErrorDetail(this.expandedEventId);
+    }
+  }
+
+  private loadErrorDetail(id: string) {
+    if (this.errorDetails.has(id) || this.loadingErrorDetailFor === id) {
+      return;
+    }
+
+    this.loadingErrorDetailFor = id;
+    this.eventService
+      .getEventErrorDetail(id)
+      .pipe(take(1))
+      .subscribe({
+        next: (detail) => {
+          this.errorDetails.set(id, detail);
+          this.loadingErrorDetailFor = null;
+        },
+        // A 403 here is normal - the endpoint needs system-wide ManageEvents, which an
+        // Event-scoped manager does not have - so leave the panel
+        // showing just the summary rather than surfacing an error the user cannot act on.
+        error: () => {
+          this.loadingErrorDetailFor = null;
+        },
+      });
+  }
+
+  errorDetail(id: string): string {
+    return this.errorDetails.get(id)?.errorDetail;
   }
 
   canEdit(id: string): boolean {
@@ -286,4 +355,8 @@ export class AdminEventListComponent implements OnInit {
     return this.permissionDataService.canManageEvent(id);
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

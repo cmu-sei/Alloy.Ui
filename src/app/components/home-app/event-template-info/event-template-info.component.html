@@ -104,6 +104,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <p class="failure-text">This event failed to launch.</p>
             <p class="failure-detail-text">
               Please try again. Contact an administrator if it continues to fail.
+              <!-- The identifiers an administrator needs are not shown on the card - they are
+                   noise to a user who just wants to launch again - but they are one click from
+                   it, on the clipboard, with the tooltip showing what will be copied. -->
+              <button mat-icon-button class="failure-copy-button" ngxClipboard
+                [cbContent]="failureReportText(currentEvent, eventTemplate)"
+                (cbOnSuccess)="snackBar.open('Copied to clipboard', 'Dismiss')"
+                [matTooltip]="failureReportText(currentEvent, eventTemplate)"
+                aria-label="Copy failure details">
+                <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+              </button>
             </p>
           </div>
           <div class="cssLayoutRowCenterCenter">
@@ -285,6 +295,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                     matTooltip="This event failed"
                     matTooltipPosition="right">
                   </mat-icon>
+                  <!-- Same report as the failure card, for any past attempt: a user who has
+                       since launched again can still copy the details of the one that broke. -->
+                  <button mat-icon-button class="failure-copy-button" ngxClipboard
+                    [cbContent]="failureReportText(element, eventTemplate)"
+                    (cbOnSuccess)="snackBar.open('Copied to clipboard', 'Dismiss')"
+                    [matTooltip]="failureReportText(element, eventTemplate)"
+                    matTooltipPosition="right"
+                    aria-label="Copy failure details">
+                    <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+                  </button>
                   }
                 </mat-cell>
               </ng-container>

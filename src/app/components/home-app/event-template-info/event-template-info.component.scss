@@ -123,6 +123,17 @@
   max-width: 640px;
 }
 
+// Sized like the admin event list's .error-copy-button so a copy affordance is the same size
+// wherever a failure is reported. A default 40px icon button would out-measure the 18px alert
+// icon it sits beside in the history row and break the line height of the paragraph it ends.
+.failure-copy-button {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  padding: 0;
+  vertical-align: middle;
+}
+
 .title-text {
   margin-left: 20px;
 }

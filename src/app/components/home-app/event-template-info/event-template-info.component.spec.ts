@@ -2,6 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { ChangeDetectorRef } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import {
   ComnAuthQuery,
@@ -18,7 +19,10 @@ import { UserEventsQuery } from 'src/app/data/event/user-events.query';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
-import { Event as AlloyEvent } from 'src/app/generated/alloy.api';
+import {
+  Event as AlloyEvent,
+  EventTemplate,
+} from 'src/app/generated/alloy.api';
 import { ALLOY_CURRENT_EVENT_STATUS } from 'src/app/shared/models/enums';
 import { SignalRService } from 'src/app/shared/signalr/signalr.service';
 import { EventTemplateInfoComponent } from './event-template-info.component';
@@ -69,7 +73,9 @@ describe('EventTemplateInfoComponent', () => {
         loadGroupPermissions: () => of([]),
         permissions: [],
         canViewAdministration: () => false,
-      } as unknown as PermissionDataService
+      } as unknown as PermissionDataService,
+      { open: () => undefined } as unknown as MatSnackBar,
+      'en-US'
     );
   });
 
@@ -206,5 +212,70 @@ describe('EventTemplateInfoComponent', () => {
     ]);
 
     expect(component.currentEvent).toBeNull();
+  });
+
+  // The card tells the user only that the launch broke, so this string is the entire report an
+  // administrator gets. All four identifiers have to be in it, or the failure cannot be found.
+  it('builds a copyable failure report from the event, template, user and status date', () => {
+    const text = component.failureReportText(
+      {
+        id: 'event-1',
+        userId: USER_ID,
+        username: 'Alex Doe',
+        eventTemplateId: TEMPLATE_ID,
+        status: 'Failed',
+        statusDate: new Date('2026-09-01T12:00:00Z'),
+      } as unknown as AlloyEvent,
+      { id: TEMPLATE_ID, name: 'Cyber Range 101' } as EventTemplate
+    );
+
+    // Names for whoever reads the report, ids for whoever has to query on them.
+    expect(text).toContain(
+      'Event event-1 launched from event template Cyber Range 101 (template-1)'
+    );
+    expect(text).toContain('has failed to launch for user Alex Doe (user-1) at ');
+    expect(text).toContain('September 1, 2026');
+  });
+
+  // The /view route resolves the current event by viewId, so the event on screen need not belong
+  // to the template on screen. Naming that template anyway would misdirect the report.
+  it('omits the template name when the page template is not the event template', () => {
+    const text = component.failureReportText(
+      {
+        id: 'event-1',
+        userId: USER_ID,
+        eventTemplateId: 'another-template',
+        status: 'Failed',
+      } as unknown as AlloyEvent,
+      { id: TEMPLATE_ID, name: 'Cyber Range 101' } as EventTemplate
+    );
+
+    expect(text).toContain('launched from event template another-template has');
+    expect(text).not.toContain('Cyber Range 101');
+  });
+
+  // username is nullable on Event; an empty name in front of the id would read as a defect.
+  it('reports the user id alone when the event carries no username', () => {
+    const text = component.failureReportText({
+      id: 'event-1',
+      userId: USER_ID,
+      eventTemplateId: TEMPLATE_ID,
+      status: 'Failed',
+    } as unknown as AlloyEvent);
+
+    expect(text).toContain('has failed to launch for user user-1 at ');
+  });
+
+  // Event.eventTemplateId is nullable, and a report naming no template is not actionable; the
+  // page always knows which template it is showing, so fall back to that.
+  it('falls back to the page template when the event carries no template id', () => {
+    const text = component.failureReportText(
+      { id: 'event-1', userId: USER_ID, status: 'Failed' } as AlloyEvent,
+      { id: TEMPLATE_ID, name: 'Cyber Range 101' } as EventTemplate
+    );
+
+    expect(text).toContain(
+      'launched from event template Cyber Range 101 (template-1)'
+    );
   });
 });

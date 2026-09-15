@@ -177,10 +177,17 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
     });
     dialogRef.componentInstance.editComplete.subscribe((result) => {
       if (result.action === 'save' || result.action === 'clone') {
+        // Close only once the create has been accepted. The API rejects a template whose
+        // Player View has no default team, and closing first would discard the edits and
+        // leave the user with no idea the save never happened.
         this.eventTemplateDataService
           .addNew(result.eventTemplate)
           .pipe(take(1))
-          .subscribe();
+          .subscribe({
+            next: () => dialogRef.close(),
+            error: (err) => dialogRef.componentInstance.showSaveError(err),
+          });
+        return;
       }
       dialogRef.close();
     });
@@ -212,15 +219,25 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
         });
         dialogRef.componentInstance.editComplete.subscribe((result) => {
           switch (result.action) {
+            // Both of these can be rejected by the API, so they close the dialog
+            // themselves once the request succeeds and report the reason if it does not.
             case 'clone':
               this.eventTemplateDataService
                 .addNew(result.eventTemplate)
                 .pipe(take(1))
-                .subscribe();
-              break;
+                .subscribe({
+                  next: () => dialogRef.close(),
+                  error: (err) => dialogRef.componentInstance.showSaveError(err),
+                });
+              return;
             case 'save':
-              this.eventTemplateDataService.update(result.eventTemplate);
-              break;
+              this.eventTemplateDataService
+                .update(result.eventTemplate)
+                .subscribe({
+                  next: () => dialogRef.close(),
+                  error: (err) => dialogRef.componentInstance.showSaveError(err),
+                });
+              return;
             case 'delete':
               this.eventTemplateDataService.delete(result.eventTemplate.id);
               break;

@@ -9,4 +9,13 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </mat-progress-spinner>
     Adding you to the event
   </mat-card>
+} @else if (errorMessage) {
+  <mat-card appearance="outlined" class="enlist-error" role="alert">
+    <div class="enlist-error-message">
+      <mat-icon class="mdi-24px" fontIcon="mdi-alert-circle-outline"
+        aria-hidden="true"></mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+    <a matButton="outlined" routerLink="/templates">Back to Event Templates</a>
+  </mat-card>
 }

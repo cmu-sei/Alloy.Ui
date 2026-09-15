@@ -40,13 +40,17 @@ export class EventTemplateDataService {
     );
   }
 
-  update(eventTemplate: EventTemplate) {
-    this.eventTemplateService
+  /**
+   * Returns the request rather than subscribing to it, so callers can tell a rejected save
+   * (the API refuses a Player View with no default team) from a successful one.
+   */
+  update(eventTemplate: EventTemplate): Observable<EventTemplate> {
+    return this.eventTemplateService
       .updateEventTemplate(eventTemplate.id, eventTemplate)
-      .pipe(take(1))
-      .subscribe((x) => {
-        this.stateUpdate(x);
-      });
+      .pipe(
+        tap((x) => this.stateUpdate(x)),
+        take(1)
+      );
   }
 
   delete(eventTemplateId: string) {

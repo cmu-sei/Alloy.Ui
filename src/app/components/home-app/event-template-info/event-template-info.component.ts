@@ -4,11 +4,15 @@
 import {
   ChangeDetectorRef,
   Component,
+  Inject,
   Input,
+  LOCALE_ID,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { formatDate } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import {
@@ -119,7 +123,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     private signalRService: SignalRService,
     private clipboardService: ClipboardService,
     private changeDetector: ChangeDetectorRef,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
+    public snackBar: MatSnackBar,
+    @Inject(LOCALE_ID) private locale: string
   ) {
     this.titleText = this.settingsService.settings.AppTopBarText;
     this.theme$ = this.authQuery.userTheme$;
@@ -334,6 +340,48 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   }
   copyInviteLink(event: AlloyEvent) {
     this.clipboardService.copy(this.getInviteLink(event));
+  }
+
+  /**
+   * What the copy button on a failure puts on the clipboard, and what its tooltip shows. The
+   * card itself stays deliberately generic - the diagnosis is admin-only - so this line is the
+   * whole of what a user can hand an administrator: the four identifiers needed to find the
+   * failure in the admin event list. Same text on the card and on a history row, so a report
+   * reads the same whichever one the user copied from.
+   * <p>
+   * The status date is formatted the same way the history table formats its own Status Date
+   * column, so a pasted report matches what the user is looking at. pageEventTemplate is the
+   * template this page is showing: it supplies the name, which Event does not carry, and its id
+   * as a fallback, since eventTemplateId is nullable on Event.
+   */
+  failureReportText(
+    event: AlloyEvent,
+    pageEventTemplate?: EventTemplate
+  ): string {
+    const eventTemplateId =
+      event?.eventTemplateId ?? pageEventTemplate?.id ?? 'unknown';
+    // Only name the template when the page's template is the event's template. The /view route
+    // resolves the current event by viewId, which is not guaranteed to be an event of the
+    // template on screen, and a report naming the wrong template misdirects the reader.
+    const eventTemplateName =
+      pageEventTemplate?.id === eventTemplateId ? pageEventTemplate?.name : null;
+    const eventTemplate = eventTemplateName
+      ? `${eventTemplateName} (${eventTemplateId})`
+      : eventTemplateId;
+    const statusDate = event?.statusDate
+      ? formatDate(event.statusDate, 'long', this.locale)
+      : 'unknown';
+    const userId = event?.userId ?? 'unknown';
+    // The name is what a human reads in a ticket, the id is what an administrator queries on, so
+    // the report carries both. username is nullable on Event: with no name there is nothing to
+    // put in front of the id, and "unknown (<id>)" would only add noise.
+    const user = event?.username ? `${event.username} (${userId})` : userId;
+
+    return (
+      `Event ${event?.id ?? 'unknown'} launched from event template ` +
+      `${eventTemplate} has failed to launch for user ` +
+      `${user} at ${statusDate}.`
+    );
   }
   /**
    * Picks the one event this page is about. A Failed event counts, because a user whose

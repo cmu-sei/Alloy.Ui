@@ -44,20 +44,34 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <mat-form-field class="full-width">
         <mat-label>Player View Template</mat-label>
         @if (data.canEdit) {
-        <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView" />
+        <input matInput type="text" [formControl]="viewSearchControl" [matAutocomplete]="autoView"
+          [errorStateMatcher]="viewMatcher" />
         <mat-autocomplete #autoView="matAutocomplete" ngDefaultControl [displayWith]="selectedViewName"
           [(ngModel)]="data.eventTemplate.viewId"
           (optionSelected)="saveEventIds($event, 'viewId')" (opened)="filterViews()">
           <mat-option [value]="null">None</mat-option>
           @for (view of filteredViewList | async; track view) {
-          <mat-option [value]="view.id">
-            {{ view.name }}
+          <mat-option [value]="view.id" [disabled]="!view.defaultTeamId">
+            <span class="view-option-label"
+              [matTooltip]="view.defaultTeamId ? '' : noDefaultTeamTooltip"
+              matTooltipPosition="right">
+              {{ view.name }}
+              @if (!view.defaultTeamId) {
+              <span class="no-default-team-text">&mdash; no default team</span>
+              }
+            </span>
           </mat-option>
           }
         </mat-autocomplete>
         } @else {
         <input matInput type="text" [value]="viewSearchControl.value"
           [disabled]="true" />
+        }
+        @if (selectedViewLacksDefaultTeam) {
+        <mat-error>
+          Player View has no default team. Set one on the view in Player, or choose a
+          different view.
+        </mat-error>
         }
         <button mat-icon-button matSuffix ngxClipboard [cbContent]="data.eventTemplate.viewId"
           (click)="$event.stopPropagation()"
@@ -138,19 +152,29 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         [disabled]="!data.canEdit">Use Dynamic
         Host</mat-checkbox>
     </div>
+    @if (saveError) {
+    <div class="save-error" role="alert">
+      <mat-icon class="mdi-20px" fontIcon="mdi-alert-circle-outline"
+        aria-hidden="true"></mat-icon>
+      <span>{{ saveError }}</span>
+    </div>
+    }
   </div>
   }
 
   <div crucibleDialogActions class="bottom-button">
     <button matButton="outlined" (click)="handleEditComplete(false)">Cancel</button>
     <button matButton="filled" (click)="handleEditComplete(true)"
-      [disabled]="!data.canEdit">Save</button>
+      [disabled]="!data.canEdit || selectedViewLacksDefaultTeam">Save</button>
     @if (!data.isNew) {
     <span class="spacer"></span>
-    <button matButton="outlined" (click)="cloneEventTemplate()"
-      [disabled]="!data.canCreate">
-      Clone
-    </button>
+    <span
+      [matTooltip]="selectedViewLacksDefaultTeam ? 'Cannot clone: the Player View has no default team' : 'Clone this event template'">
+      <button matButton="outlined" (click)="cloneEventTemplate()"
+        [disabled]="!data.canCreate || selectedViewLacksDefaultTeam">
+        Clone
+      </button>
+    </span>
     <span
       [matTooltip]="data.hasEvents ? 'Cannot delete template with existing events' : 'Delete this event template'">
       <button matButton="outlined" (click)="deleteEventTemplate()"

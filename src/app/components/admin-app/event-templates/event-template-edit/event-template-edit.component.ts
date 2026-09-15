@@ -41,6 +41,18 @@ export class UserErrorStateMatcher implements ErrorStateMatcher {
   }
 }
 
+/**
+ * Error as soon as the control is invalid, without waiting for the user to touch it. Used for the
+ * Player View field, where the problem is with a value that was already saved - the user has
+ * nothing to dirty, so the default "dirty or submitted" rule would hide the reason Save is
+ * disabled.
+ */
+export class ImmediateErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: UntypedFormControl | null): boolean {
+    return !!(control && control.invalid);
+  }
+}
+
 @Component({
     selector: 'app-event-template-edit',
     templateUrl: './event-template-edit.component.html',
@@ -78,7 +90,20 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public isPublishedFormControl = new UntypedFormControl('', []);
   public useDynamicHostFormControl = new UntypedFormControl('', []);
   public matcher = new UserErrorStateMatcher();
-  public viewSearchControl = new UntypedFormControl('', []);
+  public viewMatcher = new ImmediateErrorStateMatcher();
+  /**
+   * Shown on Player View options that cannot be chosen. Also duplicated as visible text in the
+   * option, because Material sets pointer-events: none on disabled options and mat-autocomplete
+   * navigates with aria-activedescendant rather than focus, so a tooltip alone would be
+   * unreachable by keyboard and screen reader users.
+   */
+  public noDefaultTeamTooltip =
+    'This view cannot be selected because it has no default team. ' +
+    'Set a default team on the view in Player first.';
+  public saveError: string | null = null;
+  public viewSearchControl = new UntypedFormControl('', [
+    () => (this.selectedViewLacksDefaultTeam ? { noDefaultTeam: true } : null),
+  ]);
   public directorySearchControl = new UntypedFormControl('', []);
   public scenarioTemplateSearchControl = new UntypedFormControl('', []);
   private unsubscribe$ = new Subject();
@@ -105,6 +130,9 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     this.data.viewList.pipe(takeUntil(this.unsubscribe$)).subscribe((views) => {
       this._viewList = views;
       this.viewSearchControl.setValue(this.viewSearchControl.value);
+      // The list is what tells us whether the selected view has a default team, so the
+      // Player View field's validity can only be settled once it has arrived.
+      this.viewSearchControl.updateValueAndValidity({ emitEvent: false });
     });
     this.data.directoryList
       .pipe(takeUntil(this.unsubscribe$))
@@ -184,6 +212,21 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * True only when we can prove the selected view is unusable: it is set, we found it in the
+   * list, and it has no default team. A view that is missing from the list (deleted, or not
+   * visible to this user) deliberately does not block, because we cannot know either way - the
+   * API validates on save and the error surfaces through saveError.
+   */
+  get selectedViewLacksDefaultTeam(): boolean {
+    const viewId = this.data?.eventTemplate?.viewId;
+    if (!viewId) {
+      return false;
+    }
+    const view = this._viewList.find((v) => v.id === viewId);
+    return !!view && !view.defaultTeamId;
+  }
+
   get dialogTitle(): string {
     if (this.data.isNew) {
       return 'Create New Event Template';
@@ -207,6 +250,8 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         }
         this.viewSearchControl.setValue('');
         this.viewIdFormControl.setValue(this.data.eventTemplate.viewId);
+        this.viewSearchControl.updateValueAndValidity({ emitEvent: false });
+        this.saveError = null;
         break;
       case 'directoryId':
         if (this.data.eventTemplate.directoryId !== event.option.value) {
@@ -364,6 +409,12 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
       if (this.durationHoursFormControl.invalid) {
         return;
       }
+      // The Save button is disabled in this case; guard anyway so the API's 400 is a
+      // backstop rather than the first thing the user sees.
+      if (this.selectedViewLacksDefaultTeam) {
+        return;
+      }
+      this.saveError = null;
       this.data.eventTemplate.durationHours =
         parseInt(this.durationHoursFormControl.value, 10);
       this.editComplete.emit({
@@ -371,6 +422,18 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         eventTemplate: this.data.eventTemplate,
       });
     }
+  }
+
+  /**
+   * Called by the parent when a save or clone was rejected, so the dialog can stay open with the
+   * reason instead of closing as though it had succeeded.
+   *
+   * Reads only ProblemDetails.title - that is the validation message the API produced. Never
+   * ProblemDetails.detail, which for a 500 outside development holds the raw exception message.
+   */
+  showSaveError(error: any): void {
+    this.saveError =
+      error?.error?.title ?? 'Could not save the event template. Please try again.';
   }
 
   ngOnDestroy() {

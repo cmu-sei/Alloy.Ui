@@ -2,11 +2,11 @@
 Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
-<mat-toolbar class="toolbar" [style.backgroundColor]="'var(--mat-sys-primary)'"
-  [style.color]="'var(--mat-sys-on-primary)'">
+<mat-toolbar class="toolbar" [style.backgroundColor]="'var(--app-topbar-background)'"
+  [style.color]="'var(--app-topbar-text)'">
   <mat-toolbar-row>
     <span class="margin-auto">
-      <a mat-icon-button style="outline: none; background-color: var(--mat-sys-on-primary);" [routerLink]="['/']" title="Home">
+      <a mat-icon-button style="outline: none; background-color: var(--app-topbar-text);" [routerLink]="['/']" title="Home">
         <mat-icon svgIcon="ic_crucible_alloy"></mat-icon>
       </a>
     </span>
@@ -33,7 +33,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     @if (currentUser$ | async; as currentUser) {
     <div class="user-text">
       <button mat-button class="menu-trigger" [matMenuTriggerFor]="menu" style="outline: none"
-        [style.color]="'var(--mat-sys-on-primary)'">
+        [style.color]="'var(--app-topbar-text)'">
         <strong>{{ currentUser.name }}</strong>
         <mat-icon aria-hidden="false" class="menu-trigger" fontIcon="mdi-chevron-down"></mat-icon>
       </button>

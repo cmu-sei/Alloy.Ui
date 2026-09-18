@@ -136,18 +136,87 @@ export class AppComponent implements OnDestroy {
   }
 
   setTheme(theme: Theme) {
-    document.body.classList.toggle('darkMode', theme === Theme.DARK);
-    const topBarColor = this.settingsService.settings?.AppTopBarHexColor || '#C41230';
-    const topBarTextColor = this.settingsService.settings?.AppTopBarHexTextColor || '#FFFFFF';
-    if (topBarColor) {
-      document.documentElement.style.setProperty('--mat-sys-primary', topBarColor);
-      document.body.style.setProperty('--mat-sys-primary', topBarColor);
-      this.updateFavicon(topBarColor);
-    }
-    if (topBarTextColor) {
-      document.documentElement.style.setProperty('--mat-sys-on-primary', topBarTextColor);
-      document.body.style.setProperty('--mat-sys-on-primary', topBarTextColor);
-    }
+    const isDark = theme === Theme.DARK;
+    document.body.classList.toggle('darkMode', isDark);
+
+    const topBarColor =
+      this.settingsService.settings?.AppTopBarHexColor || '#C41230';
+    const topBarTextColor =
+      this.settingsService.settings?.AppTopBarHexTextColor || '#FFFFFF';
+
+    const root = document.documentElement.style;
+    const body = document.body.style;
+
+    // The top bar always shows the configured brand color, in either theme, via
+    // its own tokens. It used to reuse Material's `primary` role for this, but
+    // `primary` also tints meaningful action icons (see icon-button-overrides in
+    // styles.scss), so conflating the two forced every action icon to the brand
+    // color everywhere.
+    root.setProperty('--app-topbar-background', topBarColor);
+    body.setProperty('--app-topbar-background', topBarColor);
+    root.setProperty('--app-topbar-text', topBarTextColor);
+    body.setProperty('--app-topbar-text', topBarTextColor);
+    this.updateFavicon(topBarColor);
+
+    // The brand color reads fine as the action-icon tint on the light surface,
+    // but on the dark surface it falls to ~2:1 — below the WCAG 1.4.11 3:1
+    // non-text-contrast minimum. In dark mode we lighten it (and flip on-primary
+    // to a contrasting tone for filled-primary elements); light mode keeps the
+    // brand color unchanged.
+    const primary = isDark ? this.lighten(topBarColor, 0.4) : topBarColor;
+    const onPrimary = isDark ? this.bestTextColor(primary) : topBarTextColor;
+    root.setProperty('--mat-sys-primary', primary);
+    body.setProperty('--mat-sys-primary', primary);
+    root.setProperty('--mat-sys-on-primary', onPrimary);
+    body.setProperty('--mat-sys-on-primary', onPrimary);
+  }
+
+  /** Blend a hex color toward white by `ratio` (0–1) to lighten it. */
+  private lighten(hex: string, ratio: number): string {
+    const mix = (c: number) => Math.round(c + (255 - c) * ratio);
+    const [r, g, b] = this.parseHex(hex);
+    return this.toHex(mix(r), mix(g), mix(b));
+  }
+
+  /** Return black or white — whichever contrasts more with `hex`. */
+  private bestTextColor(hex: string): string {
+    return this.contrast(hex, '#000000') >= this.contrast(hex, '#FFFFFF')
+      ? '#000000'
+      : '#FFFFFF';
+  }
+
+  private parseHex(hex: string): [number, number, number] {
+    const h = hex.replace('#', '');
+    return [
+      parseInt(h.slice(0, 2), 16),
+      parseInt(h.slice(2, 4), 16),
+      parseInt(h.slice(4, 6), 16),
+    ];
+  }
+
+  private toHex(r: number, g: number, b: number): string {
+    return (
+      '#' +
+      [r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')
+    );
+  }
+
+  /** WCAG relative luminance of a hex color. */
+  private relativeLuminance(hex: string): number {
+    const [r, g, b] = this.parseHex(hex).map((c) => {
+      const s = c / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
+  /** WCAG contrast ratio between two hex colors. */
+  private contrast(a: string, b: string): number {
+    const la = this.relativeLuminance(a);
+    const lb = this.relativeLuminance(b);
+    const hi = Math.max(la, lb);
+    const lo = Math.min(la, lb);
+    return (hi + 0.05) / (lo + 0.05);
   }
 
   private updateFavicon(color: string) {

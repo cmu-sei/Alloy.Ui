@@ -37,12 +37,28 @@ export class EventDataService implements OnDestroy {
 
   stateCreate(event: AlloyEvent) {
     this.eventStore.upsert(event.id, event);
+    // Only add non-terminal events to user events store
+    if (this.isActiveEvent(event)) {
+      this.userEventsStore.upsert(event.id, event);
+    }
   }
   stateUpdate(event: AlloyEvent) {
     this.eventStore.update(event.id, event);
+    // Remove from user events if it transitioned to terminal state
+    if (this.isActiveEvent(event)) {
+      this.userEventsStore.update(event.id, event);
+    } else {
+      this.userEventsStore.remove(event.id);
+    }
   }
   stateDelete(event: AlloyEvent) {
     this.eventStore.remove(event.id);
+    this.userEventsStore.remove(event.id);
+  }
+
+  private isActiveEvent(event: AlloyEvent): boolean {
+    // Exclude terminal statuses from user events store
+    return event.status !== 'Ended' && event.status !== 'Failed' && event.status !== 'Expired';
   }
 
   launchEvent(templateId: string) {
@@ -50,6 +66,7 @@ export class EventDataService implements OnDestroy {
       take(1),
       tap((event) => {
         this.eventStore.upsert(event.id, event);
+        this.userEventsStore.upsert(event.id, event);
       })
     );
   }
@@ -96,9 +113,9 @@ export class EventDataService implements OnDestroy {
     );
   }
 
-  getUserEvents() {
+  getUserEvents(includeEnded?: boolean, days?: number) {
     return this.eventService
-      .getMyEvents()
+      .getMyEvents(includeEnded, days)
       .pipe(tap((events) => this.userEventsStore.upsertMany(events)));
   }
 

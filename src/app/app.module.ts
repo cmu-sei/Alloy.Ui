@@ -85,6 +85,8 @@ import { TopbarComponent } from './components/shared/top-bar/topbar.component';
 import { BASE_PATH } from './generated/alloy.api';
 import { ApiModule as SwaggerCodegenApiModule } from './generated/alloy.api/api.module';
 import { SignalRService } from './shared/signalr/signalr.service';
+import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
+import { environment } from '../environments/environment';
 
 const settings: ComnSettingsConfig = {
   url: 'assets/config/settings.json',
@@ -131,7 +133,8 @@ export class AngularMaterialModule {}
         AdminUserListComponent,
         NameDialogComponent,
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+    bootstrap: [AppComponent], imports: [environment.production ? [] : AkitaNgDevtools.forRoot(),
+        BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,
         SwaggerCodegenApiModule,

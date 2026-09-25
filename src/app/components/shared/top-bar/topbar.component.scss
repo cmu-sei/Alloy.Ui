@@ -32,12 +32,12 @@
 }
 
 .menu-trigger {
-  color: var(--mat-sys-on-primary);
+  color: var(--app-topbar-text);
 }
 
 .margin-auto button mat-icon,
 .margin-auto a mat-icon {
-  color: var(--mat-sys-primary);
+  color: var(--app-topbar-background);
 }
 
 a,

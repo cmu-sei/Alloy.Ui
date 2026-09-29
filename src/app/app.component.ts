@@ -1,22 +1,18 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, DOCUMENT, inject, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
   ComnAuthQuery,
   ComnAuthService,
-  ComnSettingsService,
+  CrucibleThemeService,
   Theme,
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  applyThemeColors,
-  resolveThemeColors,
-} from './shared/theme/theme-settings';
 
 @Component({
     selector: 'app-root',
@@ -28,7 +24,6 @@ export class AppComponent implements OnDestroy {
   theme$: Observable<Theme> = this.authQuery.userTheme$;
   private paramTheme;
   unsubscribe$: Subject<null> = new Subject<null>();
-  private readonly document = inject(DOCUMENT);
 
   constructor(
     iconRegistry: MatIconRegistry,
@@ -37,7 +32,7 @@ export class AppComponent implements OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private authService: ComnAuthService,
-    private settingsService: ComnSettingsService,
+    private themeService: CrucibleThemeService,
   ) {
     iconRegistry.setDefaultFontSetClass('mdi');
 
@@ -141,27 +136,7 @@ export class AppComponent implements OnDestroy {
   }
 
   setTheme(theme: Theme) {
-    const isDark = theme === Theme.DARK;
-    this.document.body.classList.toggle('darkMode', isDark);
-
-    // See the module doc comment in shared/theme/theme-settings for why the top
-    // bar and Material's `primary` role resolve to different colors in dark mode.
-    const colors = resolveThemeColors(this.settingsService.settings, isDark);
-    applyThemeColors(colors, this.document);
-    this.updateFavicon(colors.topBarBackground);
-  }
-
-  private updateFavicon(color: string) {
-    const link =
-      this.document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (!link) return;
-    fetch(link.href)
-      .then(res => res.text())
-      .then(svg => {
-        const colored = svg.replace(/\.cls-1\{[^}]*\}/, `.cls-1{fill:${color};}`);
-        const blob = new Blob([colored], { type: 'image/svg+xml' });
-        link.href = URL.createObjectURL(blob);
-      });
+    this.themeService.applyTheme(theme);
   }
 
   ngOnDestroy() {

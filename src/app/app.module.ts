@@ -46,6 +46,7 @@ import {
   ComnSettingsService,
   ComnHeaderBarModule,
   CRUCIBLE_DIALOG_IMPORTS,
+  provideCrucibleTheme,
 } from '@cmusei/crucible-common';
 import { ClipboardModule } from 'ngx-clipboard';
 import { AppRoutingModule } from './app-routing.module';
@@ -187,6 +188,7 @@ export class AngularMaterialModule {}
             deps: [ComnSettingsService],
         },
         provideHttpClient(withInterceptorsFromDi()),
+        provideCrucibleTheme({ brand: { color: '#006B6D', text: '#FFFFFF' } }),
     ] })
 export class AppModule {}
 

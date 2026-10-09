@@ -1,10 +1,12 @@
 # Alloy UI Readme
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.4.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) and uses Angular 21 (`@angular/core` and `@angular/cli` `^21.2.13`). Node.js `^20.19.0 || ^22.12.0 || >=24.0.0` is required by Angular 21; the Dockerfile builds with `node:24-alpine`.
+
+Run `npm ci` (or `npm install`) first. The Angular CLI is a local devDependency, so use the `npm` scripts below instead of a global `ng`.
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Run `npm start` (`ng serve`) for a dev server. Navigate to `http://localhost:4403/` (port set in `angular.json`). Runtime configuration is read from `src/assets/config/settings.json`. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
@@ -12,7 +14,7 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `npm run build` (`ng build`) to build the project. The build artifacts will be stored in the `dist/browser` directory. Use `--configuration production` for an optimized production build (the `--prod` flag no longer exists; the default build configuration is not optimized).
 
 ## Running unit tests
 
@@ -29,7 +31,7 @@ Shared test helpers (`renderComponent`, `getDefaultProviders`, `permissionDataPr
 
 ## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+The `e2e` target in `angular.json` still references the `@angular-devkit/build-angular:protractor` builder, which is not available in current Angular versions, so `ng e2e` does not work on this branch. Likewise `npm run lint` (`ng lint`) targets the removed `@angular-devkit/build-angular:tslint` builder.
 
 ## Further help on Angular CLI
 

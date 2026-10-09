@@ -132,7 +132,7 @@ describe('AdminAppComponent', () => {
     /**
      * Verifies: each sidebar section appears only for the permission that gates it; each single-permission row is the near miss for every other section.
      * Interacts with: real PermissionDataService list gates, rendered mat-list.
-     * Data: one grant per case, from resource-scoped claims only (the same permissions on one event, template and group, which open no section) through every system permission.
+     * Data: one grant per case, from resource-scoped claims only (the same permissions on one event, template and group, which open no section) through every View system permission; ExecuteEvents and CreateEvents alone each open Events through the endsWith('Events') list gate.
      */
     it.each<{ label: string; grants: PermissionGrants; expected: string[] }>([
       {
@@ -162,6 +162,16 @@ describe('AdminAppComponent', () => {
       {
         label: 'ViewEvents',
         grants: { system: ['ViewEvents'] },
+        expected: ['Events'],
+      },
+      {
+        label: 'ExecuteEvents',
+        grants: { system: ['ExecuteEvents'] },
+        expected: ['Events'],
+      },
+      {
+        label: 'CreateEvents',
+        grants: { system: ['CreateEvents'] },
         expected: ['Events'],
       },
       {
@@ -255,6 +265,31 @@ describe('AdminAppComponent', () => {
       const { shown } = await renderAdminApp({
         grants,
         queryParams: { section: 'Users' },
+      });
+
+      expect(shown()).toEqual(expected);
+    });
+
+    /**
+     * Verifies: ?section=Events opens the event list for an ExecuteEvents holder and shows nothing for ManageEventTemplates, a permission of the neighbouring template family.
+     * Interacts with: ActivatedRoute.queryParams (activatedRouteStub), the canViewEvents() section gate, real PermissionDataService.canViewEventList, child stubs.
+     * Data: section=Events with exactly ExecuteEvents (allowed), then with exactly ManageEventTemplates (denied near miss).
+     */
+    it.each<{ label: string; grants: PermissionGrants; expected: string[] }>([
+      {
+        label: 'opens Events with ExecuteEvents',
+        grants: { system: ['ExecuteEvents'] },
+        expected: ['app-events'],
+      },
+      {
+        label: 'shows nothing with ManageEventTemplates',
+        grants: { system: ['ManageEventTemplates'] },
+        expected: [],
+      },
+    ])('?section=Events $label', async ({ grants, expected }) => {
+      const { shown } = await renderAdminApp({
+        grants,
+        queryParams: { section: 'Events' },
       });
 
       expect(shown()).toEqual(expected);

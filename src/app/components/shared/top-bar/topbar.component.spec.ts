@@ -4,7 +4,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -29,6 +28,7 @@ import { TopbarView } from './topbar.models';
 async function renderTopbar(
   overrides: {
     topbarView?: TopbarView;
+    team?: { id: string; name: string; canManage: boolean };
     grants?: PermissionGrants;
     providers?: AnyProvider[];
   } = {},
@@ -66,6 +66,7 @@ async function renderTopbar(
     componentProperties: {
       title: 'Alloy',
       topbarView: overrides.topbarView ?? TopbarView.ALLOY_HOME,
+      team: overrides.team,
     },
   });
 
@@ -160,6 +161,50 @@ describe('TopbarComponent', () => {
       ).toBeInTheDocument();
       expect(
         screen.queryByRole('menuitem', { name: 'Administration' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Edit View entry', () => {
+    /**
+     * Verifies: a team the user can manage puts Edit View in the user menu, and choosing it emits editView.
+     * Interacts with: team input (canManage), editView output; menu opened via user click.
+     * Data: team t1 with canManage true.
+     */
+    it('is shown for a team with canManage and emits editView', async () => {
+      const { openUserMenu, user, fixture } = await renderTopbar({
+        team: { id: 't1', name: 'Blue', canManage: true },
+      });
+      let edits = 0;
+      fixture.componentInstance.editView.subscribe(() => edits++);
+
+      await openUserMenu();
+      await user.click(screen.getByRole('menuitem', { name: 'Edit View' }));
+
+      expect(edits).toBe(1);
+    });
+
+    /**
+     * Verifies: without a manageable team, the user menu has no Edit View item.
+     * Interacts with: team input (canManage); menu opened via user click.
+     * Data: near miss: team t1 with canManage false; then no team at all.
+     */
+    it.each([
+      {
+        label: 'a team without canManage',
+        team: { id: 't1', name: 'Blue', canManage: false },
+      },
+      { label: 'no team', team: undefined },
+    ])('is hidden with $label', async ({ team }) => {
+      const { openUserMenu } = await renderTopbar({ team });
+
+      await openUserMenu();
+
+      expect(
+        screen.getByRole('menuitem', { name: 'Logout' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'Edit View' }),
       ).not.toBeInTheDocument();
     });
   });

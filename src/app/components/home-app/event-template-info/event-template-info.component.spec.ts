@@ -182,6 +182,14 @@ async function renderEventTemplateInfo(overrides: RenderOverrides = {}) {
   };
 }
 
+// Role queries are scoped to the region under test.
+const region = (selector: string) =>
+  document.querySelector(selector) as HTMLElement;
+const card = () => within(region('.event-info-container'));
+const topRow = () => within(region('.top-row'));
+const menuItem = (name: string) =>
+  within(region('.cdk-overlay-container')).getByRole('menuitem', { name });
+
 describe('EventTemplateInfoComponent', () => {
   /**
    * Verifies: the template's name, description and duration render, with Launch offered when the user has no event.
@@ -192,11 +200,11 @@ describe('EventTemplateInfoComponent', () => {
     await renderEventTemplateInfo();
 
     expect(
-      screen.getByRole('heading', { name: 'Cyber Range 101' }),
+      card().getByRole('heading', { name: 'Cyber Range 101' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Learn the range')).toBeInTheDocument();
     expect(screen.getByText('Duration: 4 hours')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Launch' })).toBeInTheDocument();
+    expect(card().getByRole('button', { name: 'Launch' })).toBeInTheDocument();
   });
 
   describe('current event', () => {
@@ -216,14 +224,14 @@ describe('EventTemplateInfoComponent', () => {
         ],
       });
 
-      expect(screen.getByRole('alert')).toHaveTextContent(
+      expect(card().getByRole('alert')).toHaveTextContent(
         'This event failed to launch.',
       );
       expect(
-        screen.getByRole('button', { name: 'Launch Again' }),
+        card().getByRole('button', { name: 'Launch Again' }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole('button', { name: 'Launch' }),
+        card().queryByRole('button', { name: 'Launch' }),
       ).not.toBeInTheDocument();
       // Without the group join the follow-up EventUpdated never arrives.
       expect(joinEvent).toHaveBeenCalledWith('event-1');
@@ -243,10 +251,10 @@ describe('EventTemplateInfoComponent', () => {
       });
 
       expect(
-        screen.getByRole('heading', { name: 'Please wait!' }),
+        card().getByRole('heading', { name: 'Please wait!' }),
       ).toBeInTheDocument();
       expect(screen.getByText('Status: Planning')).toBeInTheDocument();
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(card().queryByRole('alert')).not.toBeInTheDocument();
     });
 
     /**
@@ -271,9 +279,9 @@ describe('EventTemplateInfoComponent', () => {
         ],
       });
 
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(card().queryByRole('alert')).not.toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Launch' }),
+        card().getByRole('button', { name: 'Launch' }),
       ).toBeInTheDocument();
     });
 
@@ -301,7 +309,7 @@ describe('EventTemplateInfoComponent', () => {
       // MatTooltip registers its message as the button's description after a
       // microtask, so let it run before reading the card.
       await flush();
-      const copy = within(screen.getByRole('alert')).getByRole('button', {
+      const copy = within(card().getByRole('alert')).getByRole('button', {
         name: 'Copy failure details',
       });
       expect(copy).toHaveAccessibleDescription(/^Event event-2 launched/);
@@ -324,9 +332,9 @@ describe('EventTemplateInfoComponent', () => {
         ],
       });
 
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(card().queryByRole('alert')).not.toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Launch' }),
+        card().getByRole('button', { name: 'Launch' }),
       ).toBeInTheDocument();
     });
 
@@ -340,17 +348,17 @@ describe('EventTemplateInfoComponent', () => {
         events: [myEvent({ status: 'Planning' })],
       });
       expect(
-        screen.getByRole('heading', { name: 'Please wait!' }),
+        card().getByRole('heading', { name: 'Please wait!' }),
       ).toBeInTheDocument();
 
       eventDataService.stateUpdate({ id: 'event-1', status: 'Active' });
       fixture.detectChanges();
 
       expect(
-        screen.getByRole('button', { name: 'Open Event' }),
+        card().getByRole('button', { name: 'Open Event' }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'End Event' }),
+        card().getByRole('button', { name: 'End Event' }),
       ).toBeInTheDocument();
     });
   });
@@ -368,14 +376,14 @@ describe('EventTemplateInfoComponent', () => {
         of(myEvent({ id: 'new', status: 'Failed' })),
       );
 
-      await user.click(screen.getByRole('button', { name: 'Launch' }));
+      await user.click(card().getByRole('button', { name: 'Launch' }));
 
       expect(eventService.createEventFromEventTemplate).toHaveBeenCalledWith(
         TEMPLATE_ID,
       );
       expect(joinEvent).toHaveBeenCalledWith('new');
       expect(eventService.getEvent).toHaveBeenCalledWith('new');
-      expect(await screen.findByRole('alert')).toHaveTextContent(
+      expect(await card().findByRole('alert')).toHaveTextContent(
         'This event failed to launch.',
       );
     });
@@ -393,7 +401,7 @@ describe('EventTemplateInfoComponent', () => {
         joinEvent: vi.fn(() => Promise.reject(failure)),
       });
 
-      await user.click(screen.getByRole('button', { name: 'Launch' }));
+      await user.click(card().getByRole('button', { name: 'Launch' }));
       await flush();
 
       expect(eventService.getEvent).toHaveBeenCalledWith('new');
@@ -423,12 +431,12 @@ describe('EventTemplateInfoComponent', () => {
       });
 
       expect(
-        screen.getByRole('button', { name: 'Open Event' }),
+        card().getByRole('button', { name: 'Open Event' }),
       ).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'End Event' }) !== null).toBe(
+      expect(card().queryByRole('button', { name: 'End Event' }) !== null).toBe(
         expected,
       );
-      expect(screen.queryByRole('button', { name: /Invite/ }) !== null).toBe(
+      expect(card().queryByRole('button', { name: /Invite/ }) !== null).toBe(
         expected,
       );
     });
@@ -557,10 +565,8 @@ describe('EventTemplateInfoComponent', () => {
             api.invite.mockReturnValue(throwError(() => failure)),
         }),
         act: async ({ user }) => {
-          await user.click(screen.getByRole('button', { name: /Invite/ }));
-          await user.click(
-            screen.getByRole('menuitem', { name: 'Generate Link' }),
-          );
+          await user.click(card().getByRole('button', { name: /Invite/ }));
+          await user.click(menuItem('Generate Link'));
         },
       },
     ])(
@@ -606,7 +612,7 @@ describe('EventTemplateInfoComponent', () => {
       await renderEventTemplateInfo({ grants });
 
       expect(
-        screen.queryByRole('button', { name: 'Show Administration Page' }),
+        topRow().queryByRole('button', { name: 'Show Administration Page' }),
       ).not.toBeInTheDocument();
     });
 
@@ -630,7 +636,7 @@ describe('EventTemplateInfoComponent', () => {
       await renderEventTemplateInfo({ grants });
 
       expect(
-        screen.getByRole('button', { name: 'Show Administration Page' }),
+        topRow().getByRole('button', { name: 'Show Administration Page' }),
       ).toBeInTheDocument();
     });
   });

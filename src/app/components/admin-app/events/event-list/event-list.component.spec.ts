@@ -156,6 +156,18 @@ async function renderAdminEventList(
   };
 }
 
+// Role queries are scoped to the status checkboxes and the expanded detail cell.
+const statusBox = (name: 'Active' | 'Ended' | 'Failed') =>
+  within(document.querySelector('.status-selection') as HTMLElement).getByRole(
+    'checkbox',
+    { name },
+  );
+/** The expanded detail cell of the row whose failure summary is shown. */
+const detailCell = () =>
+  screen.getByText('Failure').closest('td') as HTMLElement;
+const inDetail = (role: 'button' | 'link', name: RegExp) =>
+  within(detailCell()).queryByRole(role, { name });
+
 describe('AdminEventListComponent', () => {
   /**
    * Verifies: the list re-renders from the event store as events arrive and change status, and a Failed event moves out of the default (Active) view into the Failed one.
@@ -173,7 +185,7 @@ describe('AdminEventListComponent', () => {
     fixture.detectChanges();
     expect(screen.queryByText('Cyber Range 101')).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('checkbox', { name: 'Failed' }));
+    await user.click(statusBox('Failed'));
     expect(screen.getByText('Cyber Range 101')).toBeInTheDocument();
   });
 
@@ -194,10 +206,10 @@ describe('AdminEventListComponent', () => {
     expect(screen.getByText('Running')).toBeInTheDocument();
     expect(screen.queryByText('Broken')).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('checkbox', { name: 'Failed' }));
+    await user.click(statusBox('Failed'));
     expect(await screen.findByText('Broken')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('checkbox', { name: 'Ended' }));
+    await user.click(statusBox('Ended'));
     expect(await screen.findByText('Finished')).toBeInTheDocument();
     expect(screen.getByText('Timed Out')).toBeInTheDocument();
   });
@@ -224,7 +236,7 @@ describe('AdminEventListComponent', () => {
   });
 
   /**
-   * Verifies: the error detail is requested only when a failed row is expanded, shown with the failure summary, and cached across collapse and re-expand.
+   * Verifies: the error detail is requested only when a failed row is expanded, shown with the failure summary and a Copy Details button, removed when the row collapses, and cached across the re-expand.
    * Interacts with: EventService.getEventErrorDetail spy, row click (user-event), rendered detail row.
    * Data: one Failed event with workspace and run ids; Failed checkbox enabled to show it.
    * Why: the detail can be kilobytes of Terraform output, so it is not on the Event model and must not be fetched until asked for.
@@ -233,7 +245,7 @@ describe('AdminEventListComponent', () => {
     const { user, eventService } = await renderAdminEventList({
       events: [failedEvent()],
     });
-    await user.click(screen.getByRole('checkbox', { name: 'Failed' }));
+    await user.click(statusBox('Failed'));
     expect(eventService.getEventErrorDetail).not.toHaveBeenCalled();
 
     await user.click(await screen.findByText('Broken Range'));
@@ -244,9 +256,14 @@ describe('AdminEventListComponent', () => {
     expect(screen.getByText('Failed at: PlanningLaunch')).toBeInTheDocument();
     expect(screen.getByText('Workspace: ws-1')).toBeInTheDocument();
     expect(screen.getByText('Run: run-1')).toBeInTheDocument();
+    expect(inDetail('button', /Copy Details/)).toBeInTheDocument();
     expect(eventService.getEventErrorDetail).toHaveBeenCalledWith('event-1');
 
     await user.click(screen.getByText('Broken Range'));
+    expect(
+      screen.queryByText('Error: invalid resource "foo"'),
+    ).not.toBeInTheDocument();
+
     await user.click(screen.getByText('Broken Range'));
     expect(
       await screen.findByText('Error: invalid resource "foo"'),
@@ -265,7 +282,7 @@ describe('AdminEventListComponent', () => {
       events: [failedEvent()],
       errorDetail: () => throwError(() => ({ status: 403 })),
     });
-    await user.click(screen.getByRole('checkbox', { name: 'Failed' }));
+    await user.click(statusBox('Failed'));
 
     await user.click(await screen.findByText('Broken Range'));
 
@@ -273,9 +290,7 @@ describe('AdminEventListComponent', () => {
       await screen.findByText('Infrastructure deployment failed during plan.'),
     ).toBeInTheDocument();
     expect(screen.queryByText('Loading details...')).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Copy Details/ }),
-    ).not.toBeInTheDocument();
+    expect(inDetail('button', /Copy Details/)).not.toBeInTheDocument();
     // The summary and its heading only render inside the expanded row.
     expect(screen.getByText('Failure')).toBeInTheDocument();
   });
@@ -298,12 +313,12 @@ describe('AdminEventListComponent', () => {
         events: [failedEvent()],
         settings,
       });
-      await user.click(screen.getByRole('checkbox', { name: 'Failed' }));
+      await user.click(statusBox('Failed'));
 
       await user.click(await screen.findByText('Broken Range'));
       await screen.findByText('Failed at: PlanningLaunch');
 
-      const link = screen.queryByRole('link', { name: /Open Caster/ });
+      const link = inDetail('link', /Open Caster/);
       expect(link?.getAttribute('href') ?? null).toBe(expected);
     },
   );

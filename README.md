@@ -16,7 +16,16 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Running unit tests
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Unit tests run on Vitest through Angular's `@angular/build:unit-test` builder, in jsdom with zone.js, following the Crucible UI test standard.
+
+```bash
+npm test               # run every spec once (ng test --watch=false)
+npm run test:watch     # re-run on change (ng test)
+npm run test:coverage  # run once with coverage and the thresholds in angular.json
+npx ng test --watch=false --include='src/app/data/**/*.spec.ts'  # a subset
+```
+
+Shared test helpers (`renderComponent`, `getDefaultProviders`, `permissionDataProviders`, `mockHubConnectionBuilder`, `recordEmissions`, ...) live in `src/app/test-utils/`. `vitest.config.ts` applies `patches/` with patch-package when the tests start, because Akita ships ESM that Node cannot load unpatched.
 
 ## Running end-to-end tests
 

@@ -1,10 +1,10 @@
 # Alloy UI Readme
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.4.
+This project uses [Angular CLI](https://github.com/angular/angular-cli) version 21 (Angular 21.2). Node `^20.19.0 || ^22.12.0 || >=24.0.0` is required; the Docker image and CI build with Node 24.
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Run `npm start` (`ng serve`) for a dev server. Navigate to `http://localhost:4403/`. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
@@ -12,7 +12,7 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `npm run build` (`ng build`) to build the project. The build artifacts will be stored in the `dist/browser` directory. Use `--configuration production` for a production build.
 
 ## Running unit tests
 
@@ -29,11 +29,11 @@ Shared test helpers (`renderComponent`, `getDefaultProviders`, `permissionDataPr
 
 ## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+End-to-end tests live in the Playwright suite of the [crucible-tests](https://github.com/cmu-sei/crucible-tests) repository.
 
 ## Further help on Angular CLI
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/main/README.md).
 
 ## Reporting bugs and requesting features
 

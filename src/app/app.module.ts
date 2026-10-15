@@ -64,6 +64,8 @@ import { AdminUserListComponent } from './components/admin-app/admin-users/admin
 import { AdminUsersComponent } from './components/admin-app/admin-users/admin-users.component';
 import { EventTemplateEditComponent } from './components/admin-app/event-templates/event-template-edit/event-template-edit.component';
 import { EventTemplateListComponent } from './components/admin-app/event-templates/event-template-list/event-template-list.component';
+import { EventTemplateExportComponent } from './components/admin-app/event-templates/event-template-export/event-template-export.component';
+import { EventTemplateImportComponent } from './components/admin-app/event-templates/event-template-import/event-template-import.component';
 import { EventTemplatesComponent } from './components/admin-app/event-templates/event-templates.component';
 import { EventEditComponent } from './components/admin-app/events/event-edit/event-edit.component';
 import { AdminEventListComponent } from './components/admin-app/events/event-list/event-list.component';
@@ -108,6 +110,8 @@ export class AngularMaterialModule {}
         EventTemplateInfoComponent,
         EventTemplatesComponent,
         EventTemplateListComponent,
+        EventTemplateExportComponent,
+        EventTemplateImportComponent,
         EventTemplateEditComponent,
         EventsComponent,
         AdminEventListComponent,

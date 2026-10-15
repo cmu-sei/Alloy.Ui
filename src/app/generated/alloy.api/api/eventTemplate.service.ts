@@ -24,7 +24,11 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
+import { ArchiveType } from '../model/archiveType';
+// @ts-ignore
 import { EventTemplate } from '../model/eventTemplate';
+// @ts-ignore
+import { ImportEventTemplatesResult } from '../model/importEventTemplatesResult';
 // @ts-ignore
 import { ProblemDetails } from '../model/problemDetails';
 
@@ -61,6 +65,19 @@ export class EventTemplateService {
         this.encoder = this.configuration.encoder || new CustomHttpParameterCodec();
     }
 
+    /**
+     * @param consumes string[] mime-types
+     * @return true: consumes contains 'multipart/form-data', false: otherwise
+     */
+    private canConsumeForm(consumes: string[]): boolean {
+        const form = 'multipart/form-data';
+        for (const consume of consumes) {
+            if (form === consume) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // @ts-ignore
     private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
@@ -244,6 +261,74 @@ export class EventTemplateService {
     }
 
     /**
+     * Exports EventTemplates
+     * Exports the specified EventTemplates, or all EventTemplates if none are specified, as a zip or tar.gz archive containing event_templates.json. The Player View, Caster Directory and Steamfitter Scenario Template are exported as ids, each with its name at export time. Memberships are not exported. &lt;para /&gt; Exporting specific EventTemplates requires permission to view each of them. Exporting all EventTemplates requires the ViewEventTemplates system permission.
+     * @param ids The ids of the EventTemplates to export. If empty, all EventTemplates are exported.
+     * @param archiveType The archive format
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public exportEventTemplates(ids?: Array<string>, archiveType?: ArchiveType, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<Blob>;
+    public exportEventTemplates(ids?: Array<string>, archiveType?: ArchiveType, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<Blob>>;
+    public exportEventTemplates(ids?: Array<string>, archiveType?: ArchiveType, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<Blob>>;
+    public exportEventTemplates(ids?: Array<string>, archiveType?: ArchiveType, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+
+        let localVarQueryParameters = new HttpParams({encoder: this.encoder});
+        if (ids) {
+            ids.forEach((element) => {
+                localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+                  <any>element, 'ids');
+            })
+        }
+        if (archiveType !== undefined && archiveType !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>archiveType, 'archiveType');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarCredential: string | undefined;
+        // authentication (oauth2) required
+        localVarCredential = this.configuration.lookupCredential('oauth2');
+        if (localVarCredential) {
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
+        }
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+
+        let localVarPath = `/api/eventtemplates/actions/export`;
+        return this.httpClient.request('get', `${this.configuration.basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters,
+                responseType: "blob",
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Gets a specific EventTemplate by id
      * Returns the EventTemplate with the id specified &lt;para /&gt; Accessible to a SuperUser or a User that is a member of a Team within the specified EventTemplate
      * @param id The id of the EventTemplate
@@ -366,6 +451,98 @@ export class EventTemplateService {
         return this.httpClient.request<Array<EventTemplate>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Imports EventTemplates
+     * Imports the EventTemplates in an archive created by exportEventTemplates. Ids are preserved, so an EventTemplate whose id already exists is not imported; use clone to copy a template within one system. &lt;para /&gt; Each Player View, Caster Directory and Steamfitter Scenario Template is kept if it exists and is visible to the caller, otherwise it is matched by name if requested, otherwise it is cleared and a warning is returned. A published template that loses a reference is imported unpublished. &lt;para /&gt; Requires the CreateEventTemplates system permission
+     * @param archive A .zip, .tar.gz or .tgz archive created by exportEventTemplates
+     * @param matchReferencesByName If a Player View, Caster Directory or Steamfitter Scenario Template cannot be found by id, use the one visible to the caller with the exported name, if exactly one has that name
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public importEventTemplates(archive?: Blob, matchReferencesByName?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<ImportEventTemplatesResult>;
+    public importEventTemplates(archive?: Blob, matchReferencesByName?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<ImportEventTemplatesResult>>;
+    public importEventTemplates(archive?: Blob, matchReferencesByName?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<ImportEventTemplatesResult>>;
+    public importEventTemplates(archive?: Blob, matchReferencesByName?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarCredential: string | undefined;
+        // authentication (oauth2) required
+        localVarCredential = this.configuration.lookupCredential('oauth2');
+        if (localVarCredential) {
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
+        }
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'text/plain',
+                'application/json',
+                'text/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'multipart/form-data'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let localVarFormParams: { append(param: string, value: any): any; };
+        let localVarUseForm = false;
+        let localVarConvertFormParamsToString = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
+        localVarUseForm = canConsumeForm;
+        if (localVarUseForm) {
+            localVarFormParams = new FormData();
+        } else {
+            localVarFormParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (archive !== undefined) {
+            localVarFormParams = localVarFormParams.append('Archive', <any>archive) as any || localVarFormParams;
+        }
+        if (matchReferencesByName !== undefined) {
+            localVarFormParams = localVarFormParams.append('MatchReferencesByName', <any>matchReferencesByName) as any || localVarFormParams;
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/eventtemplates/actions/import`;
+        return this.httpClient.request<ImportEventTemplatesResult>('post', `${this.configuration.basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: localVarConvertFormParamsToString ? localVarFormParams.toString() : localVarFormParams,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

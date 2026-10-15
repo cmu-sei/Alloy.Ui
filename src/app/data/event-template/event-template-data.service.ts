@@ -3,11 +3,14 @@
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { take, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import {
+  ArchiveType,
   EventTemplate,
   EventTemplateService,
+  ImportEventTemplatesResult,
 } from 'src/app/generated/alloy.api';
+import HttpHeaderUtils from 'src/app/utilities/http-header-utils';
 import { EventTemplateStore } from './event-template.store';
 
 @Injectable({
@@ -60,6 +63,43 @@ export class EventTemplateDataService {
       .subscribe(() => {
         this.stateDelete(eventTemplateId);
       });
+  }
+
+  /**
+   * Exports the given Event Templates as an archive, in the same shape Player uses for Views.
+   */
+  export(
+    ids: string[],
+    archiveType: ArchiveType
+  ): Observable<{ blob: Blob; filename: string }> {
+    return this.eventTemplateService
+      .exportEventTemplates(ids, archiveType, 'response')
+      .pipe(
+        map((response) => ({
+          blob: response.body,
+          filename: HttpHeaderUtils.getFilename(
+            response.headers,
+            `event_templates.${archiveType === ArchiveType.Tgz ? 'tar.gz' : 'zip'}`
+          ),
+        })),
+        take(1)
+      );
+  }
+
+  /**
+   * Imports an archive created by export. Reloads the list afterwards, since some templates
+   * may have been imported even when others failed.
+   */
+  import(
+    archive: Blob,
+    matchReferencesByName: boolean
+  ): Observable<ImportEventTemplatesResult> {
+    return this.eventTemplateService
+      .importEventTemplates(archive, matchReferencesByName)
+      .pipe(
+        tap(() => this.loadTemplates()),
+        take(1)
+      );
   }
 
   stateCreate(template: EventTemplate) {

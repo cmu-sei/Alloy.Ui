@@ -16,10 +16,12 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  TemplateRef,
   ViewChild,
 } from '@angular/core';
+import { SelectionModel } from '@angular/cdk/collections';
 import { UntypedFormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -70,10 +72,13 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   @ViewChild('paginator') paginator: MatPaginator;
 
   filterControl = new UntypedFormControl();
-  displayedColumns: string[] = ['actions', 'name', 'description', 'durationHours', 'dateCreated'];
+  displayedColumns: string[] = ['select', 'actions', 'name', 'description', 'durationHours', 'dateCreated'];
   eventTemplateDataSource = new MatTableDataSource<EventTemplate>([]);
   expandedEventTemplateId: string | null = null;
   systemPermissions: SystemPermission[] = [];
+  /** Event Template ids chosen for export. */
+  selection = new SelectionModel<string>(true, []);
+  private archiveDialogRef: MatDialogRef<any>;
   private unsubscribe$ = new Subject();
 
   constructor(
@@ -134,6 +139,55 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
 
   selectEventTemplate(id: string) {
     this.expandedEventTemplateId = this.expandedEventTemplateId === id ? null : id;
+  }
+
+  /** Whether every Event Template that passes the current filter is selected. */
+  isAllSelected(): boolean {
+    const rows = this.eventTemplateDataSource.filteredData;
+    return rows.length > 0 && rows.every((row) => this.selection.isSelected(row.id));
+  }
+
+  /** Selects every Event Template that passes the current filter, or clears the selection. */
+  toggleAllRows() {
+    this.isAllSelected()
+      ? this.selection.clear()
+      : this.selection.select(...this.eventTemplateDataSource.filteredData.map((row) => row.id));
+  }
+
+  /** The selected Event Templates that are still in the list, or every one in the list if none are selected. */
+  exportIds(): string[] {
+    const ids = this.eventTemplateDataSource.data.map((row) => row.id);
+    return this.selection.hasValue()
+      ? ids.filter((id) => this.selection.isSelected(id))
+      : ids;
+  }
+
+  /**
+   * Whether an export with nothing selected can ask for every template rather than list each id. That needs
+   * the ViewEventTemplates system permission, and keeps a long list of ids out of the query string.
+   */
+  canExportAll(): boolean {
+    return (
+      !this.selection.hasValue() &&
+      this.systemPermissions.includes(SystemPermission.ViewEventTemplates)
+    );
+  }
+
+  openDialog(templateRef: TemplateRef<any>) {
+    this.archiveDialogRef = this.dialog.open(templateRef, {
+      autoFocus: true,
+      width: '480px',
+      maxWidth: '90vw',
+    });
+  }
+
+  closeDialog() {
+    this.archiveDialogRef?.close();
+  }
+
+  importComplete() {
+    // The data service reloads the list once the import returns
+    this.archiveDialogRef?.close();
   }
 
   canCreateEventTemplates(): boolean {

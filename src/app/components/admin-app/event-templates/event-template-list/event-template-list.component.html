@@ -16,6 +16,19 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     </button>
     }
   </mat-form-field>
+  <div class="archive-buttons">
+    @if (canCreateEventTemplates()) {
+    <button mat-icon-button (click)="openDialog(importDialog)" title="Import Event Templates">
+      <mat-icon class="mdi-24px" fontIcon="mdi-file-import"></mat-icon>
+    </button>
+    }
+    <button mat-icon-button (click)="openDialog(exportDialog)"
+      title="Export Event Templates"
+      [matBadge]="selection.selected.length > 0 ? selection.selected.length : ''"
+      [matBadgeHidden]="!selection.hasValue()">
+      <mat-icon class="mdi-24px" fontIcon="mdi-file-export"></mat-icon>
+    </button>
+  </div>
   <div class="nator-div">
     <mat-paginator #paginator [pageSize]="20"
       [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
@@ -25,6 +38,19 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 <div class="table-container">
   <table mat-table [dataSource]="eventTemplateDataSource" matSort matSortActive="dateCreated"
     matSortDirection="desc" multiTemplateDataRows>
+
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()" aria-label="Select all Event Templates">
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(element.id) : null"
+          [checked]="selection.isSelected(element.id)" [aria-label]="'Select ' + element.name">
+        </mat-checkbox>
+      </td>
+    </ng-container>
 
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>
@@ -100,3 +126,12 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   </mat-progress-spinner>
 </mat-card>
 }
+
+<ng-template #exportDialog>
+  <app-event-template-export [ids]="exportIds()" [all]="canExportAll()" [selected]="selection.hasValue()"
+    (complete)="closeDialog()"></app-event-template-export>
+</ng-template>
+
+<ng-template #importDialog>
+  <app-event-template-import (complete)="importComplete()"></app-event-template-import>
+</ng-template>

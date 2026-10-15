@@ -1,0 +1,36 @@
+<!--
+Copyright 2026 Carnegie Mellon University. All Rights Reserved.
+Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
+-->
+
+<crucible-dialog
+  dialogTitle="Export Event Templates"
+  [form]="form"
+  submitLabel="Export"
+  loadingLabel="Exporting..."
+  [loading]="loading"
+  [errorMessage]="errorMessage"
+  [submitDisabled]="!form.valid || ids.length === 0"
+  (cancel)="cancel()"
+  (submit)="export()"
+>
+  <div crucibleDialogContent [formGroup]="form" class="dialog-fields">
+    <p class="export-count">
+      @if (ids.length === 0) {
+        There are no Event Templates to export.
+      } @else {
+        {{ selected ? 'Selected' : 'All' }} Event Templates: {{ ids.length }}
+      }
+    </p>
+    <mat-form-field>
+      <mat-label>Archive Type</mat-label>
+      <mat-select formControlName="archiveType">
+        @for (archiveType of archiveTypes; track archiveType) {
+          <mat-option [value]="archiveType">
+            {{ archiveType }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</crucible-dialog>

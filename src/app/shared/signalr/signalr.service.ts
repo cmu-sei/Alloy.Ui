@@ -21,6 +21,7 @@ import { EventTemplateMembershipDataService } from 'src/app/data/event-template/
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { EventMembershipDataService } from 'src/app/data/event/event-membership-data.service';
 import { GroupMembershipService } from 'src/app/data/group/group-membership.service';
+import { SystemMessageService } from 'src/app/shared/system-message/system-message.service';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,7 @@ export class SignalRService {
   private connectionObservable: Observable<SignalR.HubConnection>;
   private connectionPromise: Promise<void>;
   private systemGroupJoined = false;
+  private unreachableReported = false;
 
   constructor(
     private authService: ComnAuthService,
@@ -41,7 +43,8 @@ export class SignalRService {
     private eventTemplateDataService: EventTemplateDataService,
     private eventTemplateMembershipDataService: EventTemplateMembershipDataService,
     private groupMembershipService: GroupMembershipService,
-    private settingsService: ComnSettingsService
+    private settingsService: ComnSettingsService,
+    private systemMessageService: SystemMessageService
   ) {}
 
   public startConnection(): Promise<void> {
@@ -59,7 +62,8 @@ export class SignalRService {
     this.hubConnection.onreconnected(() => {
       // a reconnect is a new connection to the server, which knows nothing of the old groups
       this.joinedEventIds.clear();
-      this.joinGroups().catch((err) => console.log(err));
+      this.unreachableReported = false;
+      this.joinGroups().catch((err) => this.warnJoinFailed(err));
     });
     this.addHandlers();
 
@@ -69,18 +73,45 @@ export class SignalRService {
     // Forget the failed attempt instead, so the next caller builds a fresh connection with a
     // fresh token. Only start() failures clear it - a connection that is up stays memoized
     // however the joins below go, or the next caller would build a second one on top of it.
-    this.connectionPromise = this.hubConnection.start().catch((err) => {
-      this.connectionPromise = null;
-      throw err;
-    });
+    this.connectionPromise = this.hubConnection.start().then(
+      () => {
+        this.unreachableReported = false;
+      },
+      (err) => {
+        this.connectionPromise = null;
+        this.reportUnreachable(err);
+        throw err;
+      }
+    );
 
     // Nobody is waiting on these, so their failure is logged rather than thrown: joinEvent()
     // awaits its own join and reports it to the caller that asked for it.
-    this.connectionPromise
-      .then(() => this.joinGroups())
-      .catch((err) => console.log(err));
+    this.connectionPromise.then(
+      () => this.joinGroups().catch((err) => this.warnJoinFailed(err)),
+      () => {
+        // reported above
+      }
+    );
 
     return this.connectionPromise;
+  }
+
+  // Report once per outage, not on every caller that retries the start. A successful start
+  // or reconnect re-arms it.
+  private reportUnreachable(err: any) {
+    if (this.unreachableReported) {
+      return;
+    }
+    this.unreachableReported = true;
+    console.warn('Alloy hub unreachable: ' + (err?.message ?? err));
+    this.systemMessageService.displayMessage(
+      'Live Updates Unavailable',
+      'Alloy could not connect to the Alloy API for live updates. Event status changes will not appear until the connection is restored. Refresh the page to try again.'
+    );
+  }
+
+  private warnJoinFailed(err: any) {
+    console.warn('Alloy hub join failed: ' + (err?.message ?? err));
   }
 
   private async joinGroups(): Promise<void> {
@@ -138,11 +169,15 @@ export class SignalRService {
   }
   public joinAdmin() {
     this.systemGroupJoined = true;
-    this.startConnection().then((x) => this.hubConnection.invoke('JoinAdmin'));
+    this.startConnection()
+      .then(() => this.hubConnection.invoke('JoinAdmin'))
+      .catch((err) => this.warnJoinFailed(err));
   }
   public leaveAdmin() {
     this.systemGroupJoined = false;
-    this.startConnection().then((x) => this.hubConnection.invoke('LeaveAdmin'));
+    this.startConnection()
+      .then(() => this.hubConnection.invoke('LeaveAdmin'))
+      .catch((err) => this.warnJoinFailed(err));
   }
   private addHandlers() {
     this.addEventHandlers();

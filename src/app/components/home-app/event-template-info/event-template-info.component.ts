@@ -31,6 +31,7 @@ import {
   Observable,
   of,
   Subject,
+  throwError,
 } from 'rxjs';
 import {
   catchError,
@@ -239,7 +240,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           if (currentEvent != null) {
             this.isOwner = currentEvent.userId === user.id;
 
-            this.signalRService.joinEvent(currentEvent.id);
+            this.signalRService.joinEvent(currentEvent.id).catch(() => {
+              // the service reports a hub it cannot reach
+            });
 
             this.expirationDate = currentEvent.expirationDate;
             this.remainingTime = this.calculateRemainingTime(
@@ -273,7 +276,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       filter((events) => events.length >= 1),
       map((events) => events.filter((e) => this.isEventActive(e.status))),
       tap((events) => {
-        events.forEach((e) => this.signalRService.joinEvent(e.id));
+        events.forEach((e) =>
+          this.signalRService.joinEvent(e.id).catch(() => {
+            // the service reports a hub it cannot reach
+          })
+        );
         this.userEvents = events.filter(
           (m) => m.createdBy !== this.currentUserId
         );
@@ -469,19 +476,15 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
             // A hub that cannot be reached must not stop the read-back below. Losing live
             // updates costs the user a stale card they can refresh; skipping the read-back
             // leaves them on "Please wait!" with no way to find out what happened.
-            catchError((err) => {
-              console.log(err);
-              return of(null);
-            }),
+            // The service reports a hub it cannot reach.
+            catchError(() => of(null)),
             map(() => event.id)
           )
         ),
         switchMap((eventId: string) => this.eventDataService.getEvent(eventId)),
         tap((event: AlloyEvent) => this.eventDataService.stateUpdate(event)),
-        catchError((err) => {
-          console.log(err);
-          return of(null);
-        }),
+        // A refused launch - an event already running, or the event limit reached - is left
+        // to the error handler, which shows the API's reason.
         takeUntil(this.unsubscribe$)
       )
       .subscribe();
@@ -521,7 +524,16 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .subscribe((confirmed) => {
           if (confirmed) {
             this.redeploying = true;
-            this.eventDataService.redeployEvent(event.id);
+            this.eventDataService
+              .redeployEvent(event.id)
+              .pipe(
+                catchError((err) => {
+                  // re-enable the button; the error handler shows why
+                  this.redeploying = false;
+                  return throwError(() => err);
+                })
+              )
+              .subscribe();
           }
         });
     }

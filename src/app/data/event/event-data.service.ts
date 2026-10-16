@@ -59,7 +59,7 @@ export class EventDataService implements OnDestroy {
   }
 
   redeployEvent(id: string) {
-    this.eventService.redeployEvent(id).pipe(take(1)).subscribe();
+    return this.eventService.redeployEvent(id).pipe(take(1));
   }
 
   getAllEvents() {

@@ -30,12 +30,15 @@ import {
   captureUnhandledRejections,
   flush,
 } from 'src/app/test-utils/unhandled-rx-errors';
+import { SystemMessageService } from 'src/app/shared/system-message/system-message.service';
 import { SignalRService } from './signalr.service';
 
 let connections: FakeHubConnection[];
 let builder: ReturnType<typeof mockHubConnectionBuilder>;
 /** Set by a test to make the first connection's start() reject with it. */
 let firstStartFailure: Error | undefined;
+/** Set by a test to make every later connection's start() reject with firstStartFailure too. */
+let startKeepsFailing = false;
 
 /** The arguments of every `invoke(method, ...)` call on a connection. */
 function invokedWith(connection: FakeHubConnection, method: string) {
@@ -49,6 +52,7 @@ function setup() {
   const auth: Pick<ComnAuthService, 'getAuthorizationToken'> = {
     getAuthorizationToken: () => `token-${++tokens}`,
   };
+  const systemMessage = { displayMessage: vi.fn() };
   TestBed.configureTestingModule({
     providers: [
       {
@@ -56,6 +60,7 @@ function setup() {
         useValue: { settings: { ApiUrl: 'https://alloy.test' } },
       },
       { provide: ComnAuthService, useValue: auth },
+      { provide: SystemMessageService, useValue: systemMessage },
       // The real data services and stores receive the hub messages; their
       // generated API clients are never called by a handler.
       unstubbed(EventService),
@@ -68,6 +73,7 @@ function setup() {
   });
   return {
     service: TestBed.inject(SignalRService),
+    systemMessage,
     eventQuery: TestBed.inject(EventQuery),
     eventDataService: TestBed.inject(EventDataService),
     eventTemplateQuery: TestBed.inject(EventTemplateQuery),
@@ -86,20 +92,21 @@ function makeEvent(overrides: Partial<AlloyEvent> = {}): AlloyEvent {
 describe('SignalRService', () => {
   beforeEach(() => {
     firstStartFailure = undefined;
+    startKeepsFailing = false;
     builder = mockHubConnectionBuilder({
       // Only the first build fails, so a retry gets a connection that starts.
       // The service chains on start(), so a vi.fn rejection still leaves the
       // derived promise unhandled where the service has no .catch.
       onBuild: (connection, index) => {
         const failure = firstStartFailure;
-        if (failure && index === 0) {
+        if (failure && (index === 0 || startKeepsFailing)) {
           connection.start.mockImplementation(() => Promise.reject(failure));
         }
       },
     });
     connections = builder.connections;
-    // The service logs failed joins to the console; keep test output clean.
-    vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    // The service warns about an unreachable hub and failed joins; keep test output clean.
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
   });
 
   describe('startConnection()', () => {
@@ -138,7 +145,7 @@ describe('SignalRService', () => {
 
     /**
      * Verifies: a failed initial start is not memoized, so the next caller builds a new connection with a fresh token.
-     * Interacts with: FakeHubConnection.start (the first connection's rejects, via onBuild), HubConnectionBuilder.withUrl, console.log spy.
+     * Interacts with: FakeHubConnection.start (the first connection's rejects, via onBuild), HubConnectionBuilder.withUrl, console.warn spy.
      * Data: the first start rejects with 'expired token'; the retry uses token-2.
      * Why: withAutomaticReconnect does not cover the initial start, so this retry path is the only recovery from an expired token.
      */
@@ -156,7 +163,35 @@ describe('SignalRService', () => {
       expect(builder.withUrl).toHaveBeenLastCalledWith(
         'https://alloy.test/hubs/engine?bearer=token-2',
       );
-      expect(vi.mocked(console.log)).toHaveBeenCalledWith(failure);
+      expect(vi.mocked(console.warn)).toHaveBeenCalledWith(
+        'Alloy hub unreachable: expired token',
+      );
+    });
+
+    /**
+     * Verifies: an unreachable hub is reported to the user once per outage, however many callers retry the start, and the start that succeeds reports nothing.
+     * Interacts with: FakeHubConnection.start (rejects, via onBuild), SystemMessageService.displayMessage (spy).
+     * Data: three failed starts, then one that succeeds.
+     * Why: every page that needs live updates retries the start; telling the user on each retry buries the page in repeats.
+     */
+    it('reports an unreachable hub once per outage', async () => {
+      const { service, systemMessage } = setup();
+      const offline = new Error('hub offline');
+      firstStartFailure = offline;
+      startKeepsFailing = true;
+
+      for (let i = 0; i < 3; i++) {
+        await expect(service.startConnection()).rejects.toBe(offline);
+      }
+      expect(systemMessage.displayMessage).toHaveBeenCalledTimes(1);
+      expect(systemMessage.displayMessage).toHaveBeenCalledWith(
+        'Live Updates Unavailable',
+        'Alloy could not connect to the Alloy API for live updates. Event status changes will not appear until the connection is restored. Refresh the page to try again.',
+      );
+
+      startKeepsFailing = false;
+      await service.startConnection();
+      expect(systemMessage.displayMessage).toHaveBeenCalledTimes(1);
     });
 
     /**
@@ -316,23 +351,24 @@ describe('SignalRService', () => {
     });
 
     /**
-     * Verifies: when the connection cannot start, joinAdmin and leaveAdmin each leave an unhandled promise rejection (current behavior).
-     * Interacts with: SignalRService.joinAdmin/leaveAdmin → startConnection, FakeHubConnection.start (rejects, via onBuild), captureUnhandledRejections (zone.js reports through console.error).
+     * Verifies: when the connection cannot start, joinAdmin and leaveAdmin report the outage to the user and leave no unhandled promise rejection.
+     * Interacts with: SignalRService.joinAdmin/leaveAdmin → startConnection, FakeHubConnection.start (rejects, via onBuild), SystemMessageService.displayMessage (spy), captureUnhandledRejections (zone.js reports through console.error).
      * Data: a fresh service whose first start() rejects with 'hub offline'; one case per method.
-     * Why: startConnection rethrows the start failure to its callers, and each of these methods chains .then() on it with no .catch.
+     * Why: an unhandled rejection reaches the global error handler, which would show a second, less useful message for the same outage.
      */
     it.each(['joinAdmin', 'leaveAdmin'] as const)(
-      '%s leaves an unhandled rejection when the connection cannot start',
+      '%s reports a hub it cannot reach without an unhandled rejection',
       async (method) => {
         const rejections = captureUnhandledRejections();
-        const { service } = setup();
+        const { service, systemMessage } = setup();
         const offline = new Error('hub offline');
         firstStartFailure = offline;
 
         service[method]();
         await flush();
 
-        expect(rejections).toEqual([offline]);
+        expect(rejections).toEqual([]);
+        expect(systemMessage.displayMessage).toHaveBeenCalledTimes(1);
         expect(connections[0].invoke).not.toHaveBeenCalled();
       },
     );

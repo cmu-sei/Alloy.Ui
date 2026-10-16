@@ -70,8 +70,8 @@ export class AdminSystemRolesComponent implements OnInit {
   ngOnInit(): void {
     this.roleService.getRoles().subscribe();
 
-    this.signalRService.startConnection().catch((err) => {
-      console.log(err);
+    this.signalRService.startConnection().catch(() => {
+      // the service reports the failure to the user
     });
   }
 

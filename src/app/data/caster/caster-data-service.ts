@@ -16,6 +16,8 @@ export class CasterDataService {
   private _directories: Directory[] = [];
   private _directoryMask: Observable<string>;
   readonly directories = new BehaviorSubject<Directory[]>(this._directories);
+  /** Why the last load failed, shown in the Event Template editor. Null once a load succeeds. */
+  readonly loadError = new BehaviorSubject<string>(null);
   readonly directoryList: Observable<Directory[]>;
   readonly directoryFilter = new UntypedFormControl();
   readonly selectedDirectory: Observable<Directory>;
@@ -92,6 +94,7 @@ export class CasterDataService {
       .pipe(take(1))
       .subscribe(
         (directories) => {
+          this.loadError.next(null);
           this._apiDirectories = directories;
           const directoryList = new Array<Directory>();
           const parentIds = new Array<string>();
@@ -115,6 +118,9 @@ export class CasterDataService {
         },
         (error) => {
           this.updateDirectories([]);
+          // ProblemDetails.title names the service and why; never .detail, which for a 500
+          // outside development holds the raw exception message
+          this.loadError.next(error?.error?.title ?? 'Could not load the Caster directories.');
         }
       );
   }

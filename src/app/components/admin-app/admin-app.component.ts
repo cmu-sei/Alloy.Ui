@@ -73,9 +73,14 @@ export class AdminAppComponent implements OnInit {
       )
       .subscribe((cu) => {
         this.username = cu.name;
-        this.signalRService.startConnection().then(() => {
-          this.signalRService.joinAdmin();
-        });
+        this.signalRService
+          .startConnection()
+          .then(() => {
+            this.signalRService.joinAdmin();
+          })
+          .catch(() => {
+            // the service reports the failure to the user
+          });
       });
 
     this.route.queryParams

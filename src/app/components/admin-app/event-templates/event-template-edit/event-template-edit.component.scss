@@ -40,6 +40,13 @@
   color: var(--mat-sys-error);
 }
 
+.list-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mat-sys-error);
+}
+
 // Material sets pointer-events: none on disabled options, which would stop the tooltip
 // explaining why a view cannot be selected from ever opening. Re-enable it on the label only.
 ::ng-deep .mat-mdc-option.mdc-list-item--disabled .view-option-label {

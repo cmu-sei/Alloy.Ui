@@ -25,6 +25,9 @@ import {
   ScenarioTemplate,
   View,
 } from 'src/app/generated/alloy.api';
+import { CasterDataService } from 'src/app/data/caster/caster-data-service';
+import { PlayerDataService } from 'src/app/data/player/player-data-service';
+import { SteamfitterDataService } from 'src/app/data/steamfitter/steamfitter-data.service';
 import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
@@ -111,8 +114,16 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   constructor(
     public crucibleDialog: CrucibleDialogService,
     private snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private playerDataService: PlayerDataService,
+    private casterDataService: CasterDataService,
+    private steamfitterDataService: SteamfitterDataService
   ) { }
+
+  // An empty list on its own looks like there is nothing to choose; these say the load failed.
+  public viewLoadError$ = this.playerDataService.loadError;
+  public directoryLoadError$ = this.casterDataService.loadError;
+  public scenarioTemplateLoadError$ = this.steamfitterDataService.loadError;
 
   /**
    * Notifies the user after a value is copied to the clipboard

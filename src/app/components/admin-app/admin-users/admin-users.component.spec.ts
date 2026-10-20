@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Output, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { User, UserService } from 'src/app/generated/alloy.api';
@@ -20,8 +20,8 @@ class UserListStubComponent {
   readonly users = input<User[]>(undefined);
   readonly isLoading = input<boolean>(undefined);
   readonly canEdit = input<boolean>(undefined);
-  @Output() create = new EventEmitter<User>();
-  @Output() delete = new EventEmitter<string>();
+  readonly create = output<User>();
+  readonly delete = output<string>();
 }
 
 async function renderUsers(grants: PermissionGrants) {

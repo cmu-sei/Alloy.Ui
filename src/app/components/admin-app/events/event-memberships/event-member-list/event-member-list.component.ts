@@ -6,12 +6,11 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 import {
   AfterViewInit,
   Component,
-  EventEmitter,
   OnChanges,
   OnInit,
-  Output,
   ViewChild,
   input,
+  output,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSelectChange, MatSelect } from '@angular/material/select';
@@ -88,11 +87,9 @@ export class EventMemberListComponent
 
   readonly canEdit = input<boolean>(undefined);
 
-  @Output()
-  deleteMembership = new EventEmitter<string>();
+  readonly deleteMembership = output<string>();
 
-  @Output()
-  editMembership = new EventEmitter<EventMembership>();
+  readonly editMembership = output<EventMembership>();
 
   viewColumns = ['name', 'type', 'role'];
   editColumns = ['actions'];

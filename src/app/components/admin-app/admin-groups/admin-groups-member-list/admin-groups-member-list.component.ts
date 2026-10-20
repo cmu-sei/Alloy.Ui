@@ -6,13 +6,12 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 import {
   AfterViewInit,
   Component,
-  EventEmitter,
   OnChanges,
   OnInit,
-  Output,
   ViewChild,
   inject,
   input,
+  output,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatPaginator } from '@angular/material/paginator';
@@ -95,14 +94,12 @@ export class AdminGroupsMemberListComponent
 
   readonly canEdit = input<boolean>(undefined);
 
-  @Output()
-  deleteMembership = new EventEmitter<{
+  readonly deleteMembership = output<{
     id: string;
     isCurrentUser: boolean;
   }>();
 
-  @Output()
-  editMembership = new EventEmitter<{
+  readonly editMembership = output<{
     id: string;
     role: GroupMembershipRole;
     isCurrentUser: boolean;

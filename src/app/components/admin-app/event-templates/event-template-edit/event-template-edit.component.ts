@@ -1,14 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import {
-  Component,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-  Output,
-  inject,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, output } from '@angular/core';
 import {
   UntypedFormControl,
   FormGroupDirective,
@@ -108,7 +101,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   data = inject(MAT_DIALOG_DATA);
 
-  @Output() editComplete = new EventEmitter<any>();
+  readonly editComplete = output<any>();
 
   private _viewList: View[] = [];
   private _directoryList: Directory[] = [];

@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Output, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -40,7 +40,7 @@ class MembershipListStubComponent {
   readonly users = input<User[]>(undefined);
   readonly groups = input<Group[]>(undefined);
   readonly canEdit = input<boolean>(undefined);
-  @Output() createMembership = new EventEmitter<EventMembership>();
+  readonly createMembership = output<EventMembership>();
 }
 
 @Component({
@@ -53,8 +53,8 @@ class MemberListStubComponent {
   readonly groups = input<Group[]>(undefined);
   readonly roles = input<EventRole[]>(undefined);
   readonly canEdit = input<boolean>(undefined);
-  @Output() deleteMembership = new EventEmitter<string>();
-  @Output() editMembership = new EventEmitter<EventMembership>();
+  readonly deleteMembership = output<string>();
+  readonly editMembership = output<EventMembership>();
 }
 
 const event: AlloyEvent = { id: 'e1', name: 'Cyber Range 101' };

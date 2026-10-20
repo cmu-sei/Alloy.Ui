@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Output, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import {
@@ -30,7 +30,7 @@ class EventTemplateListStubComponent {
   readonly scenarioTemplateList =
     input<Observable<ScenarioTemplate[]>>(undefined);
   readonly eventTemplates = input<EventTemplate[]>(undefined);
-  @Output() refreshTemplates = new EventEmitter<void>();
+  readonly refreshTemplates = output<void>();
 }
 
 async function renderEventTemplates() {
@@ -112,6 +112,7 @@ describe('EventTemplatesComponent', () => {
     const { list, playerApi, casterApi, steamfitterApi } =
       await renderEventTemplates();
 
+    // TODO: The 'emit' function requires a mandatory void argument
     list().refreshTemplates.emit();
 
     expect(playerApi.getViews).toHaveBeenCalledTimes(2);

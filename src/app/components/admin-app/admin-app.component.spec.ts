@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Output, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { screen } from '@testing-library/angular';
@@ -42,7 +42,7 @@ class TopbarStubComponent {
   readonly title = input<string>(undefined);
   readonly topbarView = input<TopbarView>(undefined);
   readonly sidenav = input<unknown>(undefined);
-  @Output() sidenavToggle = new EventEmitter<boolean>();
+  readonly sidenavToggle = output<boolean>();
 }
 @Component({ selector: 'app-event-templates', template: '' })
 class EventTemplatesStubComponent {}

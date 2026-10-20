@@ -4,13 +4,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   inject,
   input,
+  output,
 } from '@angular/core';
 import {
   ComnAuthQuery,
@@ -64,9 +63,9 @@ export class TopbarComponent implements OnInit, OnDestroy {
   @Input() topbarColor?;
   @Input() topbarTextColor?;
   readonly topbarView = input<TopbarView>(undefined);
-  @Output() sidenavToggle?: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() setTeam?: EventEmitter<string> = new EventEmitter<string>();
-  @Output() editView?: EventEmitter<any> = new EventEmitter<any>();
+  readonly sidenavToggle = output<boolean>();
+  readonly setTeam = output<string>();
+  readonly editView = output<any>();
   currentUser$: Observable<CurrentUserState>;
   theme$: Observable<Theme>;
   unsubscribe$: Subject<null> = new Subject<null>();

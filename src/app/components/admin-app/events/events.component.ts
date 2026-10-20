@@ -3,12 +3,11 @@
 
 import {
   Component,
-  EventEmitter,
   NgZone,
   OnInit,
-  Output,
   inject,
   input,
+  output,
 } from '@angular/core';
 import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -25,7 +24,7 @@ export class EventsComponent implements OnInit {
   zone = inject(NgZone);
 
   readonly refresh = input<Subject<boolean>>(undefined);
-  @Output() editComplete = new EventEmitter<boolean>();
+  readonly editComplete = output<boolean>();
 
   matcher = new UserErrorStateMatcher();
   isLinear = false;

@@ -5,14 +5,13 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 
 import {
   Component,
-  EventEmitter,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   SimpleChanges,
   inject,
   input,
+  output,
 } from '@angular/core';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
@@ -61,7 +60,7 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
   readonly embedded = input<boolean>(undefined);
   readonly eventTemplateId = input<string>(undefined);
   readonly showHeader = input(true);
-  @Output() goBack = new EventEmitter();
+  readonly goBack = output();
 
   eventTemplate$: Observable<EventTemplate>;
 

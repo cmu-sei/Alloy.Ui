@@ -11,14 +11,13 @@ import {
 import {
   AfterViewInit,
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
   inject,
   input,
+  output,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -127,7 +126,7 @@ export class EventTemplateListComponent
   }
   @Input() isLoading: boolean;
   readonly adminMode = input(false);
-  @Output() refreshTemplates = new EventEmitter<void>();
+  readonly refreshTemplates = output<void>();
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('paginator') paginator: MatPaginator;
@@ -223,6 +222,7 @@ export class EventTemplateListComponent
 
   addNewEventTemplate() {
     // Refresh template lists from external services before opening dialog
+    // TODO: The 'emit' function requires a mandatory void argument
     this.refreshTemplates.emit();
 
     const dialogRef = this.dialog.open(EventTemplateEditComponent, {
@@ -264,6 +264,7 @@ export class EventTemplateListComponent
 
   editEventTemplate(eventTemplate: EventTemplate) {
     // Refresh template lists from external services before opening dialog
+    // TODO: The 'emit' function requires a mandatory void argument
     this.refreshTemplates.emit();
 
     this.eventService

@@ -82,6 +82,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideZoneChangeDetection(),
     importProvidersFrom(
       environment.production ? [] : AkitaNgDevtools.forRoot(),
       BrowserModule,

@@ -8,7 +8,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <div class="d-flex justify-content-center align-items-center">
       @if (embedded()) {
         <button mat-icon-button (click)="goBack.emit()" matTooltip="Return">
-          <mat-icon class="mdi-24px" fontIcon="mdi-keyboard-return"></mat-icon>
+          <mat-icon class="mdi-24px" fontIcon="mdi-keyboard-return" />
         </button>
       }
       <h1>{{ eventTemplate.name }}</h1>
@@ -21,7 +21,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     [groups]="groupNonMembers$ | async"
     [canEdit]="canEdit$ | async"
     (createMembership)="createMembership($event)"
-  ></app-event-template-membership-list>
+  />
 
   <app-event-template-member-list
     [memberships]="memberships$ | async"
@@ -31,5 +31,5 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     [canEdit]="canEdit$ | async"
     (deleteMembership)="deleteMembership($event)"
     (editMembership)="editMembership($event)"
-  ></app-event-template-member-list>
+  />
 </div>

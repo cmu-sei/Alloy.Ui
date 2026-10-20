@@ -15,7 +15,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         [routerLink]="['/']"
         title="Home"
       >
-        <mat-icon svgIcon="ic_crucible_alloy"></mat-icon>
+        <mat-icon svgIcon="ic_crucible_alloy" />
       </a>
     </span>
     <span class="view-text">{{ title() }}</span>
@@ -32,7 +32,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <mat-icon
               class="menu-trigger"
               svgIcon="ic_expand_more_white_24px"
-            ></mat-icon>
+            />
           </button>
           <mat-menu #teamMenu="matMenu" [overlapTrigger]="false">
             @for (val of teams; track val) {
@@ -59,7 +59,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             aria-hidden="false"
             class="menu-trigger"
             fontIcon="mdi-chevron-down"
-          ></mat-icon>
+          />
         </button>
         <mat-menu #menu="matMenu" [overlapTrigger]="false">
           @if (team && team.canManage) {

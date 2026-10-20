@@ -25,17 +25,14 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             aria-label="Clear"
             (click)="clearFilter()"
           >
-            <mat-icon
-              class="mdi-24px"
-              fontIcon="mdi-close-circle-outline"
-            ></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-close-circle-outline" />
           </button>
         }
       </mat-form-field>
       <mat-paginator
         [pageSizeOptions]="[10, 25, 50, 100]"
         aria-label="Select page of members"
-      ></mat-paginator>
+      />
     </mat-toolbar-row>
   </mat-toolbar>
   <table
@@ -58,10 +55,10 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             (click)="$event.stopPropagation()"
             title="Copy:  {{ user.id }}"
           >
-            <mat-icon class="mdi-24px" fontIcon="mdi-content-copy"></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-content-copy" />
           </button>
           <span>{{ user.name }}</span>
-          <app-current-user-badge [userId]="user.id"></app-current-user-badge>
+          <app-current-user-badge [userId]="user.id" />
         </div>
       </td>
     </ng-container>
@@ -79,7 +76,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           <mat-icon
             class="mdi-24px center-self"
             fontIcon="mdi-plus-circle-outline"
-          ></mat-icon>
+          />
         </button>
       </td>
     </ng-container>

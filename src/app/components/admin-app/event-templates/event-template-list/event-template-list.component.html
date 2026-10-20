@@ -10,7 +10,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       fontIcon="mdi-clipboard"
       [style.color]="'var(--mat-sys-primary)'"
       alt="Event Templates"
-    ></mat-icon>
+    />
   </div>
   <mat-form-field class="search-field">
     <input matInput [formControl]="filterControl" placeholder="Search" />
@@ -24,7 +24,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <mat-icon
           style="transform: scale(0.85)"
           fontIcon="mdi-close-circle-outline"
-        ></mat-icon>
+        />
       </button>
     }
   </mat-form-field>
@@ -33,7 +33,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       #paginator
       [pageSize]="20"
       [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"
-    ></mat-paginator>
+    />
   </div>
 </div>
 
@@ -55,7 +55,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             style="outline: none; margin-left: 20px"
             title="Add Event Template"
           >
-            <mat-icon class="mdi-24px" fontIcon="mdi-plus-circle"></mat-icon>
+            <mat-icon class="mdi-24px" fontIcon="mdi-plus-circle" />
           </button>
         }
       </th>
@@ -78,7 +78,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                 ? 'mdi-square-edit-outline'
                 : 'mdi-eye-outline'
             "
-          ></mat-icon>
+          />
         </button>
         <button
           mat-icon-button
@@ -87,7 +87,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           (click)="$event.stopPropagation()"
           title="Copy: {{ element.id }}"
         >
-          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy" />
         </button>
       </td>
     </ng-container>
@@ -140,7 +140,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
               <app-event-template-memberships
                 [eventTemplateId]="element.id"
                 [showHeader]="false"
-              ></app-event-template-memberships>
+              />
             </div>
           }
         </div>
@@ -172,7 +172,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       width: 100%;
     "
   >
-    <mat-progress-spinner color="primary" mode="indeterminate">
-    </mat-progress-spinner>
+    <mat-progress-spinner color="primary" mode="indeterminate" />
   </mat-card>
 }

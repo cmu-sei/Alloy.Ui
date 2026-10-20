@@ -10,7 +10,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       fontIcon="mdi-clipboard-play"
       [style.color]="'var(--mat-sys-primary)'"
       alt="Events"
-    ></mat-icon>
+    />
   </div>
   <mat-form-field class="search-field">
     <input
@@ -29,7 +29,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <mat-icon
           style="transform: scale(0.85)"
           fontIcon="mdi-close-circle-outline"
-        ></mat-icon>
+        />
       </button>
     }
   </mat-form-field>
@@ -51,7 +51,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       [pageIndex]="0"
       [pageSize]="20"
       [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"
-    ></mat-paginator>
+    />
   </div>
 </div>
 
@@ -71,10 +71,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           title="Edit event"
           [disabled]="!(canEdit(element.id) || canManage(element.id))"
         >
-          <mat-icon
-            class="mdi-18px"
-            fontIcon="mdi-square-edit-outline"
-          ></mat-icon>
+          <mat-icon class="mdi-18px" fontIcon="mdi-square-edit-outline" />
         </button>
         <button
           mat-icon-button
@@ -83,7 +80,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           (click)="$event.stopPropagation()"
           title="Copy: {{ element.id }}"
         >
-          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy" />
         </button>
       </td>
     </ng-container>
@@ -110,8 +107,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             fontIcon="mdi-alert-circle-outline"
             matTooltip="This event failed - expand the row to see why"
             matTooltipPosition="right"
-          >
-          </mat-icon>
+          />
         }
       </td>
     </ng-container>
@@ -170,7 +166,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                   <mat-icon
                     class="mdi-24px error-indicator"
                     fontIcon="mdi-alert-circle-outline"
-                  ></mat-icon>
+                  />
                   <strong>Failure</strong>
                 </div>
                 <div>{{ element.errorMessage }}</div>
@@ -196,7 +192,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                         <mat-icon
                           class="mdi-18px"
                           fontIcon="mdi-content-copy"
-                        ></mat-icon>
+                        />
                       </button>
                       <span>Workspace: {{ element.workspaceId }}</span>
                     </div>
@@ -216,7 +212,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                           <mat-icon
                             class="mdi-18px"
                             fontIcon="mdi-content-copy"
-                          ></mat-icon>
+                          />
                         </button>
                         <span>Run: {{ element.runId }}</span>
                       </div>
@@ -235,7 +231,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                         <mat-icon
                           class="mdi-18px error-link-icon"
                           fontIcon="mdi-open-in-new"
-                        ></mat-icon>
+                        />
                       </a>
                     </div>
                   }
@@ -255,10 +251,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                     "
                     (click)="$event.stopPropagation()"
                   >
-                    <mat-icon
-                      class="mdi-18px"
-                      fontIcon="mdi-content-copy"
-                    ></mat-icon>
+                    <mat-icon class="mdi-18px" fontIcon="mdi-content-copy" />
                     Copy Details
                   </button>
                 }
@@ -266,10 +259,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             }
             <div class="memberships-container">
               <label class="memberships-label">Memberships</label>
-              <app-event-memberships
-                [event]="element"
-                [embedded]="false"
-              ></app-event-memberships>
+              <app-event-memberships [event]="element" [embedded]="false" />
             </div>
           }
         </div>
@@ -301,7 +291,6 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       width: 100%;
     "
   >
-    <mat-progress-spinner color="primary" mode="indeterminate">
-    </mat-progress-spinner>
+    <mat-progress-spinner color="primary" mode="indeterminate" />
   </mat-card>
 }

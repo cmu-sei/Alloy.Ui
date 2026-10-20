@@ -42,7 +42,7 @@ import {
 // 3. RouterQuery: not used. alloy.ui lists @datorama/akita-ng-router-store in
 //    package.json but imports nothing from it.
 
-// 4. BASE_PATH: not injected by any data or hub service (main.ts
+// 4. BASE_PATH: not injected by any data or hub service (app.config.ts
 //    provides it to the generated ApiModule only).
 
 // 5. Common-library services the app injects: CrucibleDialogService (admin

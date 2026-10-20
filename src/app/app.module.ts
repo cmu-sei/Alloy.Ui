@@ -99,11 +99,6 @@ const settings: ComnSettingsConfig = {
 };
 
 @NgModule({
-  exports: [MatSortModule],
-})
-export class AngularMaterialModule {}
-
-@NgModule({
   declarations: [AppComponent],
   bootstrap: [AppComponent],
   imports: [

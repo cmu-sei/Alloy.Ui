@@ -4,12 +4,12 @@
 import {
   ChangeDetectorRef,
   Component,
-  Inject,
   Input,
   LOCALE_ID,
   OnDestroy,
   OnInit,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { formatDate, AsyncPipe, DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -140,6 +140,24 @@ import {
   ],
 })
 export class EventTemplateInfoComponent implements OnInit, OnDestroy {
+  private settingsService = inject(ComnSettingsService);
+  private crucibleDialog = inject(CrucibleDialogService);
+  eventTemplateDataService = inject(EventTemplateDataService);
+  eventDataService = inject(EventDataService);
+  private eventTemplateQuery = inject(EventTemplateQuery);
+  private eventQuery = inject(EventQuery);
+  private userDataService = inject(UserDataService);
+  private userEventsQuery = inject(UserEventsQuery);
+  private authQuery = inject(ComnAuthQuery);
+  private currentUserQuery = inject(CurrentUserQuery);
+  private route = inject(ActivatedRoute);
+  private signalRService = inject(SignalRService);
+  private clipboardService = inject(ClipboardService);
+  private changeDetector = inject(ChangeDetectorRef);
+  private permissionDataService = inject(PermissionDataService);
+  snackBar = inject(MatSnackBar);
+  private locale = inject(LOCALE_ID);
+
   @Input() eventTemplateId: string;
   @ViewChild('historySort', { static: false }) sort: MatSort;
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
@@ -180,25 +198,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public canViewAdministration = false;
   private unsubscribe$: Subject<null> = new Subject<null>();
 
-  constructor(
-    private settingsService: ComnSettingsService,
-    private crucibleDialog: CrucibleDialogService,
-    public eventTemplateDataService: EventTemplateDataService,
-    public eventDataService: EventDataService,
-    private eventTemplateQuery: EventTemplateQuery,
-    private eventQuery: EventQuery,
-    private userDataService: UserDataService,
-    private userEventsQuery: UserEventsQuery,
-    private authQuery: ComnAuthQuery,
-    private currentUserQuery: CurrentUserQuery,
-    private route: ActivatedRoute,
-    private signalRService: SignalRService,
-    private clipboardService: ClipboardService,
-    private changeDetector: ChangeDetectorRef,
-    private permissionDataService: PermissionDataService,
-    public snackBar: MatSnackBar,
-    @Inject(LOCALE_ID) private locale: string,
-  ) {
+  constructor() {
     this.titleText = this.settingsService.settings.AppTopBarText;
     this.theme$ = this.authQuery.userTheme$;
 

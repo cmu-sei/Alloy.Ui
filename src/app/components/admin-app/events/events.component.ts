@@ -8,6 +8,7 @@ import {
   NgZone,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
 import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -21,13 +22,13 @@ import { AdminEventListComponent } from './event-list/event-list.component';
   imports: [AdminEventListComponent],
 })
 export class EventsComponent implements OnInit {
+  zone = inject(NgZone);
+
   @Input() refresh: Subject<boolean>;
   @Output() editComplete = new EventEmitter<boolean>();
 
   matcher = new UserErrorStateMatcher();
   isLinear = false;
-
-  constructor(public zone: NgZone) {}
 
   /**
    * Initialize component

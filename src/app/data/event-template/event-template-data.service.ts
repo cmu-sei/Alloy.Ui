@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import {
@@ -14,10 +14,8 @@ import { EventTemplateStore } from './event-template.store';
   providedIn: 'root',
 })
 export class EventTemplateDataService {
-  constructor(
-    private eventTemplateService: EventTemplateService,
-    private templateStore: EventTemplateStore
-  ) {}
+  private eventTemplateService = inject(EventTemplateService);
+  private templateStore = inject(EventTemplateStore);
 
   loadTemplates() {
     return this.eventTemplateService
@@ -36,7 +34,7 @@ export class EventTemplateDataService {
   addNew(eventTemplate: EventTemplate): Observable<EventTemplate> {
     return this.eventTemplateService.createEventTemplate(eventTemplate).pipe(
       tap((x) => this.stateCreate(x)),
-      take(1)
+      take(1),
     );
   }
 
@@ -49,7 +47,7 @@ export class EventTemplateDataService {
       .updateEventTemplate(eventTemplate.id, eventTemplate)
       .pipe(
         tap((x) => this.stateUpdate(x)),
-        take(1)
+        take(1),
       );
   }
 

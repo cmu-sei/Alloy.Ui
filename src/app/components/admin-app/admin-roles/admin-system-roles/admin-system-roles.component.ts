@@ -58,6 +58,12 @@ const NAME_VALUE = 'nameValue';
   ],
 })
 export class AdminSystemRolesComponent implements OnInit {
+  private roleService = inject(RoleDataService);
+  private dialog = inject(MatDialog);
+  private crucibleDialog = inject(CrucibleDialogService);
+  private permissionDataService = inject(PermissionDataService);
+  private signalRService = inject(SignalRService);
+
   public canEdit = this.permissionDataService.hasPermission(
     SystemPermission.ManageRoles,
   );
@@ -90,14 +96,6 @@ export class AdminSystemRolesComponent implements OnInit {
       return ['permissions', ...columnNames];
     }),
   );
-
-  constructor(
-    private roleService: RoleDataService,
-    private dialog: MatDialog,
-    private crucibleDialog: CrucibleDialogService,
-    private permissionDataService: PermissionDataService,
-    private signalRService: SignalRService,
-  ) {}
 
   ngOnInit(): void {
     this.roleService.getRoles().subscribe();

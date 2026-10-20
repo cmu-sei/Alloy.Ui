@@ -1,6 +1,6 @@
 // Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormBuilder,
@@ -38,17 +38,19 @@ import {
   ],
 })
 export class NameDialogComponent {
+  data = inject(MAT_DIALOG_DATA);
+  dialogRef = inject<MatDialogRef<NameDialogComponent>>(MatDialogRef);
+  private formBuilder = inject(UntypedFormBuilder);
+
   public title = '';
   public message = '';
   public removeArtifacts = true;
   public form: UntypedFormGroup;
   public validators: Array<NameValidatorModel> = [];
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    public dialogRef: MatDialogRef<NameDialogComponent>,
-    private formBuilder: UntypedFormBuilder,
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.form = this.formBuilder.group({
       name: [data.nameValue, [Validators.required]],
     });

@@ -11,6 +11,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
@@ -44,6 +45,15 @@ import { AsyncPipe } from '@angular/common';
   ],
 })
 export class EventMembershipsComponent implements OnInit, OnChanges {
+  private eventDataService = inject(EventDataService);
+  private eventQuery = inject(EventQuery);
+  private eventMembershipDataService = inject(EventMembershipDataService);
+  private eventRolesDataService = inject(EventRoleDataService);
+  private userDataService = inject(UserDataService);
+  private userQuery = inject(UserQuery);
+  private groupDataService = inject(GroupDataService);
+  private permissionDataService = inject(PermissionDataService);
+
   @Input() embedded: boolean;
   @Input() event: Event;
   @Output() goBack = new EventEmitter();
@@ -61,17 +71,6 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
   groupMembers$ = this.selectGroups(true);
 
   canEdit$: Observable<boolean>;
-
-  constructor(
-    private eventDataService: EventDataService,
-    private eventQuery: EventQuery,
-    private eventMembershipDataService: EventMembershipDataService,
-    private eventRolesDataService: EventRoleDataService,
-    private userDataService: UserDataService,
-    private userQuery: UserQuery,
-    private groupDataService: GroupDataService,
-    private permissionDataService: PermissionDataService,
-  ) {}
 
   ngOnInit(): void {
     forkJoin([

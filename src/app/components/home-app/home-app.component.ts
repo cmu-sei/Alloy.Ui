@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { combineLatest, forkJoin, Subject } from 'rxjs';
@@ -30,6 +30,14 @@ import { EventListComponent } from './event-list/event-list.component';
   ],
 })
 export class HomeAppComponent implements OnInit, OnDestroy {
+  private settingsService = inject(ComnSettingsService);
+  private titleService = inject(Title);
+  private eventDataService = inject(EventDataService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private userDataService = inject(UserDataService);
+  private permissionDataService = inject(PermissionDataService);
+
   username: string;
   titleText: string;
   hideTopbar = false;
@@ -41,15 +49,7 @@ export class HomeAppComponent implements OnInit, OnDestroy {
   permissions: SystemPermission[] = [];
   canViewAdministration = false;
 
-  constructor(
-    private settingsService: ComnSettingsService,
-    private titleService: Title,
-    private eventDataService: EventDataService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private userDataService: UserDataService,
-    private permissionDataService: PermissionDataService,
-  ) {
+  constructor() {
     // Set the page title from configuration file
     this.titleText = this.settingsService.settings.AppTopBarText;
   }

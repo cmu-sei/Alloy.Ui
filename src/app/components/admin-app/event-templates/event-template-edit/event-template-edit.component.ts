@@ -4,10 +4,10 @@
 import {
   Component,
   EventEmitter,
-  Inject,
   OnDestroy,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -104,6 +104,10 @@ export class ImmediateErrorStateMatcher implements ErrorStateMatcher {
   ],
 })
 export class EventTemplateEditComponent implements OnInit, OnDestroy {
+  crucibleDialog = inject(CrucibleDialogService);
+  private snackBar = inject(MatSnackBar);
+  data = inject(MAT_DIALOG_DATA);
+
   @Output() editComplete = new EventEmitter<any>();
 
   private _viewList: View[] = [];
@@ -151,12 +155,6 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public directorySearchControl = new UntypedFormControl('', []);
   public scenarioTemplateSearchControl = new UntypedFormControl('', []);
   private unsubscribe$ = new Subject();
-
-  constructor(
-    public crucibleDialog: CrucibleDialogService,
-    private snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
 
   /**
    * Notifies the user after a value is copied to the clipboard

@@ -17,6 +17,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  inject,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -111,6 +112,12 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 export class EventTemplateListComponent
   implements AfterViewInit, OnDestroy, OnInit
 {
+  dialog = inject(MatDialog);
+  private eventTemplateDataService = inject(EventTemplateDataService);
+  private settingsService = inject(ComnSettingsService);
+  private permissionDataService = inject(PermissionDataService);
+  private eventService = inject(EventService);
+
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
   @Input() scenarioTemplateList: Observable<EventTemplate[]>;
@@ -137,13 +144,7 @@ export class EventTemplateListComponent
   systemPermissions: SystemPermission[] = [];
   private unsubscribe$ = new Subject();
 
-  constructor(
-    public dialog: MatDialog,
-    private eventTemplateDataService: EventTemplateDataService,
-    private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService,
-    private eventService: EventService,
-  ) {
+  constructor() {
     this.eventTemplateDataService.loadTemplates();
     this.isLoading = false;
     this.permissionDataService

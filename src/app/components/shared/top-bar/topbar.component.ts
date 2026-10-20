@@ -9,6 +9,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
 import {
   ComnAuthQuery,
@@ -49,6 +50,12 @@ import { AsyncPipe } from '@angular/common';
   ],
 })
 export class TopbarComponent implements OnInit, OnDestroy {
+  private authService = inject(ComnAuthService);
+  private currentUserQuery = inject(CurrentUserQuery);
+  private authQuery = inject(ComnAuthQuery);
+  private settingsService = inject(ComnSettingsService);
+  private permissionDataService = inject(PermissionDataService);
+
   @Input() title?: string;
   @Input() sidenav?;
   @Input() teams?;
@@ -64,14 +71,6 @@ export class TopbarComponent implements OnInit, OnDestroy {
   unsubscribe$: Subject<null> = new Subject<null>();
   TopbarView = TopbarView;
   canViewAdmin = false;
-
-  constructor(
-    private authService: ComnAuthService,
-    private currentUserQuery: CurrentUserQuery,
-    private authQuery: ComnAuthQuery,
-    private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService,
-  ) {}
 
   ngOnInit() {
     forkJoin([

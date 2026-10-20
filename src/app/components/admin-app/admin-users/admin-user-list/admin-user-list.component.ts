@@ -10,6 +10,7 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -81,6 +82,10 @@ export interface Action {
   ],
 })
 export class AdminUserListComponent implements OnInit, OnChanges {
+  private crucibleDialog = inject(CrucibleDialogService);
+  private roleDataService = inject(RoleDataService);
+  private userDataService = inject(UserDataService);
+
   displayedColumns: string[] = ['id', 'name', 'role'];
   filterString = '';
   savedFilterString = '';
@@ -98,12 +103,6 @@ export class AdminUserListComponent implements OnInit, OnChanges {
   @Output() delete: EventEmitter<string> = new EventEmitter<string>();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-
-  constructor(
-    private crucibleDialog: CrucibleDialogService,
-    private roleDataService: RoleDataService,
-    private userDataService: UserDataService,
-  ) {}
 
   ngOnInit() {
     if (this.paginator) {

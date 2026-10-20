@@ -50,6 +50,8 @@ import { AsyncPipe } from '@angular/common';
   ],
 })
 export class AdminEventRolesComponent implements OnInit {
+  private eventRoleService = inject(EventRoleDataService);
+
   public allPermission = 'All';
 
   public permissionMap = EventRolesModel.EventPermissions;
@@ -73,8 +75,6 @@ export class AdminEventRolesComponent implements OnInit {
       return ['permissions', ...columnNames];
     }),
   );
-
-  constructor(private eventRoleService: EventRoleDataService) {}
 
   ngOnInit(): void {
     this.eventRoleService.loadRoles().subscribe();

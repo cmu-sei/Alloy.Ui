@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { View, PlayerService } from 'src/app/generated/alloy.api';
 import { map, take } from 'rxjs/operators';
@@ -12,6 +12,10 @@ import { Router, ActivatedRoute } from '@angular/router';
   providedIn: 'root',
 })
 export class PlayerDataService {
+  private playerService = inject(PlayerService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+
   private _views: View[] = [];
   private _viewMask: Observable<string>;
   readonly views = new BehaviorSubject<View[]>(this._views);
@@ -20,16 +24,15 @@ export class PlayerDataService {
   readonly selectedView: Observable<View>;
   private _selectedViewId: string;
   private requestedViewId = this.activatedRoute.queryParamMap.pipe(
-    map((params) => params.get('viewId') || '')
+    map((params) => params.get('viewId') || ''),
   );
 
-  constructor(
-    private playerService: PlayerService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) {
+  constructor() {
+    const router = this.router;
+    const activatedRoute = this.activatedRoute;
+
     this._viewMask = activatedRoute.queryParamMap.pipe(
-      map((params) => params.get('viewMask') || '')
+      map((params) => params.get('viewMask') || ''),
     );
     this.viewFilter.valueChanges.subscribe((term) => {
       router.navigate([], {
@@ -42,15 +45,15 @@ export class PlayerDataService {
         items
           ? (items as View[])
               .sort((a: View, b: View) =>
-                a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+                a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
               )
               .filter(
                 (item) =>
                   item.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
-                  item.id.toLowerCase().includes(filterTerm.toLowerCase())
+                  item.id.toLowerCase().includes(filterTerm.toLowerCase()),
               )
-          : []
-      )
+          : [],
+      ),
     );
     this.selectedView = combineLatest([
       this.viewList,
@@ -59,7 +62,7 @@ export class PlayerDataService {
       map(([viewList, requestedViewId]) => {
         if (viewList && viewList.length > 0 && requestedViewId) {
           const selectedView = viewList.find(
-            (view) => view.id === requestedViewId
+            (view) => view.id === requestedViewId,
           );
           if (selectedView && selectedView.id !== this._selectedViewId) {
             this._selectedViewId = selectedView.id;
@@ -69,7 +72,7 @@ export class PlayerDataService {
           this._selectedViewId = '';
           return undefined;
         }
-      })
+      }),
     );
   }
 
@@ -88,7 +91,7 @@ export class PlayerDataService {
         },
         (error) => {
           this.updateViews([]);
-        }
+        },
       );
   }
 

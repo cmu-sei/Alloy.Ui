@@ -7,7 +7,14 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable, MatSortHeader } from '@angular/material/sort';
 import {
@@ -84,6 +91,12 @@ import { DatePipe } from '@angular/common';
   ],
 })
 export class EventListComponent implements OnInit, OnDestroy {
+  private eventDataService = inject(EventDataService);
+  private templateDataService = inject(EventTemplateDataService);
+  private eventTemplateQuery = inject(EventTemplateQuery);
+  private router = inject(Router);
+  private authQuery = inject(ComnAuthQuery);
+
   @Input() templates: EventTemplate[];
   @ViewChild('sortTemplate', { static: true }) eventTemplateSort: MatSort;
   @ViewChild('sortEvent', { static: true }) eventSort: MatSort;
@@ -107,13 +120,7 @@ export class EventListComponent implements OnInit, OnDestroy {
   private unsubscribe$: Subject<null> = new Subject<null>();
   theme$: Observable<Theme>;
 
-  constructor(
-    private eventDataService: EventDataService,
-    private templateDataService: EventTemplateDataService,
-    private eventTemplateQuery: EventTemplateQuery,
-    private router: Router,
-    private authQuery: ComnAuthQuery,
-  ) {
+  constructor() {
     this.theme$ = this.authQuery.userTheme$;
 
     this.eventTemplateDataSource = new MatTableDataSource<EventTemplate>(

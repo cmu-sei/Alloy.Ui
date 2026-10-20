@@ -3,7 +3,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 */
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, EMPTY, from, Subject } from 'rxjs';
 import {
@@ -35,6 +35,10 @@ import { AsyncPipe } from '@angular/common';
   ],
 })
 export class EnlistComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private eventDataService = inject(EventDataService);
+
   /**
    * BehaviorSubject, not Subject: the `true` below is emitted from ngOnInit, which runs before
    * the template's async pipe subscribes, so a plain Subject dropped it and the "Adding you to
@@ -44,11 +48,6 @@ export class EnlistComponent implements OnInit, OnDestroy {
   unsubscibe$: Subject<null> = new Subject<null>();
   eventTemplateId: string;
   errorMessage: string | null = null;
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private eventDataService: EventDataService,
-  ) {}
 
   ngOnInit(): void {
     this.isLoading$.next(true);

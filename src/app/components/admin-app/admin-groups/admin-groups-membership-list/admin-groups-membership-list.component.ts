@@ -12,6 +12,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -77,6 +78,8 @@ import { CurrentUserBadgeComponent } from '../../../shared/current-user-badge/cu
 export class AdminGroupsMembershipListComponent
   implements OnInit, OnChanges, AfterViewInit
 {
+  snackBar = inject(MatSnackBar);
+
   @Input()
   users: User[];
 
@@ -95,8 +98,6 @@ export class AdminGroupsMembershipListComponent
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-
-  constructor(public snackBar: MatSnackBar) {}
 
   ngOnInit(): void {}
 

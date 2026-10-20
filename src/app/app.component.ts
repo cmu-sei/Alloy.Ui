@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
@@ -22,19 +22,20 @@ import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
   imports: [ComnHeaderBarModule, RouterOutlet],
 })
 export class AppComponent implements OnDestroy {
+  private authQuery = inject(ComnAuthQuery);
+  private activatedRoute = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authService = inject(ComnAuthService);
+  private themeService = inject(CrucibleThemeService);
+
   theme$: Observable<Theme> = this.authQuery.userTheme$;
   private paramTheme;
   unsubscribe$: Subject<null> = new Subject<null>();
 
-  constructor(
-    iconRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer,
-    private authQuery: ComnAuthQuery,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private authService: ComnAuthService,
-    private themeService: CrucibleThemeService,
-  ) {
+  constructor() {
+    const iconRegistry = inject(MatIconRegistry);
+    const sanitizer = inject(DomSanitizer);
+
     iconRegistry.setDefaultFontSetClass('mdi');
 
     iconRegistry.addSvgIcon(

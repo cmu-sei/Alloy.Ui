@@ -8,7 +8,14 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -107,6 +114,14 @@ export interface Action {
   ],
 })
 export class AdminEventListComponent implements OnInit, OnDestroy {
+  private eventService = inject(EventService);
+  private dialog = inject(MatDialog);
+  private settingsService = inject(ComnSettingsService);
+  private permissionDataService = inject(PermissionDataService);
+  private eventDataService = inject(EventDataService);
+  private eventQuery = inject(EventQuery);
+  snackBar = inject(MatSnackBar);
+
   displayedColumns: string[] = [
     'actions',
     'name',
@@ -155,15 +170,7 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   private readonly destroy$ = new Subject<void>();
 
-  constructor(
-    private eventService: EventService,
-    private dialog: MatDialog,
-    private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService,
-    private eventDataService: EventDataService,
-    private eventQuery: EventQuery,
-    public snackBar: MatSnackBar,
-  ) {
+  constructor() {
     this.casterUIAddress = this.settingsService.settings.CasterUIAddress;
 
     // Set the topbar color from config file

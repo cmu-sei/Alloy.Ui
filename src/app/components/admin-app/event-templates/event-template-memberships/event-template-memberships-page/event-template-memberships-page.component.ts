@@ -16,12 +16,10 @@ import { EventTemplateMembershipsComponent } from '../event-template-memberships
   imports: [TopbarComponent, EventTemplateMembershipsComponent],
 })
 export class EventTemplateMembershipsPageComponent implements OnInit {
-  eventTemplateId: string;
+  private activatedRoute = inject(ActivatedRoute);
+  private permissionDataService = inject(PermissionDataService);
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private permissionDataService: PermissionDataService,
-  ) {}
+  eventTemplateId: string;
 
   ngOnInit(): void {
     this.eventTemplateId = this.activatedRoute.snapshot.paramMap.get('id');

@@ -5,9 +5,9 @@ import {
   Component,
   EventEmitter,
   Input,
-  Inject,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -59,6 +59,9 @@ import { ClipboardModule } from 'ngx-clipboard';
   ],
 })
 export class EventEditComponent implements OnInit {
+  crucibleDialog = inject(CrucibleDialogService);
+  data = inject(MAT_DIALOG_DATA);
+
   @Output() editComplete = new EventEmitter<any>();
 
   public eventNameFormControl: UntypedFormControl;
@@ -81,11 +84,6 @@ export class EventEditComponent implements OnInit {
   public matcher = new UserErrorStateMatcher();
   public selectedViewId: any;
   public changesWereMade = false;
-
-  constructor(
-    public crucibleDialog: CrucibleDialogService,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
 
   /**
    * Initialize component

@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { CasterDataService } from 'src/app/data/caster/caster-data-service';
@@ -18,6 +18,11 @@ import { AsyncPipe } from '@angular/common';
   imports: [EventTemplateListComponent, AsyncPipe],
 })
 export class EventTemplatesComponent {
+  private playerDataService = inject(PlayerDataService);
+  private steamfitterDataService = inject(SteamfitterDataService);
+  private casterDataService = inject(CasterDataService);
+  private eventTemplateQuery = inject(EventTemplateQuery);
+
   public matcher = new UserErrorStateMatcher();
   public isLinear = false;
   public eventTemplates$ = this.eventTemplateQuery.selectAll();
@@ -27,12 +32,11 @@ export class EventTemplatesComponent {
   public directoryList = this.casterDataService.directoryList;
   loading$ = this.eventTemplateQuery.selectLoading();
 
-  constructor(
-    private playerDataService: PlayerDataService,
-    private steamfitterDataService: SteamfitterDataService,
-    private casterDataService: CasterDataService,
-    private eventTemplateQuery: EventTemplateQuery,
-  ) {
+  constructor() {
+    const playerDataService = this.playerDataService;
+    const steamfitterDataService = this.steamfitterDataService;
+    const casterDataService = this.casterDataService;
+
     playerDataService.getViewsFromApi();
     steamfitterDataService.getScenarioTemplatesFromApi();
     casterDataService.getDirectoriesFromApi();

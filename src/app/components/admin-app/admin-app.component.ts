@@ -1,6 +1,6 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -59,6 +59,17 @@ import { AdminUsersComponent } from './admin-users/admin-users.component';
   ],
 })
 export class AdminAppComponent implements OnInit {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(ComnAuthService);
+  private settingsService = inject(ComnSettingsService);
+  private titleService = inject(Title);
+  private userDataService = inject(UserDataService);
+  private permissionDataService = inject(PermissionDataService);
+  private signalRService = inject(SignalRService);
+  private currentUserQuery = inject(CurrentUserQuery);
+  private authQuery = inject(ComnAuthQuery);
+
   username: string;
   titleText: string;
   hideTopbar = false;
@@ -78,18 +89,7 @@ export class AdminAppComponent implements OnInit {
   readonly SystemPermission = SystemPermission;
   private unsubscribe$ = new Subject();
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private authService: ComnAuthService,
-    private settingsService: ComnSettingsService,
-    private titleService: Title,
-    private userDataService: UserDataService,
-    private permissionDataService: PermissionDataService,
-    private signalRService: SignalRService,
-    private currentUserQuery: CurrentUserQuery,
-    private authQuery: ComnAuthQuery,
-  ) {
+  constructor() {
     this.theme$ = this.authQuery.userTheme$;
   }
 

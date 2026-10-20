@@ -17,7 +17,6 @@ import {
   ComnAuthModule,
   ComnSettingsModule,
   ComnHeaderBarModule,
-  CRUCIBLE_DIALOG_IMPORTS,
 } from '@cmusei/crucible-common';
 import {
   provideHttpClient,
@@ -128,7 +127,6 @@ bootstrapApplication(AppComponent, {
       ComnSettingsModule.forRoot(),
       ComnHeaderBarModule,
       A11yModule,
-      ...CRUCIBLE_DIALOG_IMPORTS,
     ),
     SignalRService,
     {

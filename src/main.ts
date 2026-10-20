@@ -25,10 +25,10 @@ import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { ROUTES } from './app/app.routes';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { A11yModule } from '@angular/cdk/a11y';
 import { AppComponent } from './app/app.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export function getBasePath(settingsSvc: ComnSettingsService) {
   return settingsSvc.settings.ApiUrl;
@@ -49,8 +49,6 @@ bootstrapApplication(AppComponent, {
     provideZoneChangeDetection(),
     importProvidersFrom(
       environment.production ? [] : AkitaNgDevtools.forRoot(),
-      BrowserAnimationsModule,
-      MatNativeDateModule,
       ComnAuthModule.forRoot(),
       ComnSettingsModule.forRoot(),
       A11yModule,
@@ -62,6 +60,8 @@ bootstrapApplication(AppComponent, {
       deps: [ComnSettingsService],
     },
     provideRouter(ROUTES),
+    provideNativeDateAdapter(),
+    provideAnimationsAsync(),
     provideHttpClient(withInterceptorsFromDi()),
     provideCrucibleTheme({ brand: { color: '#006B6D', text: '#FFFFFF' } }),
   ],

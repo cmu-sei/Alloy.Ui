@@ -9,15 +9,25 @@ import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { UserDataService } from 'src/app/data/user/user-data.service';
 import { TopbarView } from '../shared/top-bar/topbar.models';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { SystemPermission } from 'src/app/generated/alloy.api';
+import { TopbarComponent } from '../shared/top-bar/topbar.component';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { EventListComponent } from './event-list/event-list.component';
 
 @Component({
-    selector: 'app-home-app',
-    templateUrl: './home-app.component.html',
-    styleUrls: ['./home-app.component.scss'],
-    standalone: false
+  selector: 'app-home-app',
+  templateUrl: './home-app.component.html',
+  styleUrls: ['./home-app.component.scss'],
+  imports: [
+    TopbarComponent,
+    MatIconButton,
+    RouterLink,
+    MatIcon,
+    EventListComponent,
+  ],
 })
 export class HomeAppComponent implements OnInit, OnDestroy {
   username: string;
@@ -38,7 +48,7 @@ export class HomeAppComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private userDataService: UserDataService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
   ) {
     // Set the page title from configuration file
     this.titleText = this.settingsService.settings.AppTopBarText;
@@ -57,13 +67,11 @@ export class HomeAppComponent implements OnInit, OnDestroy {
       this.permissionDataService.loadGroupPermissions(),
     ])
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(
-        (x) => {
-          this.permissions = this.permissionDataService.permissions;
-          this.canViewAdministration =
-            this.permissionDataService.canViewAdministration();
-        }
-      );
+      .subscribe((x) => {
+        this.permissions = this.permissionDataService.permissions;
+        this.canViewAdministration =
+          this.permissionDataService.canViewAdministration();
+      });
 
     // Get the event GUID from the URL that the user is entering the web page on
     this.route.params
@@ -79,7 +87,7 @@ export class HomeAppComponent implements OnInit, OnDestroy {
               viewId,
               // Set so only unique events are sent.
               new Set([...viewEvents, ...myEvents]),
-            ])
+            ]),
           );
         }),
         tap(([viewId, events]) => {
@@ -97,7 +105,7 @@ export class HomeAppComponent implements OnInit, OnDestroy {
           }
         }),
 
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe();
   }

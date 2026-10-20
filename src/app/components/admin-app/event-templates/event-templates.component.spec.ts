@@ -18,11 +18,11 @@ import { EventTemplateStore } from 'src/app/data/event-template/event-template.s
 import { ApiStub } from 'src/app/test-utils/api-stub';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplatesComponent } from './event-templates.component';
+import { EventTemplateListComponent } from 'src/app/components/admin-app/event-templates/event-template-list/event-template-list.component';
 
 @Component({
   selector: 'app-event-template-list',
   template: '',
-  standalone: false,
 })
 class EventTemplateListStubComponent {
   @Input() viewList: Observable<View[]>;
@@ -50,7 +50,12 @@ async function renderEventTemplates() {
     ),
   } satisfies ApiStub<SteamfitterService>;
   const rendered = await renderComponent(EventTemplatesComponent, {
-    declarations: [EventTemplatesComponent, EventTemplateListStubComponent],
+    childStubs: [
+      {
+        replace: EventTemplateListComponent,
+        with: EventTemplateListStubComponent,
+      },
+    ],
     providers: [
       { provide: PlayerService, useValue: playerApi },
       { provide: CasterService, useValue: casterApi },

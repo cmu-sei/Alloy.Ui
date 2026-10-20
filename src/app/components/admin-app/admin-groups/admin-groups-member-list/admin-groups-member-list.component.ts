@@ -16,9 +16,22 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSelectChange } from '@angular/material/select';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSelectChange, MatSelect } from '@angular/material/select';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
+import {
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+  MatNoDataRow,
+} from '@angular/material/table';
 import { CrucibleDialogService } from '@cmusei/crucible-common';
 import { filter, tap } from 'rxjs/operators';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
@@ -27,12 +40,51 @@ import {
   GroupMembershipRole,
   User,
 } from 'src/app/generated/alloy.api';
+import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import {
+  MatFormField,
+  MatLabel,
+  MatInput,
+  MatSuffix,
+} from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { CurrentUserBadgeComponent } from '../../../shared/current-user-badge/current-user-badge.component';
+import { MatOption } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-admin-groups-member-list',
   templateUrl: './admin-groups-member-list.component.html',
   styleUrls: ['./admin-groups-member-list.component.scss'],
-  standalone: false,
+  imports: [
+    MatToolbar,
+    MatToolbarRow,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatIcon,
+    MatPaginator,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatSortHeader,
+    MatCellDef,
+    MatCell,
+    CurrentUserBadgeComponent,
+    MatSelect,
+    MatOption,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatNoDataRow,
+  ],
 })
 export class AdminGroupsMemberListComponent
   implements OnInit, OnChanges, AfterViewInit
@@ -73,7 +125,7 @@ export class AdminGroupsMemberListComponent
   private readonly confirmService = inject(CrucibleDialogService);
   private currentUserId = toSignal(
     this.currentUserQuery.select((state) => state.id),
-    { initialValue: '' }
+    { initialValue: '' },
   );
 
   ngOnInit(): void {}
@@ -86,7 +138,7 @@ export class AdminGroupsMemberListComponent
   ngOnChanges() {
     this.buildModel();
     this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : []
+      this.canEdit ? this.editColumns : [],
     );
   }
 
@@ -129,7 +181,7 @@ export class AdminGroupsMemberListComponent
               id: model.membership.id,
               isCurrentUser,
             });
-          })
+          }),
         )
         .subscribe();
       return;
@@ -167,7 +219,7 @@ export class AdminGroupsMemberListComponent
             }
 
             event.source.value = model.role;
-          })
+          }),
         )
         .subscribe();
       return;

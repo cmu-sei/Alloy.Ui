@@ -18,11 +18,27 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import {
+  UntypedFormControl,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
+import {
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+} from '@angular/material/table';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -41,6 +57,14 @@ import { EventTemplateEditComponent } from '../event-template-edit/event-templat
 import { ComnSettingsService } from '@cmusei/crucible-common';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { EventService } from 'src/app/generated/alloy.api';
+import { MatIcon } from '@angular/material/icon';
+import { NgStyle, DatePipe } from '@angular/common';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIconButton } from '@angular/material/button';
+import { ClipboardModule } from 'ngx-clipboard';
+import { EventTemplateMembershipsComponent } from '../event-template-memberships/event-template-memberships/event-template-memberships.component';
+import { MatCard } from '@angular/material/card';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-event-template-list',
@@ -50,12 +74,44 @@ import { EventService } from 'src/app/generated/alloy.api';
     trigger('detailExpand', [
       state('collapsed', style({ height: '0px', minHeight: '0' })),
       state('expanded', style({ height: '*' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'),
+      ),
     ]),
   ],
-  standalone: false
+  imports: [
+    MatIcon,
+    NgStyle,
+    MatFormField,
+    MatInput,
+    FormsModule,
+    ReactiveFormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatPaginator,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatCellDef,
+    MatCell,
+    ClipboardModule,
+    MatSortHeader,
+    EventTemplateMembershipsComponent,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatCard,
+    MatProgressSpinner,
+    DatePipe,
+  ],
 })
-export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnInit {
+export class EventTemplateListComponent
+  implements AfterViewInit, OnDestroy, OnInit
+{
   @Input() viewList: Observable<View[]>;
   @Input() directoryList: Observable<Directory[]>;
   @Input() scenarioTemplateList: Observable<EventTemplate[]>;
@@ -70,7 +126,13 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   @ViewChild('paginator') paginator: MatPaginator;
 
   filterControl = new UntypedFormControl();
-  displayedColumns: string[] = ['actions', 'name', 'description', 'durationHours', 'dateCreated'];
+  displayedColumns: string[] = [
+    'actions',
+    'name',
+    'description',
+    'durationHours',
+    'dateCreated',
+  ];
   eventTemplateDataSource = new MatTableDataSource<EventTemplate>([]);
   expandedEventTemplateId: string | null = null;
   systemPermissions: SystemPermission[] = [];
@@ -81,29 +143,34 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
     private eventTemplateDataService: EventTemplateDataService,
     private settingsService: ComnSettingsService,
     private permissionDataService: PermissionDataService,
-    private eventService: EventService
+    private eventService: EventService,
   ) {
     this.eventTemplateDataService.loadTemplates();
     this.isLoading = false;
     this.permissionDataService
       .load()
       .subscribe(
-        (x) => (this.systemPermissions = this.permissionDataService.permissions)
+        (x) =>
+          (this.systemPermissions = this.permissionDataService.permissions),
       );
   }
 
   ngOnInit() {
     this.eventTemplateDataSource.filterPredicate = (data, filter) =>
       !filter ||
-      (data.name?.toLowerCase().includes(filter)) ||
-      (data.description?.toLowerCase().includes(filter));
+      data.name?.toLowerCase().includes(filter) ||
+      data.description?.toLowerCase().includes(filter);
 
     this.eventTemplateDataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
-        case 'name': return item.name?.toLowerCase() ?? '';
-        case 'description': return item.description?.toLowerCase() ?? '';
-        case 'dateCreated': return item.dateCreated ?? '';
-        default: return (item as any)[property] ?? '';
+        case 'name':
+          return item.name?.toLowerCase() ?? '';
+        case 'description':
+          return item.description?.toLowerCase() ?? '';
+        case 'dateCreated':
+          return item.dateCreated ?? '';
+        default:
+          return (item as any)[property] ?? '';
       }
     };
 
@@ -111,7 +178,7 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
       .pipe(
         debounceTime(250),
         distinctUntilChanged(),
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe((term) => {
         this.eventTemplateDataSource.filter = (term || '').trim().toLowerCase();
@@ -133,7 +200,8 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
   }
 
   selectEventTemplate(id: string) {
-    this.expandedEventTemplateId = this.expandedEventTemplateId === id ? null : id;
+    this.expandedEventTemplateId =
+      this.expandedEventTemplateId === id ? null : id;
   }
 
   canCreateEventTemplates(): boolean {
@@ -197,7 +265,8 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
     // Refresh template lists from external services before opening dialog
     this.refreshTemplates.emit();
 
-    this.eventService.getEventTemplateEvents(eventTemplate.id)
+    this.eventService
+      .getEventTemplateEvents(eventTemplate.id)
       .pipe(take(1))
       .subscribe((events) => {
         const hasEvents = events && events.length > 0;
@@ -211,10 +280,14 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
             viewList: this.viewList,
             directoryList: this.directoryList,
             scenarioTemplateList: this.scenarioTemplateList,
-            canEdit: this.permissionDataService.canEditEventTemplate(eventTemplate.id),
-            canManage: this.permissionDataService.canManageEventTemplate(eventTemplate.id),
+            canEdit: this.permissionDataService.canEditEventTemplate(
+              eventTemplate.id,
+            ),
+            canManage: this.permissionDataService.canManageEventTemplate(
+              eventTemplate.id,
+            ),
             canCreate: this.permissionDataService.canCreateEventTemplates(),
-            hasEvents: hasEvents
+            hasEvents: hasEvents,
           },
         });
         dialogRef.componentInstance.editComplete.subscribe((result) => {
@@ -227,7 +300,8 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
                 .pipe(take(1))
                 .subscribe({
                   next: () => dialogRef.close(),
-                  error: (err) => dialogRef.componentInstance.showSaveError(err),
+                  error: (err) =>
+                    dialogRef.componentInstance.showSaveError(err),
                 });
               return;
             case 'save':
@@ -235,7 +309,8 @@ export class EventTemplateListComponent implements AfterViewInit, OnDestroy, OnI
                 .update(result.eventTemplate)
                 .subscribe({
                   next: () => dialogRef.close(),
-                  error: (err) => dialogRef.componentInstance.showSaveError(err),
+                  error: (err) =>
+                    dialogRef.componentInstance.showSaveError(err),
                 });
               return;
             case 'delete':

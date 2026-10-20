@@ -6,15 +6,36 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NameValidatorModel } from './name-dialog.models';
+import {
+  CrucibleDialogComponent,
+  CrucibleDialogContentDirective,
+} from '@cmusei/crucible-common';
+import {
+  MatFormField,
+  MatLabel,
+  MatInput,
+  MatError,
+} from '@angular/material/input';
 
 @Component({
   selector: 'name-dialog',
   templateUrl: './name-dialog.component.html',
   styleUrls: ['./name-dialog.component.scss'],
-  standalone: false,
+  imports: [
+    CrucibleDialogComponent,
+    CrucibleDialogContentDirective,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatError,
+  ],
 })
 export class NameDialogComponent {
   public title = '';
@@ -26,7 +47,7 @@ export class NameDialogComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<NameDialogComponent>,
-    private formBuilder: UntypedFormBuilder
+    private formBuilder: UntypedFormBuilder,
   ) {
     this.form = this.formBuilder.group({
       name: [data.nameValue, [Validators.required]],
@@ -35,14 +56,14 @@ export class NameDialogComponent {
     if (data.showDescription) {
       this.form.addControl(
         'description',
-        this.formBuilder.control(data.descriptionValue ?? '')
+        this.formBuilder.control(data.descriptionValue ?? ''),
       );
     }
 
     if (data.validators) {
       this.validators = data.validators;
       const validators = (data.validators as Array<NameValidatorModel>).map(
-        (x) => x.validator
+        (x) => x.validator,
       );
       this.form.controls['name'].addValidators(validators);
     }

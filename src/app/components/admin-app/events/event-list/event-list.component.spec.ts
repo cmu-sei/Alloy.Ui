@@ -40,6 +40,7 @@ import {
 } from 'src/app/test-utils/unhandled-rx-errors';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { AdminEventListComponent } from './event-list.component';
+import { EventMembershipsComponent } from 'src/app/components/admin-app/events/event-memberships/event-memberships/event-memberships.component';
 
 @Component({ selector: 'app-event-memberships', template: '' })
 class EventMembershipsStubComponent {
@@ -116,7 +117,12 @@ async function renderAdminEventList(
   const dialog = { open: vi.fn(() => dialogRef) };
 
   const rendered = await renderComponent(AdminEventListComponent, {
-    declarations: [AdminEventListComponent],
+    childStubs: [
+      {
+        replace: EventMembershipsComponent,
+        with: EventMembershipsStubComponent,
+      },
+    ],
     imports: [
       MatButtonModule,
       MatCardModule,

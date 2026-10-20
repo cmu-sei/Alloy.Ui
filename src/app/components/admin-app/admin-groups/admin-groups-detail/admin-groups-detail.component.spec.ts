@@ -20,11 +20,12 @@ import {
 } from 'src/app/test-utils/mock-permission-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { AdminGroupsDetailComponent } from './admin-groups-detail.component';
+import { AdminGroupsMembershipListComponent } from 'src/app/components/admin-app/admin-groups/admin-groups-membership-list/admin-groups-membership-list.component';
+import { AdminGroupsMemberListComponent } from 'src/app/components/admin-app/admin-groups/admin-groups-member-list/admin-groups-member-list.component';
 
 @Component({
   selector: 'app-admin-groups-membership-list',
   template: '',
-  standalone: false,
 })
 class MembershipListStubComponent {
   @Input() users: User[];
@@ -35,7 +36,6 @@ class MembershipListStubComponent {
 @Component({
   selector: 'app-admin-groups-member-list',
   template: '',
-  standalone: false,
 })
 class MemberListStubComponent {
   @Input() memberships: GroupMembership[];
@@ -79,10 +79,15 @@ async function renderDetail(canEdit: boolean) {
   const groupService = groupServiceStub();
   const groupPermissions = permissionApiStubs().groupPermissions;
   const rendered = await renderComponent(AdminGroupsDetailComponent, {
-    declarations: [
-      AdminGroupsDetailComponent,
-      MembershipListStubComponent,
-      MemberListStubComponent,
+    childStubs: [
+      {
+        replace: AdminGroupsMembershipListComponent,
+        with: MembershipListStubComponent,
+      },
+      {
+        replace: AdminGroupsMemberListComponent,
+        with: MemberListStubComponent,
+      },
     ],
     providers: [
       { provide: GroupService, useValue: groupService },

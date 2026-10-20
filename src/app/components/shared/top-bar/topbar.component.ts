@@ -22,12 +22,31 @@ import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { TopbarView } from './topbar.models';
+import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { AsyncPipe } from '@angular/common';
 @Component({
-    selector: 'app-topbar',
-    templateUrl: './topbar.component.html',
-    styleUrls: ['./topbar.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-topbar',
+  templateUrl: './topbar.component.html',
+  styleUrls: ['./topbar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    MatToolbar,
+    MatToolbarRow,
+    MatIconButton,
+    RouterLink,
+    MatIcon,
+    MatButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuItem,
+    MatSlideToggle,
+    AsyncPipe,
+  ],
 })
 export class TopbarComponent implements OnInit, OnDestroy {
   @Input() title?: string;
@@ -51,23 +70,22 @@ export class TopbarComponent implements OnInit, OnDestroy {
     private currentUserQuery: CurrentUserQuery,
     private authQuery: ComnAuthQuery,
     private settingsService: ComnSettingsService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
   ) {}
 
   ngOnInit() {
     forkJoin([
       this.permissionDataService.load(),
       this.permissionDataService.loadGroupPermissions(),
-    ])
-      .subscribe(
-        (x) =>
-          (this.canViewAdmin =
-            this.permissionDataService.canViewAdministration())
-      );
+    ]).subscribe(
+      (x) =>
+        (this.canViewAdmin =
+          this.permissionDataService.canViewAdministration()),
+    );
 
     this.currentUser$ = this.currentUserQuery.select().pipe(
       filter((user) => user !== null),
-      takeUntil(this.unsubscribe$)
+      takeUntil(this.unsubscribe$),
     );
 
     this.theme$ = this.authQuery.userTheme$;

@@ -30,6 +30,12 @@ import { activatedRouteStub } from 'src/app/test-utils/activated-route';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { TopbarView } from '../shared/top-bar/topbar.models';
 import { AdminAppComponent } from './admin-app.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
+import { EventTemplatesComponent } from 'src/app/components/admin-app/event-templates/event-templates.component';
+import { EventsComponent } from 'src/app/components/admin-app/events/events.component';
+import { AdminRolesComponent } from 'src/app/components/admin-app/admin-roles/admin-roles.component';
+import { AdminGroupsComponent } from 'src/app/components/admin-app/admin-groups/admin-groups.component';
+import { AdminUsersComponent } from 'src/app/components/admin-app/admin-users/admin-users.component';
 
 @Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {
@@ -82,7 +88,14 @@ async function renderAdminApp(
   };
 
   const rendered = await renderComponent(AdminAppComponent, {
-    declarations: [AdminAppComponent],
+    childStubs: [
+      { replace: TopbarComponent, with: TopbarStubComponent },
+      { replace: EventTemplatesComponent, with: EventTemplatesStubComponent },
+      { replace: EventsComponent, with: EventsStubComponent },
+      { replace: AdminRolesComponent, with: AdminRolesStubComponent },
+      { replace: AdminGroupsComponent, with: AdminGroupsStubComponent },
+      { replace: AdminUsersComponent, with: AdminUsersStubComponent },
+    ],
     imports: [
       MatButtonModule,
       MatIconModule,

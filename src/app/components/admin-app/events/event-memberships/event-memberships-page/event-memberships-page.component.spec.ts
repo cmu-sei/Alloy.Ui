@@ -16,14 +16,15 @@ import {
 } from 'src/app/test-utils/mock-permission-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventMembershipsPageComponent } from './event-memberships-page.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
+import { EventMembershipsComponent } from 'src/app/components/admin-app/events/event-memberships/event-memberships/event-memberships.component';
 
-@Component({ selector: 'app-topbar', template: '', standalone: false })
+@Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {}
 
 @Component({
   selector: 'app-event-memberships',
   template: '',
-  standalone: false,
 })
 class EventMembershipsStubComponent {
   @Input() event: AlloyEvent;
@@ -39,10 +40,12 @@ describe('EventMembershipsPageComponent', () => {
     const { route } = activatedRouteStub({}, { id: 'e1' });
     const eventPermissions = permissionApiStubs().eventPermissions;
     const { fixture } = await renderComponent(EventMembershipsPageComponent, {
-      declarations: [
-        EventMembershipsPageComponent,
-        TopbarStubComponent,
-        EventMembershipsStubComponent,
+      childStubs: [
+        { replace: TopbarComponent, with: TopbarStubComponent },
+        {
+          replace: EventMembershipsComponent,
+          with: EventMembershipsStubComponent,
+        },
       ],
       providers: [
         { provide: ActivatedRoute, useValue: route },

@@ -4,17 +4,50 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 */
 
 import { Component, inject, OnInit } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
+import {
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+} from '@angular/material/table';
 import { EventPermission, EventRole } from 'src/app/generated/alloy.api';
 import { EventRolesModel } from './admin-event-roles.models';
 import { map } from 'rxjs/operators';
 import { EventRoleDataService } from 'src/app/data/event/event-role-data.service';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-admin-event-roles',
-    templateUrl: './admin-event-roles.component.html',
-    styleUrls: ['./admin-event-roles.component.scss'],
-    standalone: false
+  selector: 'app-admin-event-roles',
+  templateUrl: './admin-event-roles.component.html',
+  styleUrls: ['./admin-event-roles.component.scss'],
+  imports: [
+    MatTable,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatCellDef,
+    MatCell,
+    MatIconButton,
+    MatTooltip,
+    MatIcon,
+    MatCheckbox,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    AsyncPipe,
+  ],
 })
 export class AdminEventRolesComponent implements OnInit {
   public allPermission = 'All';
@@ -30,15 +63,15 @@ export class AdminEventRolesComponent implements OnInit {
     map((roles) =>
       roles.sort((a, b) => {
         return a.name.localeCompare(b.name);
-      })
-    )
+      }),
+    ),
   );
 
   public displayedColumns$ = this.roles$.pipe(
     map((x) => {
       const columnNames = x.map((y) => y.name);
       return ['permissions', ...columnNames];
-    })
+    }),
   );
 
   constructor(private eventRoleService: EventRoleDataService) {}

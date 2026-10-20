@@ -29,11 +29,12 @@ import {
 } from 'src/app/test-utils/mock-permission-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventMembershipsComponent } from './event-memberships.component';
+import { EventMembershipListComponent } from 'src/app/components/admin-app/events/event-memberships/event-membership-list/event-membership-list.component';
+import { EventMemberListComponent } from 'src/app/components/admin-app/events/event-memberships/event-member-list/event-member-list.component';
 
 @Component({
   selector: 'app-event-membership-list',
   template: '',
-  standalone: false,
 })
 class MembershipListStubComponent {
   @Input() users: User[];
@@ -45,7 +46,6 @@ class MembershipListStubComponent {
 @Component({
   selector: 'app-event-member-list',
   template: '',
-  standalone: false,
 })
 class MemberListStubComponent {
   @Input() memberships: EventMembership[];
@@ -107,10 +107,12 @@ async function renderMemberships(
   } satisfies ApiStub<EventService>;
 
   const rendered = await renderComponent(EventMembershipsComponent, {
-    declarations: [
-      EventMembershipsComponent,
-      MembershipListStubComponent,
-      MemberListStubComponent,
+    childStubs: [
+      {
+        replace: EventMembershipListComponent,
+        with: MembershipListStubComponent,
+      },
+      { replace: EventMemberListComponent, with: MemberListStubComponent },
     ],
     imports: [MatButtonModule, MatIconModule, MatTooltipModule],
     providers: [

@@ -26,12 +26,25 @@ import {
 } from 'src/app/generated/alloy.api';
 import { GroupDataService } from 'src/app/data/group/group-data.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { EventTemplateMembershipListComponent } from '../event-template-membership-list/event-template-membership-list.component';
+import { EventTemplateMemberListComponent } from '../event-template-member-list/event-template-member-list.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-event-template-memberships',
-    templateUrl: './event-template-memberships.component.html',
-    styleUrls: ['./event-template-memberships.component.scss'],
-    standalone: false
+  selector: 'app-event-template-memberships',
+  templateUrl: './event-template-memberships.component.html',
+  styleUrls: ['./event-template-memberships.component.scss'],
+  imports: [
+    MatIconButton,
+    MatTooltip,
+    MatIcon,
+    EventTemplateMembershipListComponent,
+    EventTemplateMemberListComponent,
+    AsyncPipe,
+  ],
 })
 export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
   @Input() embedded: boolean;
@@ -61,13 +74,13 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
     private userDataService: UserDataService,
     private userQuery: UserQuery,
     private groupDataService: GroupDataService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
   ) {}
 
   ngOnInit(): void {
     forkJoin([
       this.eventTemplateMembershipDataService.loadMemberships(
-        this.eventTemplateId
+        this.eventTemplateId,
       ),
       this.userDataService.load(),
       this.eventTemplateRolesDataService.loadRoles(),
@@ -75,8 +88,14 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
     ]).subscribe();
     this.permissionDataService
       .loadEventTemplatePermissions(this.eventTemplateId)
-      .subscribe(() =>
-        this.canEdit$ = of(this.permissionDataService.canEditEventTemplate(this.eventTemplateId)));
+      .subscribe(
+        () =>
+          (this.canEdit$ = of(
+            this.permissionDataService.canEditEventTemplate(
+              this.eventTemplateId,
+            ),
+          )),
+      );
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -101,7 +120,7 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
             );
           }
         });
-      })
+      }),
     );
   }
 
@@ -124,7 +143,7 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
             );
           }
         });
-      })
+      }),
     );
   }
 

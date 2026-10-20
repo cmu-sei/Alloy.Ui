@@ -35,11 +35,11 @@ import {
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { EventTemplateListComponent } from './event-template-list.component';
+import { EventTemplateMembershipsComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-memberships/event-template-memberships.component';
 
 @Component({
   selector: 'app-event-template-memberships',
   template: '',
-  standalone: false,
 })
 class EventTemplateMembershipsStubComponent {
   @Input() eventTemplateId: string;
@@ -87,9 +87,11 @@ async function renderList(
   };
 
   const rendered = await renderComponent(EventTemplateListComponent, {
-    declarations: [
-      EventTemplateListComponent,
-      EventTemplateMembershipsStubComponent,
+    childStubs: [
+      {
+        replace: EventTemplateMembershipsComponent,
+        with: EventTemplateMembershipsStubComponent,
+      },
     ],
     imports: [
       MatButtonModule,

@@ -8,12 +8,14 @@ import { CasterDataService } from 'src/app/data/caster/caster-data-service';
 import { PlayerDataService } from 'src/app/data/player/player-data-service';
 import { SteamfitterDataService } from 'src/app/data/steamfitter/steamfitter-data.service';
 import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
+import { EventTemplateListComponent } from './event-template-list/event-template-list.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-event-templates',
-    templateUrl: './event-templates.component.html',
-    styleUrls: ['./event-templates.component.scss'],
-    standalone: false
+  selector: 'app-event-templates',
+  templateUrl: './event-templates.component.html',
+  styleUrls: ['./event-templates.component.scss'],
+  imports: [EventTemplateListComponent, AsyncPipe],
 })
 export class EventTemplatesComponent {
   public matcher = new UserErrorStateMatcher();
@@ -29,7 +31,7 @@ export class EventTemplatesComponent {
     private playerDataService: PlayerDataService,
     private steamfitterDataService: SteamfitterDataService,
     private casterDataService: CasterDataService,
-    private eventTemplateQuery: EventTemplateQuery
+    private eventTemplateQuery: EventTemplateQuery,
   ) {
     playerDataService.getViewsFromApi();
     steamfitterDataService.getScenarioTemplatesFromApi();
@@ -47,7 +49,7 @@ export class EventTemplatesComponent {
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
     control: UntypedFormControl | null,
-    form: FormGroupDirective | NgForm | null
+    form: FormGroupDirective | NgForm | null,
   ): boolean {
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || isSubmitted));

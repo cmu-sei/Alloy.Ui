@@ -44,6 +44,7 @@ import {
 import { AnyProvider } from 'src/app/test-utils/unstubbed';
 import { TopbarView } from '../../shared/top-bar/topbar.models';
 import { EventTemplateInfoComponent } from './event-template-info.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
 
 const TEMPLATE_ID = 'template-1';
 const USER_ID = 'user-1';
@@ -132,7 +133,7 @@ async function renderEventTemplateInfo(overrides: RenderOverrides = {}) {
   };
 
   const rendered = await renderComponent(EventTemplateInfoComponent, {
-    declarations: [EventTemplateInfoComponent],
+    childStubs: [{ replace: TopbarComponent, with: TopbarStubComponent }],
     imports: [
       MatButtonModule,
       MatCardModule,

@@ -9,9 +9,21 @@ import {
 } from '@angular/animations';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, MatSortable } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
+import { MatSort, MatSortable, MatSortHeader } from '@angular/material/sort';
+import {
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+} from '@angular/material/table';
+import { Router, RouterLink } from '@angular/router';
 import { ComnAuthQuery, Theme } from '@cmusei/crucible-common';
 import { combineQueries } from '@datorama/akita';
 import { Observable, Subject, ReplaySubject } from 'rxjs';
@@ -20,19 +32,56 @@ import { EventTemplate } from 'src/app/generated/alloy.api/model/eventTemplate';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { EventTemplateQuery } from 'src/app/data/event-template/event-template.query';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatCard } from '@angular/material/card';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { DatePipe } from '@angular/common';
 
 @Component({
-    selector: 'app-event-list',
-    templateUrl: './event-list.component.html',
-    styleUrls: ['./event-list.component.scss'],
-    animations: [
-        trigger('detailExpand', [
-            state('collapsed', style({ height: '0px', minHeight: '0', visibility: 'hidden' })),
-            state('expanded', style({ height: '*', visibility: 'visible' })),
-            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-        ]),
-    ],
-    standalone: false
+  selector: 'app-event-list',
+  templateUrl: './event-list.component.html',
+  styleUrls: ['./event-list.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state(
+        'collapsed',
+        style({ height: '0px', minHeight: '0', visibility: 'hidden' }),
+      ),
+      state('expanded', style({ height: '*', visibility: 'visible' })),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'),
+      ),
+    ]),
+  ],
+  imports: [
+    MatIcon,
+    MatFormField,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatSortHeader,
+    MatCellDef,
+    MatCell,
+    RouterLink,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatCard,
+    MatProgressSpinner,
+    MatPaginator,
+    DatePipe,
+  ],
 })
 export class EventListComponent implements OnInit, OnDestroy {
   @Input() templates: EventTemplate[];
@@ -47,10 +96,10 @@ export class EventListComponent implements OnInit, OnDestroy {
     'dateCreated',
   ];
   public columnHeaders: { [key: string]: string } = {
-    'name': 'Name',
-    'description': 'Description',
-    'durationHours': 'Duration (Hours)',
-    'dateCreated': 'Created'
+    name: 'Name',
+    description: 'Description',
+    durationHours: 'Duration (Hours)',
+    dateCreated: 'Created',
   };
 
   public filterString: string;
@@ -63,12 +112,12 @@ export class EventListComponent implements OnInit, OnDestroy {
     private templateDataService: EventTemplateDataService,
     private eventTemplateQuery: EventTemplateQuery,
     private router: Router,
-    private authQuery: ComnAuthQuery
+    private authQuery: ComnAuthQuery,
   ) {
     this.theme$ = this.authQuery.userTheme$;
 
     this.eventTemplateDataSource = new MatTableDataSource<EventTemplate>(
-      new Array<EventTemplate>()
+      new Array<EventTemplate>(),
     );
   }
 
@@ -92,7 +141,7 @@ export class EventListComponent implements OnInit, OnDestroy {
           this.eventTemplateDataSource.paginator = this.paginator;
           this.doneLoading = !loading;
         }),
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe();
   }

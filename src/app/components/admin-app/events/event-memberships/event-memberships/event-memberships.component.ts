@@ -23,12 +23,25 @@ import { UserDataService } from 'src/app/data/user/user-data.service';
 import { EventMembership, Event } from 'src/app/generated/alloy.api';
 import { GroupDataService } from 'src/app/data/group/group-data.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { EventMembershipListComponent } from '../event-membership-list/event-membership-list.component';
+import { EventMemberListComponent } from '../event-member-list/event-member-list.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-event-memberships',
-    templateUrl: './event-memberships.component.html',
-    styleUrls: ['./event-memberships.component.scss'],
-    standalone: false
+  selector: 'app-event-memberships',
+  templateUrl: './event-memberships.component.html',
+  styleUrls: ['./event-memberships.component.scss'],
+  imports: [
+    MatIconButton,
+    MatTooltip,
+    MatIcon,
+    EventMembershipListComponent,
+    EventMemberListComponent,
+    AsyncPipe,
+  ],
 })
 export class EventMembershipsComponent implements OnInit, OnChanges {
   @Input() embedded: boolean;
@@ -57,7 +70,7 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
     private userDataService: UserDataService,
     private userQuery: UserQuery,
     private groupDataService: GroupDataService,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
   ) {}
 
   ngOnInit(): void {
@@ -71,14 +84,18 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
     });
     this.permissionDataService
       .loadEventPermissions(this.event.id)
-      .subscribe(() =>
-        this.canEdit$ = of(this.permissionDataService.canEditEvent(this.event.id)));
+      .subscribe(
+        () =>
+          (this.canEdit$ = of(
+            this.permissionDataService.canEditEvent(this.event.id),
+          )),
+      );
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.event$ = this.eventQuery.selectEntity(this.event.id).pipe(
-      filter((x) => x != null)
-    );
+    this.event$ = this.eventQuery
+      .selectEntity(this.event.id)
+      .pipe(filter((x) => x != null));
   }
 
   selectUsers(members: boolean) {
@@ -97,7 +114,7 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
             );
           }
         });
-      })
+      }),
     );
   }
 
@@ -120,7 +137,7 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
             );
           }
         });
-      })
+      }),
     );
   }
 

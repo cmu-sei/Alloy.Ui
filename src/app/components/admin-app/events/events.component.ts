@@ -12,12 +12,13 @@ import {
 import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { Subject } from 'rxjs';
+import { AdminEventListComponent } from './event-list/event-list.component';
 
 @Component({
-    selector: 'app-events',
-    templateUrl: './events.component.html',
-    styleUrls: ['./events.component.scss'],
-    standalone: false
+  selector: 'app-events',
+  templateUrl: './events.component.html',
+  styleUrls: ['./events.component.scss'],
+  imports: [AdminEventListComponent],
 })
 export class EventsComponent implements OnInit {
   @Input() refresh: Subject<boolean>;
@@ -38,7 +39,7 @@ export class EventsComponent implements OnInit {
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
     control: UntypedFormControl | null,
-    form: FormGroupDirective | NgForm | null
+    form: FormGroupDirective | NgForm | null,
   ): boolean {
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || isSubmitted));

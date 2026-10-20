@@ -13,12 +13,19 @@ import {
   GroupMembershipRole,
 } from 'src/app/generated/alloy.api';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { AdminGroupsMembershipListComponent } from '../admin-groups-membership-list/admin-groups-membership-list.component';
+import { AdminGroupsMemberListComponent } from '../admin-groups-member-list/admin-groups-member-list.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-admin-groups-detail',
   templateUrl: './admin-groups-detail.component.html',
   styleUrls: ['./admin-groups-detail.component.scss'],
-  standalone: false,
+  imports: [
+    AdminGroupsMembershipListComponent,
+    AdminGroupsMemberListComponent,
+    AsyncPipe,
+  ],
 })
 export class AdminGroupsDetailComponent implements OnInit, OnChanges {
   @Input() groupId: string;
@@ -40,7 +47,7 @@ export class AdminGroupsDetailComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.memberships$ = this.groupMembershipService.selectMemberships(
-      this.groupId
+      this.groupId,
     );
 
     this.nonMembers$ = this.selectUsers(false);
@@ -63,7 +70,7 @@ export class AdminGroupsDetailComponent implements OnInit, OnChanges {
             );
           }
         });
-      })
+      }),
     );
   }
 
@@ -81,7 +88,7 @@ export class AdminGroupsDetailComponent implements OnInit, OnChanges {
     this.groupMembershipService
       .deleteMembership(event.id)
       .pipe(
-        switchMap(() => this.refreshSelfGroupPermissions(event.isCurrentUser))
+        switchMap(() => this.refreshSelfGroupPermissions(event.isCurrentUser)),
       )
       .subscribe();
   }
@@ -94,7 +101,7 @@ export class AdminGroupsDetailComponent implements OnInit, OnChanges {
     this.groupMembershipService
       .editMembership(event.id, { role: event.role } as GroupMembership)
       .pipe(
-        switchMap(() => this.refreshSelfGroupPermissions(event.isCurrentUser))
+        switchMap(() => this.refreshSelfGroupPermissions(event.isCurrentUser)),
       )
       .subscribe();
   }

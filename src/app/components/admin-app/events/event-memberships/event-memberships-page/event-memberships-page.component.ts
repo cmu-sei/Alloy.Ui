@@ -6,19 +6,21 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { TopbarComponent } from '../../../../shared/top-bar/topbar.component';
+import { EventMembershipsComponent } from '../event-memberships/event-memberships.component';
 
 @Component({
-    selector: 'app-event-memberships-page',
-    templateUrl: './event-memberships-page.component.html',
-    styleUrls: ['./event-memberships-page.component.scss'],
-    standalone: false
+  selector: 'app-event-memberships-page',
+  templateUrl: './event-memberships-page.component.html',
+  styleUrls: ['./event-memberships-page.component.scss'],
+  imports: [TopbarComponent, EventMembershipsComponent],
 })
 export class EventMembershipsPageComponent implements OnInit {
   eventId: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private permissionDataService: PermissionDataService
+    private permissionDataService: PermissionDataService,
   ) {}
 
   ngOnInit(): void {

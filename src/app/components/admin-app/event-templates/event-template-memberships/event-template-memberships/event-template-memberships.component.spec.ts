@@ -28,11 +28,12 @@ import {
 } from 'src/app/test-utils/mock-permission-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplateMembershipsComponent } from './event-template-memberships.component';
+import { EventTemplateMembershipListComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-membership-list/event-template-membership-list.component';
+import { EventTemplateMemberListComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-member-list/event-template-member-list.component';
 
 @Component({
   selector: 'app-event-template-membership-list',
   template: '',
-  standalone: false,
 })
 class MembershipListStubComponent {
   @Input() users: User[];
@@ -44,7 +45,6 @@ class MembershipListStubComponent {
 @Component({
   selector: 'app-event-template-member-list',
   template: '',
-  standalone: false,
 })
 class MemberListStubComponent {
   @Input() memberships: EventTemplateMembership[];
@@ -94,10 +94,15 @@ async function renderMemberships(
   } satisfies ApiStub<GroupService>;
 
   const rendered = await renderComponent(EventTemplateMembershipsComponent, {
-    declarations: [
-      EventTemplateMembershipsComponent,
-      MembershipListStubComponent,
-      MemberListStubComponent,
+    childStubs: [
+      {
+        replace: EventTemplateMembershipListComponent,
+        with: MembershipListStubComponent,
+      },
+      {
+        replace: EventTemplateMemberListComponent,
+        with: MemberListStubComponent,
+      },
     ],
     imports: [MatButtonModule, MatIconModule, MatTooltipModule],
     providers: [

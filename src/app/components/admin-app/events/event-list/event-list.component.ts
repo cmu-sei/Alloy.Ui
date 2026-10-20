@@ -8,21 +8,24 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import {
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort, MatSortHeader } from '@angular/material/sort';
 import {
-  MatPaginator,
-  PageEvent,
-} from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+} from '@angular/material/table';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { Subject, Observable, of } from 'rxjs';
 import {
@@ -41,6 +44,17 @@ import { ComnSettingsService } from '@cmusei/crucible-common';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { EventQuery } from 'src/app/data/event/event.query';
+import { MatIcon } from '@angular/material/icon';
+import { NgStyle, AsyncPipe, DatePipe } from '@angular/common';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { ClipboardModule } from 'ngx-clipboard';
+import { MatTooltip } from '@angular/material/tooltip';
+import { EventMembershipsComponent } from '../event-memberships/event-memberships/event-memberships.component';
+import { MatCard } from '@angular/material/card';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 export interface Action {
   Value: string;
@@ -55,10 +69,43 @@ export interface Action {
     trigger('detailExpand', [
       state('collapsed', style({ height: '0px', minHeight: '0' })),
       state('expanded', style({ height: '*' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'),
+      ),
     ]),
   ],
-  standalone: false
+  imports: [
+    MatIcon,
+    NgStyle,
+    MatFormField,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatCheckbox,
+    MatPaginator,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatCellDef,
+    MatCell,
+    ClipboardModule,
+    MatSortHeader,
+    MatTooltip,
+    MatButton,
+    EventMembershipsComponent,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatCard,
+    MatProgressSpinner,
+    AsyncPipe,
+    DatePipe,
+  ],
 })
 export class AdminEventListComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = [
@@ -116,7 +163,7 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
     private permissionDataService: PermissionDataService,
     private eventDataService: EventDataService,
     private eventQuery: EventQuery,
-    public snackBar: MatSnackBar
+    public snackBar: MatSnackBar,
   ) {
     this.casterUIAddress = this.settingsService.settings.CasterUIAddress;
 
@@ -139,13 +186,11 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
       .selectAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe((events) => this.updateEvents(events));
-    this.refresh
-      ?.pipe(takeUntil(this.destroy$))
-      .subscribe((shouldRefresh) => {
-        if (shouldRefresh) {
-          this.refreshEvents();
-        }
-      });
+    this.refresh?.pipe(takeUntil(this.destroy$)).subscribe((shouldRefresh) => {
+      if (shouldRefresh) {
+        this.refreshEvents();
+      }
+    });
     this.refreshEvents();
   }
 
@@ -173,14 +218,17 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
   refreshEvents() {
     this.isLoading = true;
     this.eventToEdit = undefined;
-    this.eventDataService.getAllEvents().pipe(take(1)).subscribe({
-      next: () => {
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      },
-    });
+    this.eventDataService
+      .getAllEvents()
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        },
+      });
   }
 
   private updateEvents(events: AlloyEvent[]) {
@@ -225,7 +273,7 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
     this.totalRows$ = rows$.pipe(map((rows) => rows.length));
     this.displayedRows$ = rows$.pipe(
       sortRows(this.sortEvents$),
-      paginateRows(this.pageEvents$)
+      paginateRows(this.pageEvents$),
     );
   }
 

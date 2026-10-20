@@ -13,14 +13,15 @@ import {
 import { EventTemplatePermissionsService } from 'src/app/generated/alloy.api';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplateMembershipsPageComponent } from './event-template-memberships-page.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
+import { EventTemplateMembershipsComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-memberships/event-template-memberships.component';
 
-@Component({ selector: 'app-topbar', template: '', standalone: false })
+@Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {}
 
 @Component({
   selector: 'app-event-template-memberships',
   template: '',
-  standalone: false,
 })
 class EventTemplateMembershipsStubComponent {
   @Input() eventTemplateId: string;
@@ -38,10 +39,12 @@ describe('EventTemplateMembershipsPageComponent', () => {
     const { fixture } = await renderComponent(
       EventTemplateMembershipsPageComponent,
       {
-        declarations: [
-          EventTemplateMembershipsPageComponent,
-          TopbarStubComponent,
-          EventTemplateMembershipsStubComponent,
+        childStubs: [
+          { replace: TopbarComponent, with: TopbarStubComponent },
+          {
+            replace: EventTemplateMembershipsComponent,
+            with: EventTemplateMembershipsStubComponent,
+          },
         ],
         providers: [
           { provide: ActivatedRoute, useValue: route },

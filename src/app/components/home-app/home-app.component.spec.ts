@@ -22,14 +22,16 @@ import {
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { TopbarView } from '../shared/top-bar/topbar.models';
 import { HomeAppComponent } from './home-app.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
+import { EventListComponent } from 'src/app/components/home-app/event-list/event-list.component';
 
-@Component({ selector: 'app-topbar', template: '', standalone: false })
+@Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {
   @Input() title: string;
   @Input() topbarView: TopbarView;
 }
 
-@Component({ selector: 'app-event-list', template: '', standalone: false })
+@Component({ selector: 'app-event-list', template: '' })
 class EventListStubComponent {}
 
 async function renderHome(
@@ -51,10 +53,9 @@ async function renderHome(
     options.viewId ? { viewId: options.viewId } : {},
   );
   const rendered = await renderComponent(HomeAppComponent, {
-    declarations: [
-      HomeAppComponent,
-      TopbarStubComponent,
-      EventListStubComponent,
+    childStubs: [
+      { replace: TopbarComponent, with: TopbarStubComponent },
+      { replace: EventListComponent, with: EventListStubComponent },
     ],
     imports: [MatButtonModule, MatIconModule],
     providers: [

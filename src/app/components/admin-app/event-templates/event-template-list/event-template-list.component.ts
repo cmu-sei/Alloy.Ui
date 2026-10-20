@@ -58,7 +58,7 @@ import { ComnSettingsService } from '@cmusei/crucible-common';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
 import { EventService } from 'src/app/generated/alloy.api';
 import { MatIcon } from '@angular/material/icon';
-import { NgStyle, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
 import { MatIconButton } from '@angular/material/button';
 import { ClipboardModule } from 'ngx-clipboard';
@@ -82,7 +82,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   ],
   imports: [
     MatIcon,
-    NgStyle,
     MatFormField,
     MatInput,
     FormsModule,

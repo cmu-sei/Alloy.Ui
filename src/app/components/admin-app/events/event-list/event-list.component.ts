@@ -45,7 +45,7 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 import { EventDataService } from 'src/app/data/event/event-data.service';
 import { EventQuery } from 'src/app/data/event/event.query';
 import { MatIcon } from '@angular/material/icon';
-import { NgStyle, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatIconButton, MatButton } from '@angular/material/button';
@@ -77,7 +77,6 @@ export interface Action {
   ],
   imports: [
     MatIcon,
-    NgStyle,
     MatFormField,
     MatInput,
     FormsModule,

@@ -2,61 +2,87 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 import { Routes } from '@angular/router';
 import { ComnAuthGuardService } from '@cmusei/crucible-common';
-import { AdminAppComponent } from './components/admin-app/admin-app.component';
-import { EnlistComponent } from './components/home-app/enlist/enlist.component';
-import { EventTemplateInfoComponent } from './components/home-app/event-template-info/event-template-info.component';
-import { HomeAppComponent } from './components/home-app/home-app.component';
 
 export const ROUTES: Routes = [
   {
     path: '',
-    component: HomeAppComponent,
+    loadComponent: () =>
+      import('./components/home-app/home-app.component').then(
+        (m) => m.HomeAppComponent,
+      ),
     canActivate: [ComnAuthGuardService],
     pathMatch: 'full',
   },
   {
     path: 'templates',
-    component: EventTemplateInfoComponent,
+    loadComponent: () =>
+      import('./components/home-app/event-template-info/event-template-info.component').then(
+        (m) => m.EventTemplateInfoComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
   {
     path: 'templates/:id',
-    component: EventTemplateInfoComponent,
+    loadComponent: () =>
+      import('./components/home-app/event-template-info/event-template-info.component').then(
+        (m) => m.EventTemplateInfoComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
   {
     path: 'templates/:id/view/:viewId',
-    component: EventTemplateInfoComponent,
+    loadComponent: () =>
+      import('./components/home-app/event-template-info/event-template-info.component').then(
+        (m) => m.EventTemplateInfoComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
   {
     path: 'events',
-    component: HomeAppComponent,
+    loadComponent: () =>
+      import('./components/home-app/home-app.component').then(
+        (m) => m.HomeAppComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
   {
     path: 'events/:id',
-    component: HomeAppComponent,
+    loadComponent: () =>
+      import('./components/home-app/home-app.component').then(
+        (m) => m.HomeAppComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
   {
     path: 'exercise/:viewId',
-    component: HomeAppComponent,
+    loadComponent: () =>
+      import('./components/home-app/home-app.component').then(
+        (m) => m.HomeAppComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   }, // DEPRECATED, remove when no longer in use
   {
     path: 'view/:viewId',
-    component: HomeAppComponent,
+    loadComponent: () =>
+      import('./components/home-app/home-app.component').then(
+        (m) => m.HomeAppComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
   {
     path: 'enlist/:code',
-    component: EnlistComponent,
+    loadComponent: () =>
+      import('./components/home-app/enlist/enlist.component').then(
+        (m) => m.EnlistComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
   {
     path: 'admin',
-    component: AdminAppComponent,
+    loadComponent: () =>
+      import('./components/admin-app/admin-app.component').then(
+        (m) => m.AdminAppComponent,
+      ),
     canActivate: [ComnAuthGuardService],
   },
 ];

@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableAkitaProdMode, persistState } from '@datorama/akita';
-import { getBasePath } from './app/app.module';
 import { environment } from './environments/environment';
 import { SignalRService } from './app/shared/signalr/signalr.service';
 import { BASE_PATH } from './app/generated/alloy.api';
@@ -26,7 +25,8 @@ import {
 } from '@angular/common/http';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
-import { AppRoutingModule } from './app/app-routing.module';
+import { provideRouter } from '@angular/router';
+import { ROUTES } from './app/app.routes';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ApiModule as SwaggerCodegenApiModule } from './app/generated/alloy.api/api.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -67,6 +67,10 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { A11yModule } from '@angular/cdk/a11y';
 import { AppComponent } from './app/app.component';
 
+export function getBasePath(settingsSvc: ComnSettingsService) {
+  return settingsSvc.settings.ApiUrl;
+}
+
 export const storage = persistState({
   key: 'akita-alloy-ui',
   include: ['auth.ui'],
@@ -82,7 +86,6 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(
       environment.production ? [] : AkitaNgDevtools.forRoot(),
       BrowserModule,
-      AppRoutingModule,
       BrowserAnimationsModule,
       SwaggerCodegenApiModule,
       FormsModule,
@@ -133,6 +136,7 @@ bootstrapApplication(AppComponent, {
       useFactory: getBasePath,
       deps: [ComnSettingsService],
     },
+    provideRouter(ROUTES),
     provideHttpClient(withInterceptorsFromDi()),
     provideCrucibleTheme({ brand: { color: '#006B6D', text: '#FFFFFF' } }),
   ],

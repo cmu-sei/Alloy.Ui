@@ -14,10 +14,10 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
   input,
   output,
+  viewChild,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -128,8 +128,8 @@ export class EventTemplateListComponent
   readonly adminMode = input(false);
   readonly refreshTemplates = output<void>();
 
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild('paginator') paginator: MatPaginator;
+  readonly sort = viewChild(MatSort);
+  readonly paginator = viewChild<MatPaginator>('paginator');
 
   filterControl = new UntypedFormControl();
   displayedColumns: string[] = [
@@ -186,8 +186,8 @@ export class EventTemplateListComponent
   }
 
   ngAfterViewInit() {
-    this.eventTemplateDataSource.sort = this.sort;
-    this.eventTemplateDataSource.paginator = this.paginator;
+    this.eventTemplateDataSource.sort = this.sort();
+    this.eventTemplateDataSource.paginator = this.paginator();
   }
 
   ngOnDestroy() {

@@ -7,9 +7,9 @@ import {
   LOCALE_ID,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
 import { formatDate, AsyncPipe, DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -159,7 +159,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   private locale = inject(LOCALE_ID);
 
   readonly eventTemplateId = input<string>(undefined);
-  @ViewChild('historySort', { static: false }) sort: MatSort;
+  readonly sort = viewChild<MatSort>('historySort');
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
   public TopbarView = TopbarView;
@@ -272,8 +272,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       }),
       tap((events) => {
         this.impsDataSource.data = events;
-        if (this.sort) {
-          this.impsDataSource.sort = this.sort;
+        const sort = this.sort();
+        if (sort) {
+          this.impsDataSource.sort = sort;
         }
       }),
       shareReplay(),

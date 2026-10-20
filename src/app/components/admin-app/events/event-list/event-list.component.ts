@@ -12,9 +12,9 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -166,8 +166,8 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
   pageEvents$: Observable<PageEvent>;
 
   readonly refresh = input<Subject<boolean>>(undefined);
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  readonly paginator = viewChild(MatPaginator);
+  readonly sort = viewChild(MatSort);
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
@@ -186,8 +186,8 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
    * Initialization
    */
   ngOnInit() {
-    this.sortEvents$ = fromMatSort(this.sort);
-    this.pageEvents$ = fromMatPaginator(this.paginator);
+    this.sortEvents$ = fromMatSort(this.sort());
+    this.pageEvents$ = fromMatPaginator(this.paginator());
     this.eventQuery
       .selectAll()
       .pipe(takeUntil(this.destroy$))

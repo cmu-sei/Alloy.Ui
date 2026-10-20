@@ -11,9 +11,9 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable, MatSortHeader } from '@angular/material/sort';
@@ -98,9 +98,9 @@ export class EventListComponent implements OnInit, OnDestroy {
   private authQuery = inject(ComnAuthQuery);
 
   readonly templates = input<EventTemplate[]>(undefined);
-  @ViewChild('sortTemplate', { static: true }) eventTemplateSort: MatSort;
-  @ViewChild('sortEvent', { static: true }) eventSort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  readonly eventTemplateSort = viewChild<MatSort>('sortTemplate');
+  readonly eventSort = viewChild<MatSort>('sortEvent');
+  readonly paginator = viewChild(MatPaginator);
   public eventTemplateDataSource: MatTableDataSource<EventTemplate>;
   public eventTemplateDisplayedColumns: string[] = [
     'name',
@@ -140,12 +140,12 @@ export class EventListComponent implements OnInit, OnDestroy {
         filter(([loading]) => !loading),
         tap(([loading, templates]) => {
           this.eventTemplateDataSource.data = templates;
-          this.eventTemplateSort.sort(<MatSortable>{
+          this.eventTemplateSort().sort(<MatSortable>{
             id: 'name',
             start: 'asc',
           });
-          this.eventTemplateDataSource.sort = this.eventTemplateSort;
-          this.eventTemplateDataSource.paginator = this.paginator;
+          this.eventTemplateDataSource.sort = this.eventTemplateSort();
+          this.eventTemplateDataSource.paginator = this.paginator();
           this.doneLoading = !loading;
         }),
         takeUntil(this.unsubscribe$),

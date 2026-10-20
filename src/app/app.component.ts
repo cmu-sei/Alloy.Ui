@@ -9,16 +9,17 @@ import {
   ComnAuthService,
   CrucibleThemeService,
   Theme,
+  ComnHeaderBarModule,
 } from '@cmusei/crucible-common';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
-    standalone: false
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  imports: [ComnHeaderBarModule, RouterOutlet],
 })
 export class AppComponent implements OnDestroy {
   theme$: Observable<Theme> = this.authQuery.userTheme$;
@@ -39,80 +40,80 @@ export class AppComponent implements OnDestroy {
     iconRegistry.addSvgIcon(
       'ic_apps_white_24px',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_apps_white_24px.svg'
-      )
+        'assets/svg-icons/ic_apps_white_24px.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_chevron_left',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_chevron_left.svg'
-      )
+        'assets/svg-icons/ic_chevron_left.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_chevron_right',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_chevron_right.svg'
-      )
+        'assets/svg-icons/ic_chevron_right.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_expand_more_white_24px',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_expand_more_white_24px.svg'
-      )
+        'assets/svg-icons/ic_expand_more_white_24px.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_clear_black_24px',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_clear_black_24px.svg'
-      )
+        'assets/svg-icons/ic_clear_black_24px.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_expand_more_black_24px',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_expand_more_black_24px.svg'
-      )
+        'assets/svg-icons/ic_expand_more_black_24px.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_cancel_circle',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_cancel_circle.svg'
-      )
+        'assets/svg-icons/ic_cancel_circle.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_back_arrow',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_back_arrow_24px.svg'
-      )
+        'assets/svg-icons/ic_back_arrow_24px.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_magnify_search',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_magnify_glass.svg'
-      )
+        'assets/svg-icons/ic_magnify_glass.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_clipboard_copy',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_clipboard_copy.svg'
-      )
+        'assets/svg-icons/ic_clipboard_copy.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'clipboard_outline',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/clipboard-outline.svg'
-      )
+        'assets/svg-icons/clipboard-outline.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'clipboard_play_outline',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/clipboard-play-outline.svg'
-      )
+        'assets/svg-icons/clipboard-play-outline.svg',
+      ),
     );
     iconRegistry.addSvgIcon(
       'ic_crucible_alloy',
       sanitizer.bypassSecurityTrustResourceUrl(
-        'assets/svg-icons/ic_crucible_alloy.svg'
-      )
+        'assets/svg-icons/ic_crucible_alloy.svg',
+      ),
     );
 
     this.theme$.pipe(takeUntil(this.unsubscribe$)).subscribe((theme) => {

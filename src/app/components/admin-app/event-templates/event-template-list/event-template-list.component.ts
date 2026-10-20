@@ -222,7 +222,6 @@ export class EventTemplateListComponent
 
   addNewEventTemplate() {
     // Refresh template lists from external services before opening dialog
-    // TODO: The 'emit' function requires a mandatory void argument
     this.refreshTemplates.emit();
 
     const dialogRef = this.dialog.open(EventTemplateEditComponent, {
@@ -264,7 +263,6 @@ export class EventTemplateListComponent
 
   editEventTemplate(eventTemplate: EventTemplate) {
     // Refresh template lists from external services before opening dialog
-    // TODO: The 'emit' function requires a mandatory void argument
     this.refreshTemplates.emit();
 
     this.eventService

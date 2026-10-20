@@ -112,7 +112,6 @@ describe('EventTemplatesComponent', () => {
     const { list, playerApi, casterApi, steamfitterApi } =
       await renderEventTemplates();
 
-    // TODO: The 'emit' function requires a mandatory void argument
     list().refreshTemplates.emit();
 
     expect(playerApi.getViews).toHaveBeenCalledTimes(2);

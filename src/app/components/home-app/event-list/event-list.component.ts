@@ -9,11 +9,11 @@ import {
 } from '@angular/animations';
 import {
   Component,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild,
   inject,
+  input,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortable, MatSortHeader } from '@angular/material/sort';
@@ -97,7 +97,7 @@ export class EventListComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private authQuery = inject(ComnAuthQuery);
 
-  @Input() templates: EventTemplate[];
+  readonly templates = input<EventTemplate[]>(undefined);
   @ViewChild('sortTemplate', { static: true }) eventTemplateSort: MatSort;
   @ViewChild('sortEvent', { static: true }) eventSort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;

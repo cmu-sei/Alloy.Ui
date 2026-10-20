@@ -12,6 +12,7 @@ import {
   Output,
   SimpleChanges,
   inject,
+  input,
 } from '@angular/core';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
@@ -54,7 +55,7 @@ export class EventMembershipsComponent implements OnInit, OnChanges {
   private groupDataService = inject(GroupDataService);
   private permissionDataService = inject(PermissionDataService);
 
-  @Input() embedded: boolean;
+  readonly embedded = input<boolean>(undefined);
   @Input() event: Event;
   @Output() goBack = new EventEmitter();
 

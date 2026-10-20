@@ -7,12 +7,12 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  Input,
   OnChanges,
   OnInit,
   Output,
   ViewChild,
   inject,
+  input,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatPaginator } from '@angular/material/paginator';
@@ -89,14 +89,11 @@ import { MatOption } from '@angular/material/autocomplete';
 export class AdminGroupsMemberListComponent
   implements OnInit, OnChanges, AfterViewInit
 {
-  @Input()
-  memberships: GroupMembership[];
+  readonly memberships = input<GroupMembership[]>(undefined);
 
-  @Input()
-  users: User[];
+  readonly users = input<User[]>(undefined);
 
-  @Input()
-  canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
   @Output()
   deleteMembership = new EventEmitter<{
@@ -138,19 +135,20 @@ export class AdminGroupsMemberListComponent
   ngOnChanges() {
     this.buildModel();
     this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : [],
+      this.canEdit() ? this.editColumns : [],
     );
   }
 
   buildModel() {
-    if (!this.memberships || !this.users) {
+    const memberships = this.memberships();
+    if (!memberships || !this.users()) {
       this.dataSource.data = [];
       return;
     }
 
-    this.dataSource.data = this.memberships
+    this.dataSource.data = memberships
       .map((x) => {
-        const user = this.users.find((u) => u.id == x.userId);
+        const user = this.users().find((u) => u.id == x.userId);
 
         return {
           membership: x,

@@ -10,11 +10,11 @@ import {
 } from '@angular/animations';
 import {
   Component,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild,
   inject,
+  input,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -165,7 +165,7 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
   sortEvents$: Observable<Sort>;
   pageEvents$: Observable<PageEvent>;
 
-  @Input() refresh: Subject<boolean>;
+  readonly refresh = input<Subject<boolean>>(undefined);
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   private readonly destroy$ = new Subject<void>();
@@ -192,11 +192,13 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
       .selectAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe((events) => this.updateEvents(events));
-    this.refresh?.pipe(takeUntil(this.destroy$)).subscribe((shouldRefresh) => {
-      if (shouldRefresh) {
-        this.refreshEvents();
-      }
-    });
+    this.refresh()
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe((shouldRefresh) => {
+        if (shouldRefresh) {
+          this.refreshEvents();
+        }
+      });
     this.refreshEvents();
   }
 

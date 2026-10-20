@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import {
@@ -25,10 +25,11 @@ import { EventTemplateListComponent } from 'src/app/components/admin-app/event-t
   template: '',
 })
 class EventTemplateListStubComponent {
-  @Input() viewList: Observable<View[]>;
-  @Input() directoryList: Observable<Directory[]>;
-  @Input() scenarioTemplateList: Observable<ScenarioTemplate[]>;
-  @Input() eventTemplates: EventTemplate[];
+  readonly viewList = input<Observable<View[]>>(undefined);
+  readonly directoryList = input<Observable<Directory[]>>(undefined);
+  readonly scenarioTemplateList =
+    input<Observable<ScenarioTemplate[]>>(undefined);
+  readonly eventTemplates = input<EventTemplate[]>(undefined);
   @Output() refreshTemplates = new EventEmitter<void>();
 }
 
@@ -86,15 +87,19 @@ describe('EventTemplatesComponent', () => {
   it('passes the external template lists and the event templates to the list', async () => {
     const { list } = await renderEventTemplates();
 
-    expect(list().eventTemplates.map((t) => t.id)).toEqual(['t1']);
-    expect((await firstValueFrom(list().viewList)).map((v) => v.id)).toEqual([
+    expect(
+      list()
+        .eventTemplates()
+        .map((t) => t.id),
+    ).toEqual(['t1']);
+    expect((await firstValueFrom(list().viewList())).map((v) => v.id)).toEqual([
       'v1',
     ]);
     expect(
-      (await firstValueFrom(list().directoryList)).map((d) => d.id),
+      (await firstValueFrom(list().directoryList())).map((d) => d.id),
     ).toEqual(['d1']);
     expect(
-      (await firstValueFrom(list().scenarioTemplateList)).map((s) => s.id),
+      (await firstValueFrom(list().scenarioTemplateList())).map((s) => s.id),
     ).toEqual(['s1']);
   });
 

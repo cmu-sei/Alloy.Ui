@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -27,7 +27,7 @@ class TopbarStubComponent {}
   template: '',
 })
 class EventMembershipsStubComponent {
-  @Input() event: AlloyEvent;
+  readonly event = input<AlloyEvent>(undefined);
 }
 
 describe('EventMembershipsPageComponent', () => {
@@ -60,6 +60,6 @@ describe('EventMembershipsPageComponent', () => {
       By.directive(EventMembershipsStubComponent),
     ).componentInstance as EventMembershipsStubComponent;
     // Current behavior; see agent-docs/ui-test-bugs/alloy.ui.md.
-    expect(memberships.event).toBeUndefined();
+    expect(memberships.event()).toBeUndefined();
   });
 });

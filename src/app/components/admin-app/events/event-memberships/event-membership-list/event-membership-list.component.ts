@@ -8,12 +8,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
-  Input,
   OnChanges,
   OnInit,
   Output,
   ViewChild,
   inject,
+  input,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -77,14 +77,11 @@ export class EventMembershipListComponent
 {
   snackBar = inject(MatSnackBar);
 
-  @Input()
-  users: User[];
+  readonly users = input<User[]>(undefined);
 
-  @Input()
-  groups: Group[];
+  readonly groups = input<Group[]>(undefined);
 
-  @Input()
-  canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
   @Output()
   createMembership = new EventEmitter<EventMembership>();
@@ -111,7 +108,7 @@ export class EventMembershipListComponent
     this.dataSource.data = this.buildModel();
 
     this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : [],
+      this.canEdit() ? this.editColumns : [],
     );
   }
 
@@ -128,13 +125,15 @@ export class EventMembershipListComponent
   }
 
   buildModel(): EventMemberModel[] {
-    if (!this.users || !this.groups) {
+    const users = this.users();
+    const groups = this.groups();
+    if (!users || !groups) {
       return [];
     }
 
     const eventMemberModels = [] as EventMemberModel[];
 
-    this.users.forEach((x) => {
+    users.forEach((x) => {
       eventMemberModels.push({
         user: x,
         group: null,
@@ -144,7 +143,7 @@ export class EventMembershipListComponent
       });
     });
 
-    this.groups.forEach((x) => {
+    groups.forEach((x) => {
       eventMemberModels.push({
         user: null,
         group: x,

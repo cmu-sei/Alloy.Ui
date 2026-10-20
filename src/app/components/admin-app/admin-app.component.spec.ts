@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { screen } from '@testing-library/angular';
@@ -39,16 +39,16 @@ import { AdminUsersComponent } from 'src/app/components/admin-app/admin-users/ad
 
 @Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {
-  @Input() title?: string;
-  @Input() topbarView?: TopbarView;
-  @Input() sidenav?: unknown;
+  readonly title = input<string>(undefined);
+  readonly topbarView = input<TopbarView>(undefined);
+  readonly sidenav = input<unknown>(undefined);
   @Output() sidenavToggle = new EventEmitter<boolean>();
 }
 @Component({ selector: 'app-event-templates', template: '' })
 class EventTemplatesStubComponent {}
 @Component({ selector: 'app-events', template: '' })
 class EventsStubComponent {
-  @Input() refresh: Subject<boolean>;
+  readonly refresh = input<Subject<boolean>>(undefined);
 }
 @Component({ selector: 'app-admin-roles', template: '' })
 class AdminRolesStubComponent {}

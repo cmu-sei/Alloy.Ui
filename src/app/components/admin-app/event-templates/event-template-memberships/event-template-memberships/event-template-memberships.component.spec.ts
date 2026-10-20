@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -36,9 +36,9 @@ import { EventTemplateMemberListComponent } from 'src/app/components/admin-app/e
   template: '',
 })
 class MembershipListStubComponent {
-  @Input() users: User[];
-  @Input() groups: Group[];
-  @Input() canEdit: boolean;
+  readonly users = input<User[]>(undefined);
+  readonly groups = input<Group[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
   @Output() createMembership = new EventEmitter<EventTemplateMembership>();
 }
 
@@ -47,11 +47,11 @@ class MembershipListStubComponent {
   template: '',
 })
 class MemberListStubComponent {
-  @Input() memberships: EventTemplateMembership[];
-  @Input() users: User[];
-  @Input() groups: Group[];
-  @Input() roles: EventTemplateRole[];
-  @Input() canEdit: boolean;
+  readonly memberships = input<EventTemplateMembership[]>(undefined);
+  readonly users = input<User[]>(undefined);
+  readonly groups = input<Group[]>(undefined);
+  readonly roles = input<EventTemplateRole[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
   @Output() deleteMembership = new EventEmitter<string>();
   @Output() editMembership = new EventEmitter<EventTemplateMembership>();
 }
@@ -148,11 +148,27 @@ describe('EventTemplateMembershipsComponent', () => {
     expect(membershipsApi.getAllEventTemplateMemberships).toHaveBeenCalledWith(
       't1',
     );
-    expect(memberList().users.map((u) => u.id)).toEqual(['u1']);
-    expect(memberList().groups).toEqual([]);
-    expect(memberList().roles.map((r) => r.id)).toEqual(['r1']);
-    expect(nonMemberList().users.map((u) => u.id)).toEqual(['u2']);
-    expect(nonMemberList().groups.map((g) => g.id)).toEqual(['g1']);
+    expect(
+      memberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u1']);
+    expect(memberList().groups()).toEqual([]);
+    expect(
+      memberList()
+        .roles()
+        .map((r) => r.id),
+    ).toEqual(['r1']);
+    expect(
+      nonMemberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u2']);
+    expect(
+      nonMemberList()
+        .groups()
+        .map((g) => g.id),
+    ).toEqual(['g1']);
   });
 
   /**
@@ -195,8 +211,8 @@ describe('EventTemplateMembershipsComponent', () => {
       const { nonMemberList, memberList } = await renderMemberships(grants);
 
       // Current behavior; see agent-docs/ui-test-bugs/alloy.ui.md.
-      expect(nonMemberList().canEdit).toBe(expected);
-      expect(memberList().canEdit).toBe(expected);
+      expect(nonMemberList().canEdit()).toBe(expected);
+      expect(memberList().canEdit()).toBe(expected);
     },
   );
 
@@ -229,8 +245,8 @@ describe('EventTemplateMembershipsComponent', () => {
   ])('keeps both lists read-only with $label', async ({ grants }) => {
     const { nonMemberList, memberList } = await renderMemberships(grants);
 
-    expect(nonMemberList().canEdit).toBe(false);
-    expect(memberList().canEdit).toBe(false);
+    expect(nonMemberList().canEdit()).toBe(false);
+    expect(memberList().canEdit()).toBe(false);
   });
 
   /**
@@ -242,8 +258,12 @@ describe('EventTemplateMembershipsComponent', () => {
     const { fixture, nonMemberList, memberList, membershipsApi } =
       await renderMemberships({ system: ['EditEventTemplates'] });
     const userIds = () => ({
-      members: memberList().users.map((u) => u.id),
-      nonMembers: nonMemberList().users.map((u) => u.id),
+      members: memberList()
+        .users()
+        .map((u) => u.id),
+      nonMembers: nonMemberList()
+        .users()
+        .map((u) => u.id),
     });
 
     nonMemberList().createMembership.emit({ userId: 'u2' });

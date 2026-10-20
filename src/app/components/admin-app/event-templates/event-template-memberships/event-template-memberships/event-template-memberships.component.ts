@@ -6,13 +6,13 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 import {
   Component,
   EventEmitter,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
   inject,
+  input,
 } from '@angular/core';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
@@ -58,9 +58,9 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
   private groupDataService = inject(GroupDataService);
   private permissionDataService = inject(PermissionDataService);
 
-  @Input() embedded: boolean;
-  @Input() eventTemplateId: string;
-  @Input() showHeader = true;
+  readonly embedded = input<boolean>(undefined);
+  readonly eventTemplateId = input<string>(undefined);
+  readonly showHeader = input(true);
   @Output() goBack = new EventEmitter();
 
   eventTemplate$: Observable<EventTemplate>;
@@ -81,19 +81,19 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     forkJoin([
       this.eventTemplateMembershipDataService.loadMemberships(
-        this.eventTemplateId,
+        this.eventTemplateId(),
       ),
       this.userDataService.load(),
       this.eventTemplateRolesDataService.loadRoles(),
       this.groupDataService.load(),
     ]).subscribe();
     this.permissionDataService
-      .loadEventTemplatePermissions(this.eventTemplateId)
+      .loadEventTemplatePermissions(this.eventTemplateId())
       .subscribe(
         () =>
           (this.canEdit$ = of(
             this.permissionDataService.canEditEventTemplate(
-              this.eventTemplateId,
+              this.eventTemplateId(),
             ),
           )),
       );
@@ -101,7 +101,7 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     this.eventTemplate$ = this.eventTemplateQuery
-      .selectEntity(this.eventTemplateId)
+      .selectEntity(this.eventTemplateId())
       .pipe(filter((x) => x != null));
   }
 
@@ -149,9 +149,9 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
   }
 
   createMembership(eventTemplateMembership: EventTemplateMembership) {
-    eventTemplateMembership.eventTemplateId = this.eventTemplateId;
+    eventTemplateMembership.eventTemplateId = this.eventTemplateId();
     this.eventTemplateMembershipDataService
-      .createMembership(this.eventTemplateId, eventTemplateMembership)
+      .createMembership(this.eventTemplateId(), eventTemplateMembership)
       .subscribe();
   }
 

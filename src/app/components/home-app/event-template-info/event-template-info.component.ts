@@ -4,12 +4,12 @@
 import {
   ChangeDetectorRef,
   Component,
-  Input,
   LOCALE_ID,
   OnDestroy,
   OnInit,
   ViewChild,
   inject,
+  input,
 } from '@angular/core';
 import { formatDate, AsyncPipe, DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -158,7 +158,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   snackBar = inject(MatSnackBar);
   private locale = inject(LOCALE_ID);
 
-  @Input() eventTemplateId: string;
+  readonly eventTemplateId = input<string>(undefined);
   @ViewChild('historySort', { static: false }) sort: MatSort;
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
@@ -254,7 +254,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       map(([loading, id]) => id),
       switchMap((id) => {
         return this.eventTemplateQuery.selectEntity(
-          id ? id : this.eventTemplateId,
+          id ? id : this.eventTemplateId(),
         );
       }),
       shareReplay(),
@@ -337,7 +337,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       withLatestFrom(this.route.params.pipe(map((p) => p['id'] as string))),
       switchMap(([loading, id]) => {
         return this.userEventsQuery.userEventsByTemplateId$(
-          id ? id : this.eventTemplateId,
+          id ? id : this.eventTemplateId(),
         );
       }),
       filter((events) => events.length >= 1),

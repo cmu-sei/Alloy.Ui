@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import {
@@ -28,8 +28,8 @@ import { AdminGroupsMemberListComponent } from 'src/app/components/admin-app/adm
   template: '',
 })
 class MembershipListStubComponent {
-  @Input() users: User[];
-  @Input() canEdit: boolean;
+  readonly users = input<User[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
   @Output() createMembership = new EventEmitter<string>();
 }
 
@@ -38,9 +38,9 @@ class MembershipListStubComponent {
   template: '',
 })
 class MemberListStubComponent {
-  @Input() memberships: GroupMembership[];
-  @Input() users: User[];
-  @Input() canEdit: boolean;
+  readonly memberships = input<GroupMembership[]>(undefined);
+  readonly users = input<User[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
   @Output() deleteMembership = new EventEmitter<{
     id: string;
     isCurrentUser: boolean;
@@ -124,8 +124,8 @@ describe('AdminGroupsDetailComponent', () => {
   it('passes canEdit to both lists when allowed', async () => {
     const { memberList, nonMemberList } = await renderDetail(true);
 
-    expect(nonMemberList().canEdit).toBe(true);
-    expect(memberList().canEdit).toBe(true);
+    expect(nonMemberList().canEdit()).toBe(true);
+    expect(memberList().canEdit()).toBe(true);
   });
 
   /**
@@ -136,8 +136,8 @@ describe('AdminGroupsDetailComponent', () => {
   it('passes canEdit false to both lists without canEdit', async () => {
     const { memberList, nonMemberList } = await renderDetail(false);
 
-    expect(nonMemberList().canEdit).toBe(false);
-    expect(memberList().canEdit).toBe(false);
+    expect(nonMemberList().canEdit()).toBe(false);
+    expect(memberList().canEdit()).toBe(false);
   });
 
   /**
@@ -151,9 +151,21 @@ describe('AdminGroupsDetailComponent', () => {
     fixture.detectChanges();
 
     expect(groupService.getGroupMemberships).toHaveBeenCalledWith('g1');
-    expect(memberList().users.map((u) => u.id)).toEqual(['u1']);
-    expect(memberList().memberships.map((m) => m.id)).toEqual(['m1']);
-    expect(nonMemberList().users.map((u) => u.id)).toEqual(['u2', 'u3']);
+    expect(
+      memberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u1']);
+    expect(
+      memberList()
+        .memberships()
+        .map((m) => m.id),
+    ).toEqual(['m1']);
+    expect(
+      nonMemberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u2', 'u3']);
   });
 
   /**
@@ -173,7 +185,11 @@ describe('AdminGroupsDetailComponent', () => {
       userId: 'u2',
       role: 'Member',
     });
-    expect(memberList().users.map((u) => u.id)).toEqual(['u1', 'u2']);
+    expect(
+      memberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u1', 'u2']);
   });
 
   /**

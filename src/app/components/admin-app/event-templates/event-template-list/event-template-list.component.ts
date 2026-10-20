@@ -18,6 +18,7 @@ import {
   Output,
   ViewChild,
   inject,
+  input,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -118,14 +119,14 @@ export class EventTemplateListComponent
   private permissionDataService = inject(PermissionDataService);
   private eventService = inject(EventService);
 
-  @Input() viewList: Observable<View[]>;
-  @Input() directoryList: Observable<Directory[]>;
-  @Input() scenarioTemplateList: Observable<EventTemplate[]>;
+  readonly viewList = input<Observable<View[]>>(undefined);
+  readonly directoryList = input<Observable<Directory[]>>(undefined);
+  readonly scenarioTemplateList = input<Observable<EventTemplate[]>>(undefined);
   @Input() set eventTemplates(value: EventTemplate[]) {
     this.eventTemplateDataSource.data = value || [];
   }
   @Input() isLoading: boolean;
-  @Input() adminMode = false;
+  readonly adminMode = input(false);
   @Output() refreshTemplates = new EventEmitter<void>();
 
   @ViewChild(MatSort) sort: MatSort;
@@ -230,9 +231,9 @@ export class EventTemplateListComponent
       width: '600px',
       data: {
         eventTemplate: <EventTemplate>{},
-        viewList: this.viewList,
-        directoryList: this.directoryList,
-        scenarioTemplateList: this.scenarioTemplateList,
+        viewList: this.viewList(),
+        directoryList: this.directoryList(),
+        scenarioTemplateList: this.scenarioTemplateList(),
         // A new template has no id yet, so per-template edit/manage checks
         // don't apply. The create permission gates opening this dialog and
         // governs the template being created.
@@ -277,9 +278,9 @@ export class EventTemplateListComponent
           width: '600px',
           data: {
             eventTemplate: { ...eventTemplate },
-            viewList: this.viewList,
-            directoryList: this.directoryList,
-            scenarioTemplateList: this.scenarioTemplateList,
+            viewList: this.viewList(),
+            directoryList: this.directoryList(),
+            scenarioTemplateList: this.scenarioTemplateList(),
             canEdit: this.permissionDataService.canEditEventTemplate(
               eventTemplate.id,
             ),

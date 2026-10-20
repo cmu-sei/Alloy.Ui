@@ -4,7 +4,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 -->
 @if (event) {
   <div>
-    @if (embedded) {
+    @if (embedded()) {
       <div class="d-flex justify-content-center align-items-center">
         <button mat-icon-button (click)="goBack.emit()" matTooltip="Return">
           <mat-icon class="mdi-24px" fontIcon="mdi-keyboard-return"></mat-icon>
@@ -13,11 +13,21 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       </div>
     }
     <div class="d-flex gap-5 justify-content-center">
-      <app-event-membership-list [users]="nonMembers$ | async" [groups]="groupNonMembers$ | async" [canEdit]="canEdit$ | async"
-      (createMembership)="createMembership($event)"></app-event-membership-list>
-      <app-event-member-list [memberships]="memberships$ | async" [users]="members$ | async"
-        [groups]="groupMembers$ | async" [roles]="roles$ | async" [canEdit]="canEdit$ | async"
-      (deleteMembership)="deleteMembership($event)" (editMembership)="editMembership($event)"></app-event-member-list>
+      <app-event-membership-list
+        [users]="nonMembers$ | async"
+        [groups]="groupNonMembers$ | async"
+        [canEdit]="canEdit$ | async"
+        (createMembership)="createMembership($event)"
+      ></app-event-membership-list>
+      <app-event-member-list
+        [memberships]="memberships$ | async"
+        [users]="members$ | async"
+        [groups]="groupMembers$ | async"
+        [roles]="roles$ | async"
+        [canEdit]="canEdit$ | async"
+        (deleteMembership)="deleteMembership($event)"
+        (editMembership)="editMembership($event)"
+      ></app-event-member-list>
     </div>
   </div>
 }

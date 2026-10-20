@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -44,8 +44,8 @@ import { EventMembershipsComponent } from 'src/app/components/admin-app/events/e
 
 @Component({ selector: 'app-event-memberships', template: '' })
 class EventMembershipsStubComponent {
-  @Input() event: AlloyEvent;
-  @Input() embedded: boolean;
+  readonly event = input<AlloyEvent>(undefined);
+  readonly embedded = input<boolean>(undefined);
 }
 
 function makeEvent(overrides: Partial<AlloyEvent> = {}): AlloyEvent {

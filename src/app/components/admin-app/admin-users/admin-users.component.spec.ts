@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { User, UserService } from 'src/app/generated/alloy.api';
@@ -17,9 +17,9 @@ import { AdminUserListComponent } from 'src/app/components/admin-app/admin-users
 
 @Component({ selector: 'app-admin-user-list', template: '' })
 class UserListStubComponent {
-  @Input() users: User[];
-  @Input() isLoading: boolean;
-  @Input() canEdit: boolean;
+  readonly users = input<User[]>(undefined);
+  readonly isLoading = input<boolean>(undefined);
+  readonly canEdit = input<boolean>(undefined);
   @Output() create = new EventEmitter<User>();
   @Output() delete = new EventEmitter<string>();
 }
@@ -60,8 +60,12 @@ describe('AdminUsersComponent', () => {
     const { list, userService } = await renderUsers({ system: ['ViewUsers'] });
 
     expect(userService.getUsers).toHaveBeenCalled();
-    expect(list().users.map((u) => u.name)).toEqual(['Alex Doe', 'Blair Roe']);
-    expect(list().isLoading).toBe(false);
+    expect(
+      list()
+        .users()
+        .map((u) => u.name),
+    ).toEqual(['Alex Doe', 'Blair Roe']);
+    expect(list().isLoading()).toBe(false);
   });
 
   /**
@@ -72,7 +76,7 @@ describe('AdminUsersComponent', () => {
   it('lets the list edit users with ManageUsers', async () => {
     const { list } = await renderUsers({ system: ['ManageUsers'] });
 
-    expect(list().canEdit).toBe(true);
+    expect(list().canEdit()).toBe(true);
   });
 
   /**
@@ -89,7 +93,7 @@ describe('AdminUsersComponent', () => {
   ])('makes the list read-only with $label', async ({ grants }) => {
     const { list } = await renderUsers(grants);
 
-    expect(list().canEdit).toBe(false);
+    expect(list().canEdit()).toBe(false);
   });
 
   /**
@@ -111,6 +115,10 @@ describe('AdminUsersComponent', () => {
       name: 'Casey Poe',
     });
     expect(userService.deleteUser).toHaveBeenCalledWith('u2');
-    expect(list().users.map((u) => u.name)).toEqual(['Alex Doe', 'Casey Poe']);
+    expect(
+      list()
+        .users()
+        .map((u) => u.name),
+    ).toEqual(['Alex Doe', 'Casey Poe']);
   });
 });

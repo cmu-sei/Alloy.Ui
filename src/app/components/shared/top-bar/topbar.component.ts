@@ -10,6 +10,7 @@ import {
   OnInit,
   Output,
   inject,
+  input,
 } from '@angular/core';
 import {
   ComnAuthQuery,
@@ -56,13 +57,13 @@ export class TopbarComponent implements OnInit, OnDestroy {
   private settingsService = inject(ComnSettingsService);
   private permissionDataService = inject(PermissionDataService);
 
-  @Input() title?: string;
+  readonly title = input<string>(undefined);
   @Input() sidenav?;
   @Input() teams?;
   @Input() team?;
   @Input() topbarColor?;
   @Input() topbarTextColor?;
-  @Input() topbarView?: TopbarView;
+  readonly topbarView = input<TopbarView>(undefined);
   @Output() sidenavToggle?: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() setTeam?: EventEmitter<string> = new EventEmitter<string>();
   @Output() editView?: EventEmitter<any> = new EventEmitter<any>();

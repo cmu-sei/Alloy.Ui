@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { activatedRouteStub } from 'src/app/test-utils/activated-route';
@@ -24,7 +24,7 @@ class TopbarStubComponent {}
   template: '',
 })
 class EventTemplateMembershipsStubComponent {
-  @Input() eventTemplateId: string;
+  readonly eventTemplateId = input<string>(undefined);
 }
 
 describe('EventTemplateMembershipsPageComponent', () => {
@@ -60,7 +60,7 @@ describe('EventTemplateMembershipsPageComponent', () => {
     const memberships = fixture.debugElement.query(
       By.directive(EventTemplateMembershipsStubComponent),
     ).componentInstance as EventTemplateMembershipsStubComponent;
-    expect(memberships.eventTemplateId).toBe('t1');
+    expect(memberships.eventTemplateId()).toBe('t1');
     expect(
       templatePermissions.getMyEventTemplatePermissions,
     ).toHaveBeenCalledWith('t1');

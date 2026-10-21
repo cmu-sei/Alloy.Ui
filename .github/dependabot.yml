@@ -1,10 +1,38 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "daily"
-      time: "06:00"
-      timezone: "America/New_York"
-    reviewers:
-      - "cmu-sei/crucible-reviewers"
+      interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore(deps)
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
+    groups:
+      angular:
+        patterns: ["@angular*"]
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5

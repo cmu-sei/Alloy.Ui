@@ -36,3 +36,7 @@ updates:
     # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
     cooldown:
       default-days: 5
+    ignore:
+      # Node majors are moved by hand, together with CI's node-version, onto even-numbered (LTS) releases only.
+      - dependency-name: node
+        update-types: [version-update:semver-major]

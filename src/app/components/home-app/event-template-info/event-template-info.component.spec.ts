@@ -471,10 +471,9 @@ describe('EventTemplateInfoComponent', () => {
 
   describe('hub joins', () => {
     /**
-     * Verifies: each stream that joins event groups drops the promise SignalRService.joinEvent returns, attaching no then/catch/finally (current behavior).
-     * Interacts with: SignalRService.joinEvent (returns a pending promise whose then/catch/finally are spied), real EventStore / UserEventsStore.
-     * Data: per row, an Active event of this user on this template (currentEvent$) or an Active event another user invited them to (userEvents$).
-     * Why: the real joinEvent rejects when the hub cannot be reached. A rejection dropped inside NgZone is rethrown by TestBed after the test rather than logged, so captureUnhandledRejections() cannot see it; the spied promise shows the missing handler directly.
+     * Verifies: each stream that joins event groups lets a rejected join escape unhandled (current behavior).
+     * Interacts with: SignalRService.joinEvent (rejects), real EventStore / UserEventsStore, captureUnhandledRxErrors.
+     * Data: per row, an Active event of this user on this template (currentEvent$) or an Active event another user invited them to (userEvents$); the join rejects with 'hub down'.
      */
     it.each<{
       stream: string;
@@ -504,21 +503,17 @@ describe('EventTemplateInfoComponent', () => {
     ])(
       '$stream drops the joinEvent promise',
       async ({ events, myEvents, joined }) => {
-        const pending = new Promise<void>(() => undefined);
-        const handlers = [
-          vi.spyOn(pending, 'then'),
-          vi.spyOn(pending, 'catch'),
-          vi.spyOn(pending, 'finally'),
-        ];
+        const errors = captureUnhandledRxErrors();
+        const failure = new Error('hub down');
         const { joinEvent } = await renderEventTemplateInfo({
           events,
           myEvents,
-          joinEvent: () => pending,
+          joinEvent: () => Promise.reject(failure),
         });
         await flush();
 
         expect(joinEvent).toHaveBeenCalledWith(joined);
-        handlers.forEach((handler) => expect(handler).not.toHaveBeenCalled());
+        expect(errors).toEqual([failure]);
       },
     );
   });

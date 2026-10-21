@@ -4,6 +4,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     groups:
       github-actions:
         patterns: ["*"]
@@ -14,6 +20,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     groups:
       angular:
         patterns: ["@angular*"]
@@ -24,3 +36,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3

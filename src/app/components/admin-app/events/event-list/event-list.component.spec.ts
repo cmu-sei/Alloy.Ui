@@ -359,7 +359,7 @@ describe('AdminEventListComponent', () => {
     /**
      * Verifies: system EditEvents or ManageEvents enables the edit button on every event.
      * Interacts with: real PermissionDataService system gates, rendered buttons.
-     * Data: two events; system EditEvents, then ManageEvents.
+     * Data: two events; exactly system EditEvents, then exactly ManageEvents.
      */
     it.each<'EditEvents' | 'ManageEvents'>(['EditEvents', 'ManageEvents'])(
       'enables Edit on every event with %s',
@@ -369,7 +369,7 @@ describe('AdminEventListComponent', () => {
             makeEvent({ id: 'a', name: 'One' }),
             makeEvent({ id: 'b', name: 'Two' }),
           ],
-          grants: { system: ['ViewEvents', permission] },
+          grants: { system: [permission] },
         });
         expect(editButtonFor('One')).toBeEnabled();
         expect(editButtonFor('Two')).toBeEnabled();
@@ -379,7 +379,7 @@ describe('AdminEventListComponent', () => {
     /**
      * Verifies: an event-scoped EditEvent or ManageEvent claim enables Edit on that event only.
      * Interacts with: real PermissionDataService event claims, rendered buttons.
-     * Data: events a and b; a claim on a only.
+     * Data: events a and b; exactly one claim on a, with no system permissions.
      */
     it.each<'EditEvent' | 'ManageEvent'>(['EditEvent', 'ManageEvent'])(
       'enables Edit only on the event a %s claim covers',
@@ -390,7 +390,6 @@ describe('AdminEventListComponent', () => {
             makeEvent({ id: 'b', name: 'Theirs' }),
           ],
           grants: {
-            system: ['ViewEvents'],
             events: [{ eventId: 'a', permissions: [claim] }],
           },
         });
@@ -398,6 +397,72 @@ describe('AdminEventListComponent', () => {
         expect(editButtonFor('Theirs')).toBeDisabled();
       },
     );
+
+    /**
+     * Verifies: opening Edit passes each event-edit permission independently to the dialog.
+     * Interacts with: rendered Edit button, real PermissionDataService canEdit/canManage, MatDialog.open stub.
+     * Data: exactly EditEvents, ManageEvents, EditEvent or ManageEvent on event-1; each Edit-only row denies canManage and each Manage-only row denies canEdit.
+     */
+    it.each<{
+      label: string;
+      grants: PermissionGrants;
+      canEdit: boolean;
+      canManage: boolean;
+    }>([
+      {
+        label: 'EditEvents',
+        grants: { system: ['EditEvents'] },
+        canEdit: true,
+        canManage: false,
+      },
+      {
+        label: 'ManageEvents',
+        grants: { system: ['ManageEvents'] },
+        canEdit: false,
+        canManage: true,
+      },
+      {
+        label: 'EditEvent',
+        grants: {
+          events: [{ eventId: 'event-1', permissions: ['EditEvent'] }],
+        },
+        canEdit: true,
+        canManage: false,
+      },
+      {
+        label: 'ManageEvent',
+        grants: {
+          events: [{ eventId: 'event-1', permissions: ['ManageEvent'] }],
+        },
+        canEdit: false,
+        canManage: true,
+      },
+    ])('opens the edit dialog with exactly $label', async ({ grants, canEdit, canManage }) => {
+      const event = makeEvent();
+      const { user, dialog } = await renderAdminEventList({
+        events: [event],
+        grants,
+      });
+
+      await user.click(editButtonFor(event.name));
+
+      expect(dialog.open).toHaveBeenCalledExactlyOnceWith(EventEditComponent, {
+        minWidth: '400px',
+        maxWidth: '90vw',
+        width: '640px',
+        data: {
+          event: {
+            ...event,
+            launchDate: null,
+            endDate: null,
+            expirationDate: null,
+            statusDate: null,
+          },
+          canEdit,
+          canManage,
+        },
+      });
+    });
   });
 
   describe('failed requests', () => {

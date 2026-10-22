@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { screen } from '@testing-library/angular';
+import { screen, waitFor, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,13 +30,18 @@ async function renderTopbar(
     topbarView?: TopbarView;
     team?: { id: string; name: string; canManage: boolean };
     grants?: PermissionGrants;
+    logout?: ComnAuthService['logout'];
     providers?: AnyProvider[];
   } = {},
 ) {
   const logout = vi.fn();
+  const logoutImpl = overrides.logout ?? (() => Promise.resolve());
   const setUserTheme = vi.fn();
   const auth: Pick<ComnAuthService, 'logout' | 'setUserTheme'> = {
-    logout,
+    logout: () => {
+      logout();
+      return logoutImpl();
+    },
     setUserTheme,
   };
 
@@ -240,6 +245,27 @@ describe('TopbarComponent', () => {
 
     await openUserMenu();
     await user.click(screen.getByRole('menuitem', { name: 'Logout' }));
+
+    expect(logout).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * Verifies: choosing Logout lets a rejected sign-out redirect escape unhandled (current behavior).
+   * Interacts with: rendered user menu, ComnAuthService.logout (rejects), captureUnhandledRxErrors.
+   * Data: signed-in user Alex Doe; logout rejects with 'No end session endpoint'.
+   */
+  it('lets a failed logout from the user menu escape unhandled', async () => {
+    const errors = captureUnhandledRxErrors();
+    const failure = new Error('No end session endpoint');
+    const { openUserMenu, user, logout } = await renderTopbar({
+      logout: () => Promise.reject(failure),
+    });
+
+    await openUserMenu();
+    await user.click(
+      within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Logout' }),
+    );
+    await waitFor(() => expect(errors).toEqual([failure]));
 
     expect(logout).toHaveBeenCalledTimes(1);
   });

@@ -111,18 +111,24 @@ describe('SignalRService', () => {
 
   describe('startConnection()', () => {
     /**
-     * Verifies: the first call builds a hub connection to /hubs/engine with the bearer token in the query string and starts it.
+     * Verifies: the first call builds a hub connection to /hubs/engine whose token factory asks for the current token on every call, and starts it.
      * Interacts with: HubConnectionBuilder.withUrl/withAutomaticReconnect/build (spied), FakeHubConnection.start, ComnAuthService.getAuthorizationToken.
-     * Data: ApiUrl https://alloy.test; first token 'token-1'.
+     * Data: ApiUrl https://alloy.test; tokens count up from 'token-1'.
+     * Why: automatic reconnects reuse the URL, so a token baked into it is sent after it expires and every reconnect fails with a 401.
      */
-    it('connects to the engine hub with the bearer token', async () => {
+    it('connects to the engine hub with a fresh token each time', async () => {
       const { service } = setup();
 
       await service.startConnection();
 
       expect(builder.withUrl).toHaveBeenCalledWith(
-        'https://alloy.test/hubs/engine?bearer=token-1',
+        'https://alloy.test/hubs/engine',
+        { accessTokenFactory: expect.any(Function) },
       );
+      const { accessTokenFactory } = vi.mocked(builder.withUrl).mock
+        .calls[0][1] as signalR.IHttpConnectionOptions;
+      expect(accessTokenFactory()).toBe('token-1');
+      expect(accessTokenFactory()).toBe('token-2');
       expect(connections).toHaveLength(1);
       expect(connections[0].start).toHaveBeenCalledTimes(1);
     });
@@ -144,9 +150,9 @@ describe('SignalRService', () => {
     });
 
     /**
-     * Verifies: a failed initial start is not memoized, so the next caller builds a new connection with a fresh token.
-     * Interacts with: FakeHubConnection.start (the first connection's rejects, via onBuild), HubConnectionBuilder.withUrl, console.warn spy.
-     * Data: the first start rejects with 'expired token'; the retry uses token-2.
+     * Verifies: a failed initial start is not memoized, so the next caller builds a new connection.
+     * Interacts with: FakeHubConnection.start (the first connection's rejects, via onBuild), HubConnectionBuilder.build, console.warn spy.
+     * Data: the first start rejects with 'expired token'.
      * Why: withAutomaticReconnect does not cover the initial start, so this retry path is the only recovery from an expired token.
      */
     it('retries a failed start with a new connection and token', async () => {
@@ -160,9 +166,6 @@ describe('SignalRService', () => {
 
       expect(connections).toHaveLength(2);
       expect(connections[1].start).toHaveBeenCalledTimes(1);
-      expect(builder.withUrl).toHaveBeenLastCalledWith(
-        'https://alloy.test/hubs/engine?bearer=token-2',
-      );
       expect(vi.mocked(console.warn)).toHaveBeenCalledWith(
         'Alloy hub unreachable: expired token',
       );
@@ -192,6 +195,28 @@ describe('SignalRService', () => {
       startKeepsFailing = false;
       await service.startConnection();
       expect(systemMessage.displayMessage).toHaveBeenCalledTimes(1);
+    });
+
+    /**
+     * Verifies: a start the API refuses with a 401 is logged but not shown to the user.
+     * Interacts with: FakeHubConnection.start (rejects, via onBuild), SystemMessageService.displayMessage (spy), console.warn spy.
+     * Data: the first start rejects as SignalR 8 rejects a negotiate answered with 401: a FailedToNegotiateWithServerError whose only trace of the status is its message.
+     * Why: the API is up; the token had expired, and the next caller starts again with a fresh one. "Live Updates Unavailable" would be wrong.
+     */
+    it('does not report a rejected token as an unreachable hub', async () => {
+      const { service, systemMessage } = setup();
+      // FailedToNegotiateWithServerError is not exported; an Error with its message stands in.
+      const expired = new Error(
+        "Failed to complete negotiation with the server: Error: Unauthorized: Status code '401'",
+      );
+      firstStartFailure = expired;
+
+      await expect(service.startConnection()).rejects.toBe(expired);
+
+      expect(systemMessage.displayMessage).not.toHaveBeenCalled();
+      expect(vi.mocked(console.warn)).toHaveBeenCalledWith(
+        "Alloy hub rejected the token: Failed to complete negotiation with the server: Error: Unauthorized: Status code '401'",
+      );
     });
 
     /**

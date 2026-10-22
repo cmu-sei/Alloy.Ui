@@ -20,9 +20,10 @@ export class ErrorService implements ErrorHandler {
       ) {
         this.report('API Error', 'The API could not be reached.');
       } else if (err.error && err.error.title) {
-        this.report(err.statusText, err.error.title);
+        // not statusText: HTTP/2 carries no reason phrase, so it reads "OK" or nothing
+        this.report('Error', err.error.title);
       } else {
-        this.report(err.statusText, err.message);
+        this.report('Error', err.message);
       }
     } else if (err?.message?.startsWith('Uncaught (in promise)')) {
       const rejection = err.rejection;

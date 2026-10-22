@@ -31,11 +31,11 @@ import {
   Observable,
   of,
   Subject,
-  throwError,
 } from 'rxjs';
 import {
   catchError,
   filter,
+  finalize,
   map,
   shareReplay,
   skip,
@@ -526,13 +526,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
             this.redeploying = true;
             this.eventDataService
               .redeployEvent(event.id)
-              .pipe(
-                catchError((err) => {
-                  // re-enable the button; the error handler shows why
-                  this.redeploying = false;
-                  return throwError(() => err);
-                })
-              )
+              // re-enable the button whether it worked or not; the error handler shows why it failed
+              .pipe(finalize(() => (this.redeploying = false)))
               .subscribe();
           }
         });

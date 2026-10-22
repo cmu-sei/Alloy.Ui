@@ -52,11 +52,12 @@ export class SignalRService {
       return this.connectionPromise;
     }
 
-    const token = this.authService.getAuthorizationToken();
+    // A factory, not a token in the URL: automatic reconnects reuse the URL, so a baked-in
+    // token would be sent long after it expired and every reconnect would fail with a 401.
     this.hubConnection = new SignalR.HubConnectionBuilder()
-      .withUrl(
-        `${this.settingsService.settings.ApiUrl}/hubs/engine?bearer=${token}`
-      )
+      .withUrl(`${this.settingsService.settings.ApiUrl}/hubs/engine`, {
+        accessTokenFactory: () => this.authService.getAuthorizationToken(),
+      })
       .withAutomaticReconnect(new RetryPolicy(60, 0, 5))
       .build();
     this.hubConnection.onreconnected(() => {
@@ -99,6 +100,12 @@ export class SignalRService {
   // Report once per outage, not on every caller that retries the start. A successful start
   // or reconnect re-arms it.
   private reportUnreachable(err: any) {
+    // The API is up but the token had expired; the next caller starts again with a fresh one.
+    // A failed negotiate is rethrown without its HttpError, so the status survives only in the text.
+    if (err?.message?.includes("Status code '401'")) {
+      console.warn('Alloy hub rejected the token: ' + err.message);
+      return;
+    }
     if (this.unreachableReported) {
       return;
     }

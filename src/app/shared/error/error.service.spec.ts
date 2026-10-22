@@ -26,9 +26,10 @@ describe('ErrorService', () => {
   });
 
   /**
-   * Verifies: a failed request shows the ProblemDetails title the API returned, under the status text.
+   * Verifies: a failed request shows the ProblemDetails title the API returned, under a heading that does not depend on the status text.
    * Interacts with: SystemMessageService.displayMessage.
-   * Data: a 409 whose body carries a title.
+   * Data: a 409 whose body carries a title, and statusText 'OK' as an HTTP/2 response reports it.
+   * Why: HTTP/2 has no reason phrase, so statusText is empty or 'OK' behind an HTTP/2 ingress.
    */
   it('shows the API title of a failed request', () => {
     const { service, systemMessage } = setup();
@@ -36,7 +37,7 @@ describe('ErrorService', () => {
     service.handleError(
       new HttpErrorResponse({
         status: 409,
-        statusText: 'Conflict',
+        statusText: 'OK',
         error: {
           title: 'You already have an active event from this template.',
         },
@@ -44,7 +45,7 @@ describe('ErrorService', () => {
     );
 
     expect(systemMessage.displayMessage).toHaveBeenCalledWith(
-      'Conflict',
+      'Error',
       'You already have an active event from this template.',
     );
   });
@@ -66,7 +67,7 @@ describe('ErrorService', () => {
     service.handleError(err);
 
     expect(systemMessage.displayMessage).toHaveBeenCalledWith(
-      'Internal Server Error',
+      'Error',
       err.message,
     );
   });

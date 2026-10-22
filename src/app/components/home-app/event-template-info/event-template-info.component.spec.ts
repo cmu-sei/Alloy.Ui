@@ -390,12 +390,11 @@ describe('EventTemplateInfoComponent', () => {
 
     /**
      * Verifies: a hub join that fails does not stop the read-back.
-     * Interacts with: SignalRService.joinEvent (vi.fn that rejects), EventService.getEvent, console.log spy.
+     * Interacts with: SignalRService.joinEvent (vi.fn that rejects), EventService.getEvent.
      * Data: joinEvent rejects with 'hub down'.
-     * Why: launchEvent() chains on the join (from(...) + catchError), so a vi.fn rejection, which counts as handled, is enough here; the other join call sites drop the promise and are pinned under 'hub joins'.
+     * Why: launchEvent() chains on the join (from(...) + catchError), so a vi.fn rejection, which counts as handled, is enough here. SignalRService tells the user about a hub it cannot reach, so the component stays quiet.
      */
     it('still reads the event back when the hub join fails', async () => {
-      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
       const failure = new Error('hub down');
       const { user, eventService } = await renderEventTemplateInfo({
         joinEvent: vi.fn(() => Promise.reject(failure)),
@@ -405,7 +404,6 @@ describe('EventTemplateInfoComponent', () => {
       await flush();
 
       expect(eventService.getEvent).toHaveBeenCalledWith('new');
-      expect(log).toHaveBeenCalledWith(failure);
     });
   });
 
@@ -471,9 +469,10 @@ describe('EventTemplateInfoComponent', () => {
 
   describe('hub joins', () => {
     /**
-     * Verifies: each stream that joins event groups lets a rejected join escape unhandled (current behavior).
-     * Interacts with: SignalRService.joinEvent (rejects), real EventStore / UserEventsStore, captureUnhandledRxErrors.
-     * Data: per row, an Active event of this user on this template (currentEvent$) or an Active event another user invited them to (userEvents$); the join rejects with 'hub down'.
+     * Verifies: each stream that joins event groups handles a rejection from the promise SignalRService.joinEvent returns.
+     * Interacts with: SignalRService.joinEvent (returns a pending promise whose then/catch/finally are spied), real EventStore / UserEventsStore.
+     * Data: per row, an Active event of this user on this template (currentEvent$) or an Active event another user invited them to (userEvents$).
+     * Why: the real joinEvent rejects when the hub cannot be reached, and SignalRService has already told the user. A dropped rejection would reach the global error handler and tell them again. A rejection dropped inside NgZone is rethrown by TestBed after the test rather than logged, so captureUnhandledRejections() cannot see it; the spied promise shows the handler directly.
      */
     it.each<{
       stream: string;
@@ -501,19 +500,19 @@ describe('EventTemplateInfoComponent', () => {
         joined: 'invited',
       },
     ])(
-      '$stream drops the joinEvent promise',
+      '$stream handles a failed joinEvent',
       async ({ events, myEvents, joined }) => {
-        const errors = captureUnhandledRxErrors();
-        const failure = new Error('hub down');
+        const pending = new Promise<void>(() => undefined);
+        const handleRejection = vi.spyOn(pending, 'catch');
         const { joinEvent } = await renderEventTemplateInfo({
           events,
           myEvents,
-          joinEvent: () => Promise.reject(failure),
+          joinEvent: () => pending,
         });
         await flush();
 
         expect(joinEvent).toHaveBeenCalledWith(joined);
-        expect(errors).toEqual([failure]);
+        expect(handleRejection).toHaveBeenCalledWith(expect.any(Function));
       },
     );
   });

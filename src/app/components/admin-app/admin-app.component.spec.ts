@@ -338,25 +338,28 @@ describe('AdminAppComponent', () => {
   });
 
   /**
-   * Verifies: a rejected connection start escapes unhandled and the administration group is not joined (current behavior).
+   * Verifies: a rejected connection start is handled and the administration group is not joined.
    * Interacts with: SignalRService.startConnection (rejects), real CurrentUserStore/Query, captureUnhandledRxErrors.
    * Data: signed-in user user-1; connection start rejects with 'hub down'.
    */
-  it('lets a failed connection start escape without joining administration', async () => {
+  it('handles a failed connection start without joining administration', async () => {
     const errors = captureUnhandledRxErrors();
     const failure = new Error('hub down');
     const signalR = {
       startConnection: () => Promise.reject(failure),
       joinAdmin: vi.fn(),
       leaveAdmin: vi.fn(),
-    } satisfies Pick<SignalRService, 'startConnection' | 'joinAdmin' | 'leaveAdmin'>;
+    } satisfies Pick<
+      SignalRService,
+      'startConnection' | 'joinAdmin' | 'leaveAdmin'
+    >;
     await renderAdminApp({
       providers: [{ provide: SignalRService, useValue: signalR }],
     });
     await flush();
 
     expect(signalR.joinAdmin).not.toHaveBeenCalled();
-    expect(errors).toEqual([failure]);
+    expect(errors).toEqual([]);
   });
 
   /**

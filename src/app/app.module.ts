@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { A11yModule } from '@angular/cdk/a11y';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -86,6 +86,9 @@ import { TopbarComponent } from './components/shared/top-bar/topbar.component';
 import { BASE_PATH } from './generated/alloy.api';
 import { ApiModule as SwaggerCodegenApiModule } from './generated/alloy.api/api.module';
 import { SignalRService } from './shared/signalr/signalr.service';
+import { ErrorService } from './shared/error/error.service';
+import { SystemMessageService } from './shared/system-message/system-message.service';
+import { SystemMessageComponent } from './components/shared/system-message/system-message.component';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { environment } from '../environments/environment';
 
@@ -133,6 +136,7 @@ export class AngularMaterialModule {}
         AdminUsersComponent,
         AdminUserListComponent,
         NameDialogComponent,
+        SystemMessageComponent,
     ],
     bootstrap: [AppComponent], imports: [environment.production ? [] : AkitaNgDevtools.forRoot(),
         BrowserModule,
@@ -182,6 +186,11 @@ export class AngularMaterialModule {}
         A11yModule,
         ...CRUCIBLE_DIALOG_IMPORTS], providers: [
         SignalRService,
+        SystemMessageService,
+        {
+            provide: ErrorHandler,
+            useClass: ErrorService,
+        },
         {
             provide: BASE_PATH,
             useFactory: getBasePath,

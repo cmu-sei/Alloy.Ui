@@ -1,0 +1,25 @@
+<!--
+Copyright 2026 Carnegie Mellon University. All Rights Reserved.
+Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
+-->
+
+<div>
+  <div class="cssLayoutRowStartCenter bottom-button" style="overflow: hidden;">
+    <div class="icon">
+      <img width="50" src="assets/img/SP_Icon_Alert.png" alt="" />
+    </div>
+    <div>
+      <div>
+        <h2>{{ displayTitle }}</h2>
+      </div>
+      <div class="messagebody">
+        {{ displayMessage }}
+      </div>
+    </div>
+    <div>
+      <button (click)="close()" mat-icon-button aria-label="Close" class="no-outline">
+        <mat-icon title="Close" class="icon-color icon-24px" fontIcon="mdi-close-circle-outline"></mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

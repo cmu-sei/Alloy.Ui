@@ -2,10 +2,10 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, input, output } from '@angular/core';
+import { Component, NgZone, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { screen } from '@testing-library/angular';
+import { screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { of, Subject } from 'rxjs';
 import { User } from 'oidc-client-ts';
@@ -69,6 +69,7 @@ async function renderAdminApp(
   overrides: {
     grants?: PermissionGrants;
     queryParams?: Params;
+    logout?: ComnAuthService['logout'];
     providers?: AnyProvider[];
   } = {},
 ) {
@@ -83,8 +84,9 @@ async function renderAdminApp(
     joinAdmin: vi.fn(),
     leaveAdmin: vi.fn(),
   };
-  const auth: Pick<ComnAuthService, 'user$'> = {
+  const auth: Pick<ComnAuthService, 'user$' | 'logout'> = {
     user$: of({ profile: { name: 'Alex Doe', sub: 'user-1' } } as User),
+    logout: overrides.logout ?? (() => Promise.resolve()),
   };
 
   const rendered = await renderComponent(AdminAppComponent, {
@@ -346,6 +348,47 @@ describe('AdminAppComponent', () => {
 
     expect(sections()).toEqual([]);
     expect(unhandled).toEqual([failure]);
+  });
+
+  /**
+   * Verifies: a rejected connection start is handled and the administration group is not joined.
+   * Interacts with: SignalRService.startConnection (rejects), real CurrentUserStore/Query, captureUnhandledRxErrors.
+   * Data: signed-in user user-1; connection start rejects with 'hub down'.
+   */
+  it('handles a failed connection start without joining administration', async () => {
+    const errors = captureUnhandledRxErrors();
+    const failure = new Error('hub down');
+    const signalR = {
+      startConnection: () => Promise.reject(failure),
+      joinAdmin: vi.fn(),
+      leaveAdmin: vi.fn(),
+    } satisfies Pick<
+      SignalRService,
+      'startConnection' | 'joinAdmin' | 'leaveAdmin'
+    >;
+    await renderAdminApp({
+      providers: [{ provide: SignalRService, useValue: signalR }],
+    });
+    await flush();
+
+    expect(signalR.joinAdmin).not.toHaveBeenCalled();
+    expect(errors).toEqual([]);
+  });
+
+  /**
+   * Verifies: calling logout lets a rejected sign-out redirect escape unhandled (current behavior).
+   * Interacts with: ComnAuthService.logout (rejects), NgZone, captureUnhandledRxErrors.
+   * Data: signed-in user user-1; logout rejects with 'No end session endpoint'.
+   */
+  it('lets a failed logout escape unhandled', async () => {
+    const errors = captureUnhandledRxErrors();
+    const failure = new Error('No end session endpoint');
+    const { fixture } = await renderAdminApp({
+      logout: () => Promise.reject(failure),
+    });
+
+    TestBed.inject(NgZone).run(() => fixture.componentInstance.logout());
+    await waitFor(() => expect(errors).toEqual([failure]));
   });
 
   /**

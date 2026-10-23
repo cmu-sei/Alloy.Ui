@@ -377,7 +377,7 @@ describe('EventDataService', () => {
     });
 
     /**
-     * Verifies: redeployEvent fires the redeploy request.
+     * Verifies: redeployEvent builds the redeploy request for the caller to subscribe to.
      * Interacts with: EventService.redeployEvent.
      * Data: event id 'a'; the request never completes.
      * Why: NEVER keeps the subscription inert, so the test only asserts that the request was made.
@@ -386,37 +386,51 @@ describe('EventDataService', () => {
       const { service, eventService } = setup();
       eventService.redeployEvent.mockReturnValueOnce(NEVER);
 
-      service.redeployEvent('a');
+      service.redeployEvent('a').subscribe();
 
       expect(eventService.redeployEvent).toHaveBeenCalledWith('a');
     });
 
     /**
-     * Verifies: a failed end or redeploy request leaves the event as it was and its error escapes as an unhandled RxJS error (current behavior).
-     * Interacts with: EventService.endEvent / redeployEvent (error), real EventStore/EventQuery, captureUnhandledRxErrors.
-     * Data: one Active event 'a'; one failing endpoint per row.
+     * Verifies: a failed end request leaves the event as it was and its error escapes as an unhandled RxJS error (current behavior).
+     * Interacts with: EventService.endEvent (error), real EventStore/EventQuery, captureUnhandledRxErrors.
+     * Data: one Active event 'a'; endEvent fails with 403.
      */
-    it.each<{
-      method: 'endEvent' | 'redeployEvent';
-      failure: { status: number };
-    }>([
-      { method: 'endEvent', failure: { status: 403 } },
-      { method: 'redeployEvent', failure: { status: 500 } },
-    ])(
-      '$method lets a failed request escape unhandled',
-      async ({ method, failure }) => {
-        const unhandled = captureUnhandledRxErrors();
-        const { service, eventQuery, eventService } = setup();
-        service.stateCreate(makeEvent({ id: 'a', status: 'Active' }));
-        eventService[method].mockReturnValueOnce(throwError(() => failure));
+    it('endEvent lets a failed request escape unhandled', async () => {
+      const unhandled = captureUnhandledRxErrors();
+      const { service, eventQuery, eventService } = setup();
+      service.stateCreate(makeEvent({ id: 'a', status: 'Active' }));
+      const failure = { status: 403 };
+      eventService.endEvent.mockReturnValueOnce(throwError(() => failure));
 
-        service[method]('a');
-        await flush();
+      service.endEvent('a');
+      await flush();
 
-        expect(eventQuery.getEntity('a').status).toBe('Active');
-        expect(unhandled).toEqual([failure]);
-      },
-    );
+      expect(eventQuery.getEntity('a').status).toBe('Active');
+      expect(unhandled).toEqual([failure]);
+    });
+
+    /**
+     * Verifies: a failed redeploy request leaves the event as it was and its error reaches the caller.
+     * Interacts with: EventService.redeployEvent (error), real EventStore/EventQuery, captureUnhandledRxErrors.
+     * Data: one Active event 'a'; redeployEvent fails with 500.
+     * Why: the caller shows the API's reason for the failure, so the service must not swallow it.
+     */
+    it('redeployEvent passes a failed request to the caller', async () => {
+      const unhandled = captureUnhandledRxErrors();
+      const { service, eventQuery, eventService } = setup();
+      service.stateCreate(makeEvent({ id: 'a', status: 'Active' }));
+      const failure = { status: 500 };
+      eventService.redeployEvent.mockReturnValueOnce(throwError(() => failure));
+      const error = vi.fn();
+
+      service.redeployEvent('a').subscribe({ error });
+      await flush();
+
+      expect(eventQuery.getEntity('a').status).toBe('Active');
+      expect(error).toHaveBeenCalledWith(failure);
+      expect(unhandled).toEqual([]);
+    });
   });
 
   describe('state handlers', () => {

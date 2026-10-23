@@ -25,6 +25,9 @@ import {
   ScenarioTemplate,
   View,
 } from 'src/app/generated/alloy.api';
+import { CasterDataService } from 'src/app/data/caster/caster-data-service';
+import { PlayerDataService } from 'src/app/data/player/player-data-service';
+import { SteamfitterDataService } from 'src/app/data/steamfitter/steamfitter-data.service';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
@@ -100,6 +103,14 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   crucibleDialog = inject(CrucibleDialogService);
   private snackBar = inject(MatSnackBar);
   data = inject(MAT_DIALOG_DATA);
+  private playerDataService = inject(PlayerDataService);
+  private casterDataService = inject(CasterDataService);
+  private steamfitterDataService = inject(SteamfitterDataService);
+
+  // An empty list on its own looks like there is nothing to choose; these say the load failed.
+  public viewLoadError$ = this.playerDataService.loadError;
+  public directoryLoadError$ = this.casterDataService.loadError;
+  public scenarioTemplateLoadError$ = this.steamfitterDataService.loadError;
 
   readonly editComplete = output<any>();
 

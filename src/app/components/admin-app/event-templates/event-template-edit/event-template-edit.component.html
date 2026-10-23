@@ -118,6 +118,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <mat-icon class="mdi-20px" fontIcon="mdi-content-copy" />
           </button>
         </mat-form-field>
+        @if (viewLoadError$ | async; as message) {
+          <div class="list-warning" role="alert">
+            <mat-icon
+              class="mdi-20px"
+              fontIcon="mdi-alert-outline"
+              aria-hidden="true"
+            />
+            <span>{{ message }}</span>
+          </div>
+        }
       </div>
       <div class="add-margin">
         <mat-form-field class="full-width">
@@ -168,6 +178,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <mat-icon class="mdi-20px" fontIcon="mdi-content-copy" />
           </button>
         </mat-form-field>
+        @if (directoryLoadError$ | async; as message) {
+          <div class="list-warning" role="alert">
+            <mat-icon
+              class="mdi-20px"
+              fontIcon="mdi-alert-outline"
+              aria-hidden="true"
+            />
+            <span>{{ message }}</span>
+          </div>
+        }
       </div>
       <div class="add-margin">
         <mat-form-field class="full-width">
@@ -219,6 +239,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
             <mat-icon class="mdi-20px" fontIcon="mdi-content-copy" />
           </button>
         </mat-form-field>
+        @if (scenarioTemplateLoadError$ | async; as message) {
+          <div class="list-warning" role="alert">
+            <mat-icon
+              class="mdi-20px"
+              fontIcon="mdi-alert-outline"
+              aria-hidden="true"
+            />
+            <span>{{ message }}</span>
+          </div>
+        }
       </div>
       <div class="add-margin">
         <mat-checkbox

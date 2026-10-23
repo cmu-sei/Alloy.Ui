@@ -19,6 +19,8 @@ export class PlayerDataService {
   private _views: View[] = [];
   private _viewMask: Observable<string>;
   readonly views = new BehaviorSubject<View[]>(this._views);
+  /** Why the last load failed, shown in the Event Template editor. Null once a load succeeds. */
+  readonly loadError = new BehaviorSubject<string>(null);
   readonly viewList: Observable<View[]>;
   readonly viewFilter = new UntypedFormControl();
   readonly selectedView: Observable<View>;
@@ -87,10 +89,14 @@ export class PlayerDataService {
       .pipe(take(1))
       .subscribe(
         (views) => {
+          this.loadError.next(null);
           this.updateViews(views.filter((x) => x.isTemplate));
         },
         (error) => {
           this.updateViews([]);
+          // ProblemDetails.title names the service and why; never .detail, which for a 500
+          // outside development holds the raw exception message
+          this.loadError.next(error?.error?.title ?? 'Could not load your Player views.');
         },
       );
   }

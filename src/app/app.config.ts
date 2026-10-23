@@ -3,11 +3,14 @@
 
 import {
   ApplicationConfig,
+  ErrorHandler,
   provideZoneChangeDetection,
   importProvidersFrom,
 } from '@angular/core';
 import { environment } from '../environments/environment';
 import { SignalRService } from './shared/signalr/signalr.service';
+import { ErrorService } from './shared/error/error.service';
+import { SystemMessageService } from './shared/system-message/system-message.service';
 import { BASE_PATH } from './generated/alloy.api';
 import {
   ComnSettingsService,
@@ -40,6 +43,11 @@ export const appConfig: ApplicationConfig = {
       A11yModule,
     ),
     SignalRService,
+    SystemMessageService,
+    {
+      provide: ErrorHandler,
+      useClass: ErrorService,
+    },
     {
       provide: BASE_PATH,
       useFactory: getBasePath,

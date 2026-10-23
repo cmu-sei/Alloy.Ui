@@ -24,6 +24,8 @@ export class SteamfitterDataService {
   readonly scenarioTemplates = new BehaviorSubject<ScenarioTemplate[]>(
     this._scenarioTemplates,
   );
+  /** Why the last load failed, shown in the Event Template editor. Null once a load succeeds. */
+  readonly loadError = new BehaviorSubject<string>(null);
   readonly scenarioTemplateList: Observable<ScenarioTemplate[]>;
   readonly scenarioTemplateFilter = new UntypedFormControl();
   readonly selectedScenarioTemplate: Observable<ScenarioTemplate>;
@@ -104,10 +106,14 @@ export class SteamfitterDataService {
       .pipe(take(1))
       .subscribe(
         (scenarioTemplates) => {
+          this.loadError.next(null);
           this.updateScenarioTemplates(scenarioTemplates);
         },
         (error) => {
           this.updateScenarioTemplates([]);
+          // ProblemDetails.title names the service and why; never .detail, which for a 500
+          // outside development holds the raw exception message
+          this.loadError.next(error?.error?.title ?? 'Could not load the Steamfitter scenario templates.');
         },
       );
   }

@@ -2,6 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, beforeEach } from 'vitest';
+import { Injector, runInInjectionContext } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api';
 import { recordEmissions } from 'src/app/test-utils/record-emissions';
@@ -29,7 +30,12 @@ describe('EventQuery', () => {
     // A pure store/query pair needs no TestBed; a new instance per test also
     // replaces the previous one in Akita's global store registry.
     store = new EventStore();
-    query = new EventQuery(store);
+    query = runInInjectionContext(
+      Injector.create({
+        providers: [{ provide: EventStore, useValue: store }],
+      }),
+      () => new EventQuery(),
+    );
   });
 
   /**

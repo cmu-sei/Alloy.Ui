@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import {
@@ -18,18 +18,19 @@ import { EventTemplateStore } from 'src/app/data/event-template/event-template.s
 import { ApiStub } from 'src/app/test-utils/api-stub';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplatesComponent } from './event-templates.component';
+import { EventTemplateListComponent } from 'src/app/components/admin-app/event-templates/event-template-list/event-template-list.component';
 
 @Component({
   selector: 'app-event-template-list',
   template: '',
-  standalone: false,
 })
 class EventTemplateListStubComponent {
-  @Input() viewList: Observable<View[]>;
-  @Input() directoryList: Observable<Directory[]>;
-  @Input() scenarioTemplateList: Observable<ScenarioTemplate[]>;
-  @Input() eventTemplates: EventTemplate[];
-  @Output() refreshTemplates = new EventEmitter<void>();
+  readonly viewList = input<Observable<View[]>>(undefined);
+  readonly directoryList = input<Observable<Directory[]>>(undefined);
+  readonly scenarioTemplateList =
+    input<Observable<ScenarioTemplate[]>>(undefined);
+  readonly eventTemplates = input<EventTemplate[]>(undefined);
+  readonly refreshTemplates = output<void>();
 }
 
 async function renderEventTemplates() {
@@ -50,7 +51,12 @@ async function renderEventTemplates() {
     ),
   } satisfies ApiStub<SteamfitterService>;
   const rendered = await renderComponent(EventTemplatesComponent, {
-    declarations: [EventTemplatesComponent, EventTemplateListStubComponent],
+    childStubs: [
+      {
+        replace: EventTemplateListComponent,
+        with: EventTemplateListStubComponent,
+      },
+    ],
     providers: [
       { provide: PlayerService, useValue: playerApi },
       { provide: CasterService, useValue: casterApi },
@@ -81,15 +87,19 @@ describe('EventTemplatesComponent', () => {
   it('passes the external template lists and the event templates to the list', async () => {
     const { list } = await renderEventTemplates();
 
-    expect(list().eventTemplates.map((t) => t.id)).toEqual(['t1']);
-    expect((await firstValueFrom(list().viewList)).map((v) => v.id)).toEqual([
+    expect(
+      list()
+        .eventTemplates()
+        .map((t) => t.id),
+    ).toEqual(['t1']);
+    expect((await firstValueFrom(list().viewList())).map((v) => v.id)).toEqual([
       'v1',
     ]);
     expect(
-      (await firstValueFrom(list().directoryList)).map((d) => d.id),
+      (await firstValueFrom(list().directoryList())).map((d) => d.id),
     ).toEqual(['d1']);
     expect(
-      (await firstValueFrom(list().scenarioTemplateList)).map((s) => s.id),
+      (await firstValueFrom(list().scenarioTemplateList())).map((s) => s.id),
     ).toEqual(['s1']);
   });
 

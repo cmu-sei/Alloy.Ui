@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -35,15 +35,15 @@ import {
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplateEditComponent } from '../event-template-edit/event-template-edit.component';
 import { EventTemplateListComponent } from './event-template-list.component';
+import { EventTemplateMembershipsComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-memberships/event-template-memberships.component';
 
 @Component({
   selector: 'app-event-template-memberships',
   template: '',
-  standalone: false,
 })
 class EventTemplateMembershipsStubComponent {
-  @Input() eventTemplateId: string;
-  @Input() showHeader: boolean;
+  readonly eventTemplateId = input<string>(undefined);
+  readonly showHeader = input<boolean>(undefined);
 }
 
 const templates = (): EventTemplate[] => [
@@ -87,9 +87,11 @@ async function renderList(
   };
 
   const rendered = await renderComponent(EventTemplateListComponent, {
-    declarations: [
-      EventTemplateListComponent,
-      EventTemplateMembershipsStubComponent,
+    childStubs: [
+      {
+        replace: EventTemplateMembershipsComponent,
+        with: EventTemplateMembershipsStubComponent,
+      },
     ],
     imports: [
       MatButtonModule,
@@ -472,7 +474,7 @@ describe('EventTemplateListComponent', () => {
     const memberships = fixture.debugElement.query(
       By.directive(EventTemplateMembershipsStubComponent),
     ).componentInstance as EventTemplateMembershipsStubComponent;
-    expect(memberships.eventTemplateId).toBe('t1');
-    expect(memberships.showHeader).toBe(false);
+    expect(memberships.eventTemplateId()).toBe('t1');
+    expect(memberships.showHeader()).toBe(false);
   });
 });

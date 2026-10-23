@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -40,11 +40,12 @@ import {
 } from 'src/app/test-utils/unhandled-rx-errors';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { AdminEventListComponent } from './event-list.component';
+import { EventMembershipsComponent } from 'src/app/components/admin-app/events/event-memberships/event-memberships/event-memberships.component';
 
 @Component({ selector: 'app-event-memberships', template: '' })
 class EventMembershipsStubComponent {
-  @Input() event: AlloyEvent;
-  @Input() embedded: boolean;
+  readonly event = input<AlloyEvent>(undefined);
+  readonly embedded = input<boolean>(undefined);
 }
 
 function makeEvent(overrides: Partial<AlloyEvent> = {}): AlloyEvent {
@@ -116,7 +117,12 @@ async function renderAdminEventList(
   const dialog = { open: vi.fn(() => dialogRef) };
 
   const rendered = await renderComponent(AdminEventListComponent, {
-    declarations: [AdminEventListComponent],
+    childStubs: [
+      {
+        replace: EventMembershipsComponent,
+        with: EventMembershipsStubComponent,
+      },
+    ],
     imports: [
       MatButtonModule,
       MatCardModule,

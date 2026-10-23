@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { activatedRouteStub } from 'src/app/test-utils/activated-route';
@@ -13,17 +13,18 @@ import {
 import { EventTemplatePermissionsService } from 'src/app/generated/alloy.api';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplateMembershipsPageComponent } from './event-template-memberships-page.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
+import { EventTemplateMembershipsComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-memberships/event-template-memberships.component';
 
-@Component({ selector: 'app-topbar', template: '', standalone: false })
+@Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {}
 
 @Component({
   selector: 'app-event-template-memberships',
   template: '',
-  standalone: false,
 })
 class EventTemplateMembershipsStubComponent {
-  @Input() eventTemplateId: string;
+  readonly eventTemplateId = input<string>(undefined);
 }
 
 describe('EventTemplateMembershipsPageComponent', () => {
@@ -38,10 +39,12 @@ describe('EventTemplateMembershipsPageComponent', () => {
     const { fixture } = await renderComponent(
       EventTemplateMembershipsPageComponent,
       {
-        declarations: [
-          EventTemplateMembershipsPageComponent,
-          TopbarStubComponent,
-          EventTemplateMembershipsStubComponent,
+        childStubs: [
+          { replace: TopbarComponent, with: TopbarStubComponent },
+          {
+            replace: EventTemplateMembershipsComponent,
+            with: EventTemplateMembershipsStubComponent,
+          },
         ],
         providers: [
           { provide: ActivatedRoute, useValue: route },
@@ -57,7 +60,7 @@ describe('EventTemplateMembershipsPageComponent', () => {
     const memberships = fixture.debugElement.query(
       By.directive(EventTemplateMembershipsStubComponent),
     ).componentInstance as EventTemplateMembershipsStubComponent;
-    expect(memberships.eventTemplateId).toBe('t1');
+    expect(memberships.eventTemplateId()).toBe('t1');
     expect(
       templatePermissions.getMyEventTemplatePermissions,
     ).toHaveBeenCalledWith('t1');

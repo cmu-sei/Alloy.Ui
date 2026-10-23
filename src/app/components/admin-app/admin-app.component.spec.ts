@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, NgZone, Output } from '@angular/core';
+import { Component, NgZone, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { screen, waitFor } from '@testing-library/angular';
@@ -30,19 +30,25 @@ import { activatedRouteStub } from 'src/app/test-utils/activated-route';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { TopbarView } from '../shared/top-bar/topbar.models';
 import { AdminAppComponent } from './admin-app.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
+import { EventTemplatesComponent } from 'src/app/components/admin-app/event-templates/event-templates.component';
+import { EventsComponent } from 'src/app/components/admin-app/events/events.component';
+import { AdminRolesComponent } from 'src/app/components/admin-app/admin-roles/admin-roles.component';
+import { AdminGroupsComponent } from 'src/app/components/admin-app/admin-groups/admin-groups.component';
+import { AdminUsersComponent } from 'src/app/components/admin-app/admin-users/admin-users.component';
 
 @Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {
-  @Input() title?: string;
-  @Input() topbarView?: TopbarView;
-  @Input() sidenav?: unknown;
-  @Output() sidenavToggle = new EventEmitter<boolean>();
+  readonly title = input<string>(undefined);
+  readonly topbarView = input<TopbarView>(undefined);
+  readonly sidenav = input<unknown>(undefined);
+  readonly sidenavToggle = output<boolean>();
 }
 @Component({ selector: 'app-event-templates', template: '' })
 class EventTemplatesStubComponent {}
 @Component({ selector: 'app-events', template: '' })
 class EventsStubComponent {
-  @Input() refresh: Subject<boolean>;
+  readonly refresh = input<Subject<boolean>>(undefined);
 }
 @Component({ selector: 'app-admin-roles', template: '' })
 class AdminRolesStubComponent {}
@@ -84,7 +90,14 @@ async function renderAdminApp(
   };
 
   const rendered = await renderComponent(AdminAppComponent, {
-    declarations: [AdminAppComponent],
+    childStubs: [
+      { replace: TopbarComponent, with: TopbarStubComponent },
+      { replace: EventTemplatesComponent, with: EventTemplatesStubComponent },
+      { replace: EventsComponent, with: EventsStubComponent },
+      { replace: AdminRolesComponent, with: AdminRolesStubComponent },
+      { replace: AdminGroupsComponent, with: AdminGroupsStubComponent },
+      { replace: AdminUsersComponent, with: AdminUsersStubComponent },
+    ],
     imports: [
       MatButtonModule,
       MatIconModule,

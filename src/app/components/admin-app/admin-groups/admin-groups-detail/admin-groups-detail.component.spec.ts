@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import {
@@ -20,32 +20,32 @@ import {
 } from 'src/app/test-utils/mock-permission-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { AdminGroupsDetailComponent } from './admin-groups-detail.component';
+import { AdminGroupsMembershipListComponent } from 'src/app/components/admin-app/admin-groups/admin-groups-membership-list/admin-groups-membership-list.component';
+import { AdminGroupsMemberListComponent } from 'src/app/components/admin-app/admin-groups/admin-groups-member-list/admin-groups-member-list.component';
 
 @Component({
   selector: 'app-admin-groups-membership-list',
   template: '',
-  standalone: false,
 })
 class MembershipListStubComponent {
-  @Input() users: User[];
-  @Input() canEdit: boolean;
-  @Output() createMembership = new EventEmitter<string>();
+  readonly users = input<User[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
+  readonly createMembership = output<string>();
 }
 
 @Component({
   selector: 'app-admin-groups-member-list',
   template: '',
-  standalone: false,
 })
 class MemberListStubComponent {
-  @Input() memberships: GroupMembership[];
-  @Input() users: User[];
-  @Input() canEdit: boolean;
-  @Output() deleteMembership = new EventEmitter<{
+  readonly memberships = input<GroupMembership[]>(undefined);
+  readonly users = input<User[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
+  readonly deleteMembership = output<{
     id: string;
     isCurrentUser: boolean;
   }>();
-  @Output() editMembership = new EventEmitter<{
+  readonly editMembership = output<{
     id: string;
     role: GroupMembershipRole;
     isCurrentUser: boolean;
@@ -79,10 +79,15 @@ async function renderDetail(canEdit: boolean) {
   const groupService = groupServiceStub();
   const groupPermissions = permissionApiStubs().groupPermissions;
   const rendered = await renderComponent(AdminGroupsDetailComponent, {
-    declarations: [
-      AdminGroupsDetailComponent,
-      MembershipListStubComponent,
-      MemberListStubComponent,
+    childStubs: [
+      {
+        replace: AdminGroupsMembershipListComponent,
+        with: MembershipListStubComponent,
+      },
+      {
+        replace: AdminGroupsMemberListComponent,
+        with: MemberListStubComponent,
+      },
     ],
     providers: [
       { provide: GroupService, useValue: groupService },
@@ -119,8 +124,8 @@ describe('AdminGroupsDetailComponent', () => {
   it('passes canEdit to both lists when allowed', async () => {
     const { memberList, nonMemberList } = await renderDetail(true);
 
-    expect(nonMemberList().canEdit).toBe(true);
-    expect(memberList().canEdit).toBe(true);
+    expect(nonMemberList().canEdit()).toBe(true);
+    expect(memberList().canEdit()).toBe(true);
   });
 
   /**
@@ -131,8 +136,8 @@ describe('AdminGroupsDetailComponent', () => {
   it('passes canEdit false to both lists without canEdit', async () => {
     const { memberList, nonMemberList } = await renderDetail(false);
 
-    expect(nonMemberList().canEdit).toBe(false);
-    expect(memberList().canEdit).toBe(false);
+    expect(nonMemberList().canEdit()).toBe(false);
+    expect(memberList().canEdit()).toBe(false);
   });
 
   /**
@@ -146,9 +151,21 @@ describe('AdminGroupsDetailComponent', () => {
     fixture.detectChanges();
 
     expect(groupService.getGroupMemberships).toHaveBeenCalledWith('g1');
-    expect(memberList().users.map((u) => u.id)).toEqual(['u1']);
-    expect(memberList().memberships.map((m) => m.id)).toEqual(['m1']);
-    expect(nonMemberList().users.map((u) => u.id)).toEqual(['u2', 'u3']);
+    expect(
+      memberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u1']);
+    expect(
+      memberList()
+        .memberships()
+        .map((m) => m.id),
+    ).toEqual(['m1']);
+    expect(
+      nonMemberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u2', 'u3']);
   });
 
   /**
@@ -168,7 +185,11 @@ describe('AdminGroupsDetailComponent', () => {
       userId: 'u2',
       role: 'Member',
     });
-    expect(memberList().users.map((u) => u.id)).toEqual(['u1', 'u2']);
+    expect(
+      memberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u1', 'u2']);
   });
 
   /**

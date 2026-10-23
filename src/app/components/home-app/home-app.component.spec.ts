@@ -34,7 +34,7 @@ class EventListStubComponent {}
 
 async function renderHome(
   grants: PermissionGrants,
-  options: { viewId?: string; viewEvents?: AlloyEvent[] } = {},
+  options: { viewId?: string; viewEvents?: AlloyEvent[]; background?: string } = {},
 ) {
   const eventApi = {
     getMyViewEvents: vi.fn(() => of(options.viewEvents ?? [])),
@@ -68,7 +68,11 @@ async function renderHome(
       {
         provide: ComnSettingsService,
         useValue: {
-          settings: { AppTitle: 'Alloy', AppTopBarText: 'Alloy Home' },
+          settings: {
+            AppTitle: 'Alloy',
+            AppTopBarText: 'Alloy Home',
+            AppLandingBackgroundImage: options.background,
+          },
         },
       },
       ...permissionDataProviders(grants),
@@ -164,6 +168,36 @@ describe('HomeAppComponent', () => {
 
       expect(eventApi.getMyViewEvents).toHaveBeenCalledWith('v1');
       expect(navigate.mock.calls).toEqual(calls);
+    },
+  );
+
+  /**
+   * Verifies: the page shows the background image named in settings, and none without the setting.
+   * Interacts with: ComnSettingsService settings (stub), HomeAppComponent template.
+   * Data: AppLandingBackgroundImage set to a relative asset URL, or unset.
+   */
+  it.each([
+    {
+      label: 'with',
+      background: '/assets/local/landing-background.jpg',
+      expected: 'url("/assets/local/landing-background.jpg")',
+    },
+    { label: 'without', background: undefined, expected: '' },
+  ])(
+    'shows the landing background $label the setting',
+    async ({ background, expected }) => {
+      const { container } = await renderHome(
+        { system: ['ViewEvents'] },
+        { background },
+      );
+
+      const page = container.querySelector(
+        '.app-events-container',
+      ) as HTMLElement;
+      expect(page.style.getPropertyValue('--landing-background')).toBe(
+        expected,
+      );
+      expect(page.classList.contains('has-background')).toBe(!!background);
     },
   );
 });

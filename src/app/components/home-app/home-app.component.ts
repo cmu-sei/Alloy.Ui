@@ -30,6 +30,11 @@ export class HomeAppComponent implements OnInit, OnDestroy {
   unsubscribe$: Subject<null> = new Subject<null>();
   permissions: SystemPermission[] = [];
   canViewAdministration = false;
+  // An optional image URL from settings, so a site can brand the page
+  // without shipping the image in this repo.
+  backgroundImage = this.settingsService.settings.AppLandingBackgroundImage
+    ? `url("${this.settingsService.settings.AppLandingBackgroundImage}")`
+    : null;
 
   constructor(
     private settingsService: ComnSettingsService,

@@ -15,6 +15,25 @@
   overflow: hidden;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
+
+  // Matches the Moodle site background: the image as-is in light mode, and in
+  // dark mode a near-black tint over it, so the page stays dark.
+  &.has-background {
+    background-image: var(--landing-background);
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+:host-context(.darkMode) .app-events-container.has-background {
+  background-color: #101215;
+  background-image: linear-gradient(rgba(7, 9, 12, 0.52), rgba(7, 9, 12, 0.44)), var(--landing-background);
+}
+
+// The event list header has no background of its own; give the panel one so
+// its title and search box stay readable over the image.
+.app-events-container.has-background ::ng-deep .events-list-container {
+  background-color: var(--mat-sys-surface);
 }
 
 .app-events-container > span {

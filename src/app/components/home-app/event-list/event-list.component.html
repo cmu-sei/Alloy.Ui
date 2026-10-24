@@ -5,60 +5,79 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 <!-- Event Templates -->
 <div class="events-list-container elevate">
   <div class="icon-text-container">
-    <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy"></mat-icon>
+    <mat-icon class="alloy-icon" svgIcon="ic_crucible_alloy" />
     <span class="title-text text">My Events</span>
     <div class="searchBox">
       <mat-form-field style="width: 320px">
-        <input matInput [(ngModel)]="filterString" (keyup)="applyFilter($event.target.value)" placeholder="Search" />
+        <input
+          matInput
+          [(ngModel)]="filterString"
+          (keyup)="applyFilter($event.target.value)"
+          placeholder="Search"
+        />
         @if (filterString) {
-        <button mat-icon-button matSuffix (click)="clearFilter()" title="Clear Search">
-          <mat-icon style="transform: scale(0.85)" fontIcon="mdi-close-circle-outline"></mat-icon>
-        </button>
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="clearFilter()"
+            title="Clear Search"
+          >
+            <mat-icon
+              style="transform: scale(0.85)"
+              fontIcon="mdi-close-circle-outline"
+            />
+          </button>
         }
       </mat-form-field>
     </div>
   </div>
   <!-- Event Templates-->
   <div class="table-container">
-    <mat-table #sortTemplate="matSort" [dataSource]="eventTemplateDataSource" matSort>
+    <mat-table
+      #sortTemplate="matSort"
+      [dataSource]="eventTemplateDataSource"
+      matSort
+    >
       @for (col of eventTemplateDisplayedColumns; track col; let i = $index) {
-      <ng-container matColumnDef="{{ col }}">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders[col] }}
-        </mat-header-cell>
-        <mat-cell *matCellDef="let element">
-          <!-- Only Show link if its the first element-->
-          @if (i === 0) {
-          <a [routerLink]="['/templates', element.id]">{{ element.name }}</a>
-          } @else if (col === 'dateCreated') {
-          {{ element[col] | date: 'yyyy-MM-dd HH:mm' }}
-          } @else {
-          {{ element[col] }}
-          }
-        </mat-cell>
-      </ng-container>
+        <ng-container matColumnDef="{{ col }}">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >{{ columnHeaders[col] }}
+          </mat-header-cell>
+          <mat-cell *matCellDef="let element">
+            <!-- Only Show link if its the first element-->
+            @if (i === 0) {
+              <a [routerLink]="['/templates', element.id]">{{
+                element.name
+              }}</a>
+            } @else if (col === 'dateCreated') {
+              {{ element[col] | date: 'yyyy-MM-dd HH:mm' }}
+            } @else {
+              {{ element[col] }}
+            }
+          </mat-cell>
+        </ng-container>
       }
 
-      <mat-header-row *matHeaderRowDef="eventTemplateDisplayedColumns; sticky: true"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: eventTemplateDisplayedColumns"></mat-row>
+      <mat-header-row
+        *matHeaderRowDef="eventTemplateDisplayedColumns; sticky: true"
+      />
+      <mat-row *matRowDef="let row; columns: eventTemplateDisplayedColumns" />
     </mat-table>
   </div>
 
   @if (eventTemplateDataSource.filteredData.length === 0) {
-  <div>
-    No results found
-  </div>
+    <div>No results found</div>
   }
 
   @if (!doneLoading) {
-  <mat-card appearance="outlined" class="spinner">
-    <mat-progress-spinner color="primary" mode="indeterminate">
-    </mat-progress-spinner>
-  </mat-card>
+    <mat-card appearance="outlined" class="spinner">
+      <mat-progress-spinner color="primary" mode="indeterminate" />
+    </mat-card>
   }
 
   <mat-paginator
     [pageSizeOptions]="[10, 25, 50, 100]"
     showFirstLastButtons
-    aria-label="Select page of events">
-  </mat-paginator>
+    aria-label="Select page of events"
+  />
 </div>

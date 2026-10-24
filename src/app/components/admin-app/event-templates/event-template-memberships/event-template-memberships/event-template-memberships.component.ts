@@ -5,13 +5,13 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 
 import {
   Component,
-  EventEmitter,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   SimpleChanges,
+  inject,
+  input,
+  output,
 } from '@angular/core';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
@@ -26,18 +26,41 @@ import {
 } from 'src/app/generated/alloy.api';
 import { GroupDataService } from 'src/app/data/group/group-data.service';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { EventTemplateMembershipListComponent } from '../event-template-membership-list/event-template-membership-list.component';
+import { EventTemplateMemberListComponent } from '../event-template-member-list/event-template-member-list.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-event-template-memberships',
-    templateUrl: './event-template-memberships.component.html',
-    styleUrls: ['./event-template-memberships.component.scss'],
-    standalone: false
+  selector: 'app-event-template-memberships',
+  templateUrl: './event-template-memberships.component.html',
+  styleUrls: ['./event-template-memberships.component.scss'],
+  imports: [
+    MatIconButton,
+    MatTooltip,
+    MatIcon,
+    EventTemplateMembershipListComponent,
+    EventTemplateMemberListComponent,
+    AsyncPipe,
+  ],
 })
 export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
-  @Input() embedded: boolean;
-  @Input() eventTemplateId: string;
-  @Input() showHeader = true;
-  @Output() goBack = new EventEmitter();
+  private eventTemplateQuery = inject(EventTemplateQuery);
+  private eventTemplateMembershipDataService = inject(
+    EventTemplateMembershipDataService,
+  );
+  private eventTemplateRolesDataService = inject(EventTemplateRoleDataService);
+  private userDataService = inject(UserDataService);
+  private userQuery = inject(UserQuery);
+  private groupDataService = inject(GroupDataService);
+  private permissionDataService = inject(PermissionDataService);
+
+  readonly embedded = input<boolean>(undefined);
+  readonly eventTemplateId = input<string>(undefined);
+  readonly showHeader = input(true);
+  readonly goBack = output();
 
   eventTemplate$: Observable<EventTemplate>;
 
@@ -54,34 +77,30 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
 
   canEdit$: Observable<boolean>;
 
-  constructor(
-    private eventTemplateQuery: EventTemplateQuery,
-    private eventTemplateMembershipDataService: EventTemplateMembershipDataService,
-    private eventTemplateRolesDataService: EventTemplateRoleDataService,
-    private userDataService: UserDataService,
-    private userQuery: UserQuery,
-    private groupDataService: GroupDataService,
-    private permissionDataService: PermissionDataService
-  ) {}
-
   ngOnInit(): void {
     forkJoin([
       this.eventTemplateMembershipDataService.loadMemberships(
-        this.eventTemplateId
+        this.eventTemplateId(),
       ),
       this.userDataService.load(),
       this.eventTemplateRolesDataService.loadRoles(),
       this.groupDataService.load(),
     ]).subscribe();
     this.permissionDataService
-      .loadEventTemplatePermissions(this.eventTemplateId)
-      .subscribe(() =>
-        this.canEdit$ = of(this.permissionDataService.canEditEventTemplate(this.eventTemplateId)));
+      .loadEventTemplatePermissions(this.eventTemplateId())
+      .subscribe(
+        () =>
+          (this.canEdit$ = of(
+            this.permissionDataService.canEditEventTemplate(
+              this.eventTemplateId(),
+            ),
+          )),
+      );
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.eventTemplate$ = this.eventTemplateQuery
-      .selectEntity(this.eventTemplateId)
+      .selectEntity(this.eventTemplateId())
       .pipe(filter((x) => x != null));
   }
 
@@ -101,7 +120,7 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
             );
           }
         });
-      })
+      }),
     );
   }
 
@@ -124,14 +143,14 @@ export class EventTemplateMembershipsComponent implements OnInit, OnChanges {
             );
           }
         });
-      })
+      }),
     );
   }
 
   createMembership(eventTemplateMembership: EventTemplateMembership) {
-    eventTemplateMembership.eventTemplateId = this.eventTemplateId;
+    eventTemplateMembership.eventTemplateId = this.eventTemplateId();
     this.eventTemplateMembershipDataService
-      .createMembership(this.eventTemplateId, eventTemplateMembership)
+      .createMembership(this.eventTemplateId(), eventTemplateMembership)
       .subscribe();
   }
 

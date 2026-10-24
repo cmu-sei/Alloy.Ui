@@ -2,6 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, beforeEach } from 'vitest';
+import { Injector, runInInjectionContext } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api';
 import { recordEmissions } from 'src/app/test-utils/record-emissions';
@@ -24,7 +25,12 @@ describe('UserEventsQuery', () => {
 
   beforeEach(() => {
     store = new UserEventsStore();
-    query = new UserEventsQuery(store);
+    query = runInInjectionContext(
+      Injector.create({
+        providers: [{ provide: UserEventsStore, useValue: store }],
+      }),
+      () => new UserEventsQuery(),
+    );
   });
 
   /**

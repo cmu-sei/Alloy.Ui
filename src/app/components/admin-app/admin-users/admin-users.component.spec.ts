@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { User, UserService } from 'src/app/generated/alloy.api';
@@ -13,14 +13,15 @@ import {
 } from 'src/app/test-utils/mock-permission-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { AdminUsersComponent } from './admin-users.component';
+import { AdminUserListComponent } from 'src/app/components/admin-app/admin-users/admin-user-list/admin-user-list.component';
 
-@Component({ selector: 'app-admin-user-list', template: '', standalone: false })
+@Component({ selector: 'app-admin-user-list', template: '' })
 class UserListStubComponent {
-  @Input() users: User[];
-  @Input() isLoading: boolean;
-  @Input() canEdit: boolean;
-  @Output() create = new EventEmitter<User>();
-  @Output() delete = new EventEmitter<string>();
+  readonly users = input<User[]>(undefined);
+  readonly isLoading = input<boolean>(undefined);
+  readonly canEdit = input<boolean>(undefined);
+  readonly create = output<User>();
+  readonly delete = output<string>();
 }
 
 async function renderUsers(grants: PermissionGrants) {
@@ -35,7 +36,9 @@ async function renderUsers(grants: PermissionGrants) {
     deleteUser: vi.fn(() => of({})),
   } satisfies ApiStub<UserService>;
   const rendered = await renderComponent(AdminUsersComponent, {
-    declarations: [AdminUsersComponent, UserListStubComponent],
+    childStubs: [
+      { replace: AdminUserListComponent, with: UserListStubComponent },
+    ],
     providers: [
       { provide: UserService, useValue: userService },
       ...permissionDataProviders(grants),
@@ -57,8 +60,12 @@ describe('AdminUsersComponent', () => {
     const { list, userService } = await renderUsers({ system: ['ViewUsers'] });
 
     expect(userService.getUsers).toHaveBeenCalled();
-    expect(list().users.map((u) => u.name)).toEqual(['Alex Doe', 'Blair Roe']);
-    expect(list().isLoading).toBe(false);
+    expect(
+      list()
+        .users()
+        .map((u) => u.name),
+    ).toEqual(['Alex Doe', 'Blair Roe']);
+    expect(list().isLoading()).toBe(false);
   });
 
   /**
@@ -69,7 +76,7 @@ describe('AdminUsersComponent', () => {
   it('lets the list edit users with ManageUsers', async () => {
     const { list } = await renderUsers({ system: ['ManageUsers'] });
 
-    expect(list().canEdit).toBe(true);
+    expect(list().canEdit()).toBe(true);
   });
 
   /**
@@ -86,7 +93,7 @@ describe('AdminUsersComponent', () => {
   ])('makes the list read-only with $label', async ({ grants }) => {
     const { list } = await renderUsers(grants);
 
-    expect(list().canEdit).toBe(false);
+    expect(list().canEdit()).toBe(false);
   });
 
   /**
@@ -108,6 +115,10 @@ describe('AdminUsersComponent', () => {
       name: 'Casey Poe',
     });
     expect(userService.deleteUser).toHaveBeenCalledWith('u2');
-    expect(list().users.map((u) => u.name)).toEqual(['Alex Doe', 'Casey Poe']);
+    expect(
+      list()
+        .users()
+        .map((u) => u.name),
+    ).toEqual(['Alex Doe', 'Casey Poe']);
   });
 });

@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   ComnAuthQuery,
   ComnAuthService,
@@ -27,6 +27,17 @@ import { SystemMessageService } from 'src/app/shared/system-message/system-messa
   providedIn: 'root',
 })
 export class SignalRService {
+  private authService = inject(ComnAuthService);
+  private eventDataService = inject(EventDataService);
+  private eventMembershipDataService = inject(EventMembershipDataService);
+  private eventTemplateDataService = inject(EventTemplateDataService);
+  private eventTemplateMembershipDataService = inject(
+    EventTemplateMembershipDataService,
+  );
+  private groupMembershipService = inject(GroupMembershipService);
+  private settingsService = inject(ComnSettingsService);
+  private systemMessageService = inject(SystemMessageService);
+
   private hubConnection: SignalR.HubConnection;
   private eventIds = new Set<string>();
   /** Ids the server has confirmed a JoinEvent for on the current connection. */
@@ -35,17 +46,6 @@ export class SignalRService {
   private connectionPromise: Promise<void>;
   private systemGroupJoined = false;
   private unreachableReported = false;
-
-  constructor(
-    private authService: ComnAuthService,
-    private eventDataService: EventDataService,
-    private eventMembershipDataService: EventMembershipDataService,
-    private eventTemplateDataService: EventTemplateDataService,
-    private eventTemplateMembershipDataService: EventTemplateMembershipDataService,
-    private groupMembershipService: GroupMembershipService,
-    private settingsService: ComnSettingsService,
-    private systemMessageService: SystemMessageService
-  ) {}
 
   public startConnection(): Promise<void> {
     if (this.connectionPromise) {
@@ -131,7 +131,7 @@ export class SignalRService {
     // call, and its callers re-run on every store emission, so without this the awaits below
     // would re-invoke JoinEvent for every known event on every status change.
     const pending = [...this.eventIds].filter(
-      (eventId) => !this.joinedEventIds.has(eventId)
+      (eventId) => !this.joinedEventIds.has(eventId),
     );
 
     await Promise.all(
@@ -140,7 +140,7 @@ export class SignalRService {
         // broadcast sent in the meantime is lost.
         await this.hubConnection.invoke('JoinEvent', eventId);
         this.joinedEventIds.add(eventId);
-      })
+      }),
     );
   }
 
@@ -204,14 +204,14 @@ export class SignalRService {
       'EventMembershipCreated',
       (eventMembership: EventMembership) => {
         this.eventMembershipDataService.updateStore(eventMembership);
-      }
+      },
     );
 
     this.hubConnection.on(
       'EventMembershipUpdated',
       (eventMembership: EventMembership) => {
         this.eventMembershipDataService.updateStore(eventMembership);
-      }
+      },
     );
 
     this.hubConnection.on('EventMembershipDeleted', (id: string) => {
@@ -230,18 +230,18 @@ export class SignalRService {
       'EventTemplateMembershipCreated',
       (eventTemplateMembership: EventTemplateMembership) => {
         this.eventTemplateMembershipDataService.updateStore(
-          eventTemplateMembership
+          eventTemplateMembership,
         );
-      }
+      },
     );
 
     this.hubConnection.on(
       'EventTemplateMembershipUpdated',
       (eventTemplateMembership: EventTemplateMembership) => {
         this.eventTemplateMembershipDataService.updateStore(
-          eventTemplateMembership
+          eventTemplateMembership,
         );
-      }
+      },
     );
 
     this.hubConnection.on('EventTemplateMembershipDeleted', (id: string) => {
@@ -251,14 +251,14 @@ export class SignalRService {
       'GroupMembershipCreated',
       (groupMembership: GroupMembership) => {
         this.groupMembershipService.updateStore(groupMembership);
-      }
+      },
     );
 
     this.hubConnection.on(
       'GroupMembershipUpdated',
       (groupMembership: GroupMembership) => {
         this.groupMembershipService.updateStore(groupMembership);
-      }
+      },
     );
 
     this.hubConnection.on('GroupMembershipDeleted', (id: string) => {
@@ -271,11 +271,11 @@ class RetryPolicy {
   constructor(
     private maxSeconds: number,
     private minJitterSeconds: number,
-    private maxJitterSeconds: number
+    private maxJitterSeconds: number,
   ) {}
 
   nextRetryDelayInMilliseconds(
-    retryContext: signalR.RetryContext
+    retryContext: signalR.RetryContext,
   ): number | null {
     let nextRetrySeconds = Math.pow(2, retryContext.previousRetryCount + 1);
 
@@ -285,7 +285,7 @@ class RetryPolicy {
 
     nextRetrySeconds +=
       Math.floor(
-        Math.random() * (this.maxJitterSeconds - this.minJitterSeconds + 1)
+        Math.random() * (this.maxJitterSeconds - this.minJitterSeconds + 1),
       ) + this.minJitterSeconds; // Add Jitter
 
     return nextRetrySeconds * 1000;

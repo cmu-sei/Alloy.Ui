@@ -4,7 +4,7 @@
 import { Order, Query, QueryConfig, QueryEntity } from '@datorama/akita';
 import { EventTemplateState, EventTemplateStore } from './event-template.store';
 import { EventTemplate } from 'src/app/generated/alloy.api';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Observable } from 'rxjs';
 
@@ -16,8 +16,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class EventTemplateQuery extends QueryEntity<EventTemplateState> {
-  constructor(protected store: EventTemplateStore) {
+  protected store: EventTemplateStore;
+
+  constructor() {
+    const store = inject(EventTemplateStore);
+
     super(store);
+
+    this.store = store;
   }
 
   selectById(id: string): Observable<EventTemplate> {

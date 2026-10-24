@@ -1,7 +1,7 @@
 // Copyright 2026 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable, Injector, ErrorHandler } from '@angular/core';
+import { Injectable, Injector, ErrorHandler, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SystemMessageService } from '../system-message/system-message.service';
 
@@ -9,7 +9,7 @@ import { SystemMessageService } from '../system-message/system-message.service';
   providedIn: 'root',
 })
 export class ErrorService implements ErrorHandler {
-  constructor(private injector: Injector) {}
+  private injector = inject(Injector);
 
   handleError(err: any) {
     // Http failure response for (unknown url): 0 Unknown Error
@@ -32,7 +32,7 @@ export class ErrorService implements ErrorHandler {
       } else if (rejection?.message === 'Network Error') {
         this.report(
           'Identity Server Error',
-          'The Identity Server could not be reached for user authentication.'
+          'The Identity Server could not be reached for user authentication.',
         );
       } else if (rejection?.message?.endsWith('Failed to fetch')) {
         // a SignalR hub start that its service didn't catch; it reports its own failures.

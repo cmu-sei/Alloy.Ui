@@ -68,7 +68,7 @@ async function renderTopbar(
       },
       ...(overrides.providers ?? []),
     ],
-    componentProperties: {
+    inputs: {
       title: 'Alloy',
       topbarView: overrides.topbarView ?? TopbarView.ALLOY_HOME,
       team: overrides.team,

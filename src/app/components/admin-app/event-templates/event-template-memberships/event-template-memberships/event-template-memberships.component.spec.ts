@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -28,32 +28,32 @@ import {
 } from 'src/app/test-utils/mock-permission-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplateMembershipsComponent } from './event-template-memberships.component';
+import { EventTemplateMembershipListComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-membership-list/event-template-membership-list.component';
+import { EventTemplateMemberListComponent } from 'src/app/components/admin-app/event-templates/event-template-memberships/event-template-member-list/event-template-member-list.component';
 
 @Component({
   selector: 'app-event-template-membership-list',
   template: '',
-  standalone: false,
 })
 class MembershipListStubComponent {
-  @Input() users: User[];
-  @Input() groups: Group[];
-  @Input() canEdit: boolean;
-  @Output() createMembership = new EventEmitter<EventTemplateMembership>();
+  readonly users = input<User[]>(undefined);
+  readonly groups = input<Group[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
+  readonly createMembership = output<EventTemplateMembership>();
 }
 
 @Component({
   selector: 'app-event-template-member-list',
   template: '',
-  standalone: false,
 })
 class MemberListStubComponent {
-  @Input() memberships: EventTemplateMembership[];
-  @Input() users: User[];
-  @Input() groups: Group[];
-  @Input() roles: EventTemplateRole[];
-  @Input() canEdit: boolean;
-  @Output() deleteMembership = new EventEmitter<string>();
-  @Output() editMembership = new EventEmitter<EventTemplateMembership>();
+  readonly memberships = input<EventTemplateMembership[]>(undefined);
+  readonly users = input<User[]>(undefined);
+  readonly groups = input<Group[]>(undefined);
+  readonly roles = input<EventTemplateRole[]>(undefined);
+  readonly canEdit = input<boolean>(undefined);
+  readonly deleteMembership = output<string>();
+  readonly editMembership = output<EventTemplateMembership>();
 }
 
 async function renderMemberships(
@@ -94,10 +94,15 @@ async function renderMemberships(
   } satisfies ApiStub<GroupService>;
 
   const rendered = await renderComponent(EventTemplateMembershipsComponent, {
-    declarations: [
-      EventTemplateMembershipsComponent,
-      MembershipListStubComponent,
-      MemberListStubComponent,
+    childStubs: [
+      {
+        replace: EventTemplateMembershipListComponent,
+        with: MembershipListStubComponent,
+      },
+      {
+        replace: EventTemplateMemberListComponent,
+        with: MemberListStubComponent,
+      },
     ],
     imports: [MatButtonModule, MatIconModule, MatTooltipModule],
     providers: [
@@ -143,11 +148,27 @@ describe('EventTemplateMembershipsComponent', () => {
     expect(membershipsApi.getAllEventTemplateMemberships).toHaveBeenCalledWith(
       't1',
     );
-    expect(memberList().users.map((u) => u.id)).toEqual(['u1']);
-    expect(memberList().groups).toEqual([]);
-    expect(memberList().roles.map((r) => r.id)).toEqual(['r1']);
-    expect(nonMemberList().users.map((u) => u.id)).toEqual(['u2']);
-    expect(nonMemberList().groups.map((g) => g.id)).toEqual(['g1']);
+    expect(
+      memberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u1']);
+    expect(memberList().groups()).toEqual([]);
+    expect(
+      memberList()
+        .roles()
+        .map((r) => r.id),
+    ).toEqual(['r1']);
+    expect(
+      nonMemberList()
+        .users()
+        .map((u) => u.id),
+    ).toEqual(['u2']);
+    expect(
+      nonMemberList()
+        .groups()
+        .map((g) => g.id),
+    ).toEqual(['g1']);
   });
 
   /**
@@ -190,8 +211,8 @@ describe('EventTemplateMembershipsComponent', () => {
       const { nonMemberList, memberList } = await renderMemberships(grants);
 
       // Current behavior; see agent-docs/ui-test-bugs/alloy.ui.md.
-      expect(nonMemberList().canEdit).toBe(expected);
-      expect(memberList().canEdit).toBe(expected);
+      expect(nonMemberList().canEdit()).toBe(expected);
+      expect(memberList().canEdit()).toBe(expected);
     },
   );
 
@@ -224,8 +245,8 @@ describe('EventTemplateMembershipsComponent', () => {
   ])('keeps both lists read-only with $label', async ({ grants }) => {
     const { nonMemberList, memberList } = await renderMemberships(grants);
 
-    expect(nonMemberList().canEdit).toBe(false);
-    expect(memberList().canEdit).toBe(false);
+    expect(nonMemberList().canEdit()).toBe(false);
+    expect(memberList().canEdit()).toBe(false);
   });
 
   /**
@@ -237,8 +258,12 @@ describe('EventTemplateMembershipsComponent', () => {
     const { fixture, nonMemberList, memberList, membershipsApi } =
       await renderMemberships({ system: ['EditEventTemplates'] });
     const userIds = () => ({
-      members: memberList().users.map((u) => u.id),
-      nonMembers: nonMemberList().users.map((u) => u.id),
+      members: memberList()
+        .users()
+        .map((u) => u.id),
+      nonMembers: nonMemberList()
+        .users()
+        .map((u) => u.id),
     });
 
     nonMemberList().createMembership.emit({ userId: 'u2' });

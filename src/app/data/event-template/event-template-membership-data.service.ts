@@ -1,7 +1,7 @@
 // Copyright 2024 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import {
@@ -13,18 +13,18 @@ import {
   providedIn: 'root',
 })
 export class EventTemplateMembershipDataService {
+  private eventTemplateMembershipsService = inject(
+    EventTemplateMembershipsService,
+  );
+
   private eventTemplateMembershipsSubject = new BehaviorSubject<
     EventTemplateMembership[]
   >([]);
   public eventTemplateMemberships$ =
     this.eventTemplateMembershipsSubject.asObservable();
 
-  constructor(
-    private eventTemplateMembershipsService: EventTemplateMembershipsService
-  ) {}
-
   loadMemberships(
-    eventTemplateId: string
+    eventTemplateId: string,
   ): Observable<EventTemplateMembership[]> {
     return this.eventTemplateMembershipsService
       .getAllEventTemplateMemberships(eventTemplateId)
@@ -33,14 +33,14 @@ export class EventTemplateMembershipDataService {
 
   createMembership(
     eventTemplateId: string,
-    eventTemplateMembership: EventTemplateMembership
+    eventTemplateMembership: EventTemplateMembership,
   ) {
     return this.eventTemplateMembershipsService
       .createEventTemplateMembership(eventTemplateId, eventTemplateMembership)
       .pipe(
         tap((x) => {
           this.upsert(x.id, x);
-        })
+        }),
       );
   }
 
@@ -48,12 +48,12 @@ export class EventTemplateMembershipDataService {
     return this.eventTemplateMembershipsService
       .updateEventTemplateMembership(
         eventTemplateMembership.id,
-        eventTemplateMembership
+        eventTemplateMembership,
       )
       .pipe(
         tap((x) => {
           this.upsert(eventTemplateMembership.id, x);
-        })
+        }),
       );
   }
 
@@ -63,13 +63,13 @@ export class EventTemplateMembershipDataService {
       .pipe(
         tap(() => {
           this.remove(id);
-        })
+        }),
       );
   }
 
   upsert(
     id: string,
-    eventTemplateMembership: Partial<EventTemplateMembership>
+    eventTemplateMembership: Partial<EventTemplateMembership>,
   ) {
     const memberships = this.eventTemplateMembershipsSubject.getValue();
     const membershipToUpdate = memberships.find((x) => x.id === id);

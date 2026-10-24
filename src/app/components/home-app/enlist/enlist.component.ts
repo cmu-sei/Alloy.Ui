@@ -3,8 +3,8 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 */
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, EMPTY, from, Subject } from 'rxjs';
 import {
   catchError,
@@ -15,14 +15,30 @@ import {
   tap,
 } from 'rxjs/operators';
 import { EventDataService } from 'src/app/data/event/event-data.service';
+import { MatCard } from '@angular/material/card';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatIcon } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-enlist',
-    templateUrl: './enlist.component.html',
-    styleUrls: ['./enlist.component.scss'],
-    standalone: false
+  selector: 'app-enlist',
+  templateUrl: './enlist.component.html',
+  styleUrls: ['./enlist.component.scss'],
+  imports: [
+    MatCard,
+    MatProgressSpinner,
+    MatIcon,
+    MatButton,
+    RouterLink,
+    AsyncPipe,
+  ],
 })
 export class EnlistComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private eventDataService = inject(EventDataService);
+
   /**
    * BehaviorSubject, not Subject: the `true` below is emitted from ngOnInit, which runs before
    * the template's async pipe subscribes, so a plain Subject dropped it and the "Adding you to
@@ -32,11 +48,6 @@ export class EnlistComponent implements OnInit, OnDestroy {
   unsubscibe$: Subject<null> = new Subject<null>();
   eventTemplateId: string;
   errorMessage: string | null = null;
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private eventDataService: EventDataService
-  ) {}
 
   ngOnInit(): void {
     this.isLoading$.next(true);
@@ -44,9 +55,7 @@ export class EnlistComponent implements OnInit, OnDestroy {
       .pipe(
         map((params) => params['code'] as string),
         filter((code) => !!code),
-        switchMap((code) =>
-          from(this.eventDataService.enlistEvent(code))
-        ),
+        switchMap((code) => from(this.eventDataService.enlistEvent(code))),
         tap((event) => {
           this.isLoading$.next(false);
           this.router.navigate(['templates/' + event.eventTemplateId]);
@@ -58,7 +67,7 @@ export class EnlistComponent implements OnInit, OnDestroy {
           this.errorMessage = this.enlistErrorMessage(err);
           return EMPTY;
         }),
-        takeUntil(this.unsubscibe$)
+        takeUntil(this.unsubscibe$),
       )
       .subscribe();
   }

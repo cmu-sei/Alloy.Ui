@@ -4,25 +4,37 @@
 import {
   ChangeDetectorRef,
   Component,
-  Inject,
-  Input,
   LOCALE_ID,
   OnDestroy,
   OnInit,
-  ViewChild,
+  inject,
+  input,
+  viewChild,
 } from '@angular/core';
-import { formatDate } from '@angular/common';
+import { formatDate, AsyncPipe, DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import {
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+} from '@angular/material/table';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
 import {
   ComnAuthQuery,
   ComnSettingsService,
   CrucibleDialogService,
   Theme,
 } from '@cmusei/crucible-common';
-import { ActivatedRoute } from '@angular/router';
-import { ClipboardService } from 'ngx-clipboard';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ClipboardService, ClipboardModule } from 'ngx-clipboard';
 import {
   combineLatest,
   forkJoin,
@@ -61,16 +73,94 @@ import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { CurrentUserState } from 'src/app/data/user/user.store';
 import { TopbarView } from '../../shared/top-bar/topbar.models';
 import { PermissionDataService } from 'src/app/data/permission/permission-data.service';
+import { TopbarComponent } from '../../shared/top-bar/topbar.component';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import {
+  MatCard,
+  MatCardHeader,
+  MatCardTitle,
+  MatCardSubtitle,
+  MatCardContent,
+} from '@angular/material/card';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatDivider } from '@angular/material/list';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { FormsModule } from '@angular/forms';
+import {
+  MatAccordion,
+  MatExpansionPanel,
+  MatExpansionPanelHeader,
+  MatExpansionPanelTitle,
+} from '@angular/material/expansion';
 
 @Component({
-    selector: 'app-event-template-info',
-    templateUrl: './event-template-info.component.html',
-    styleUrls: ['./event-template-info.component.scss'],
-    standalone: false
+  selector: 'app-event-template-info',
+  templateUrl: './event-template-info.component.html',
+  styleUrls: ['./event-template-info.component.scss'],
+  imports: [
+    TopbarComponent,
+    MatIconButton,
+    RouterLink,
+    MatIcon,
+    MatCard,
+    MatProgressSpinner,
+    MatDivider,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardSubtitle,
+    MatCardContent,
+    MatButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuItem,
+    ClipboardModule,
+    MatTooltip,
+    MatSlideToggle,
+    FormsModule,
+    MatAccordion,
+    MatExpansionPanel,
+    MatExpansionPanelHeader,
+    MatExpansionPanelTitle,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatSortHeader,
+    MatCellDef,
+    MatCell,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    AsyncPipe,
+    DatePipe,
+  ],
 })
 export class EventTemplateInfoComponent implements OnInit, OnDestroy {
-  @Input() eventTemplateId: string;
-  @ViewChild('historySort', { static: false }) sort: MatSort;
+  private settingsService = inject(ComnSettingsService);
+  private crucibleDialog = inject(CrucibleDialogService);
+  eventTemplateDataService = inject(EventTemplateDataService);
+  eventDataService = inject(EventDataService);
+  private eventTemplateQuery = inject(EventTemplateQuery);
+  private eventQuery = inject(EventQuery);
+  private userDataService = inject(UserDataService);
+  private userEventsQuery = inject(UserEventsQuery);
+  private authQuery = inject(ComnAuthQuery);
+  private currentUserQuery = inject(CurrentUserQuery);
+  private route = inject(ActivatedRoute);
+  private signalRService = inject(SignalRService);
+  private clipboardService = inject(ClipboardService);
+  private changeDetector = inject(ChangeDetectorRef);
+  private permissionDataService = inject(PermissionDataService);
+  snackBar = inject(MatSnackBar);
+  private locale = inject(LOCALE_ID);
+
+  readonly eventTemplateId = input<string>(undefined);
+  readonly sort = viewChild<MatSort>('historySort');
   public ALLOY_CURRENT_EVENT_STATUS = ALLOY_CURRENT_EVENT_STATUS;
   public EventStatus = EventStatus;
   public TopbarView = TopbarView;
@@ -109,36 +199,18 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public canViewAdministration = false;
   private unsubscribe$: Subject<null> = new Subject<null>();
 
-  constructor(
-    private settingsService: ComnSettingsService,
-    private crucibleDialog: CrucibleDialogService,
-    public eventTemplateDataService: EventTemplateDataService,
-    public eventDataService: EventDataService,
-    private eventTemplateQuery: EventTemplateQuery,
-    private eventQuery: EventQuery,
-    private userDataService: UserDataService,
-    private userEventsQuery: UserEventsQuery,
-    private authQuery: ComnAuthQuery,
-    private currentUserQuery: CurrentUserQuery,
-    private route: ActivatedRoute,
-    private signalRService: SignalRService,
-    private clipboardService: ClipboardService,
-    private changeDetector: ChangeDetectorRef,
-    private permissionDataService: PermissionDataService,
-    public snackBar: MatSnackBar,
-    @Inject(LOCALE_ID) private locale: string
-  ) {
+  constructor() {
     this.titleText = this.settingsService.settings.AppTopBarText;
     this.theme$ = this.authQuery.userTheme$;
 
     this.impsDataSource = new MatTableDataSource<AlloyEvent>(
-      new Array<AlloyEvent>()
+      new Array<AlloyEvent>(),
     );
     this.remainingTime = '';
     this.timeRunningLow = false;
     this.pollingIntervalMS = parseInt(
       this.settingsService.settings.PollingIntervalMS,
-      10
+      10,
     );
   }
 
@@ -151,13 +223,11 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       this.permissionDataService.loadGroupPermissions(),
     ])
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(
-        (x) => {
-          this.permissions = this.permissionDataService.permissions;
-          this.canViewAdministration =
-            this.permissionDataService.canViewAdministration();
-        }
-      );
+      .subscribe((x) => {
+        this.permissions = this.permissionDataService.permissions;
+        this.canViewAdministration =
+          this.permissionDataService.canViewAdministration();
+      });
 
     this.route.params
       .pipe(
@@ -175,7 +245,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
             return of([]);
           }
         }),
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe();
 
@@ -185,14 +255,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       map(([loading, id]) => id),
       switchMap((id) => {
         return this.eventTemplateQuery.selectEntity(
-          id ? id : this.eventTemplateId
+          id ? id : this.eventTemplateId(),
         );
       }),
       shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      takeUntil(this.unsubscribe$)
+      takeUntil(this.unsubscribe$),
     );
 
     this.events$ = this.eventTemplate$.pipe(
@@ -203,22 +273,23 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       }),
       tap((events) => {
         this.impsDataSource.data = events;
-        if (this.sort) {
-          this.impsDataSource.sort = this.sort;
+        const sort = this.sort();
+        if (sort) {
+          this.impsDataSource.sort = sort;
         }
       }),
       shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      takeUntil(this.unsubscribe$)
+      takeUntil(this.unsubscribe$),
     );
 
     this.userDataService.setCurrentUser();
     this.currentEvent$ = this.eventQuery.selectAll().pipe(
       withLatestFrom(
         this.currentUserQuery.select(),
-        this.route.params.pipe(map((p) => p['id'] as string))
+        this.route.params.pipe(map((p) => p['id'] as string)),
       ),
       map(([events, user, id]) => {
         this.currentUserId = user ? user.id : '';
@@ -227,13 +298,13 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
           if (this.viewId != null) {
             currentEvent = this.resolveCurrentEvent(
-              events.filter((e) => e.viewId === this.viewId)
+              events.filter((e) => e.viewId === this.viewId),
             );
           } else {
             currentEvent = this.resolveCurrentEvent(
               events.filter(
-                (e) => e.userId === user.id && e.eventTemplateId === id
-              )
+                (e) => e.userId === user.id && e.eventTemplateId === id,
+              ),
             );
           }
 
@@ -246,7 +317,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
 
             this.expirationDate = currentEvent.expirationDate;
             this.remainingTime = this.calculateRemainingTime(
-              currentEvent.expirationDate
+              currentEvent.expirationDate,
             );
             this.inviteLink = this.getInviteLink(currentEvent);
           }
@@ -262,7 +333,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      takeUntil(this.unsubscribe$)
+      takeUntil(this.unsubscribe$),
     );
 
     this.userEvents$ = this.userEventsQuery.selectLoading().pipe(
@@ -270,7 +341,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       withLatestFrom(this.route.params.pipe(map((p) => p['id'] as string))),
       switchMap(([loading, id]) => {
         return this.userEventsQuery.userEventsByTemplateId$(
-          id ? id : this.eventTemplateId
+          id ? id : this.eventTemplateId(),
         );
       }),
       filter((events) => events.length >= 1),
@@ -282,14 +353,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
           })
         );
         this.userEvents = events.filter(
-          (m) => m.createdBy !== this.currentUserId
+          (m) => m.createdBy !== this.currentUserId,
         );
       }),
       shareReplay(),
       // share({
       //   connector: () => new ReplaySubject(),
       // })
-      takeUntil(this.unsubscribe$)
+      takeUntil(this.unsubscribe$),
     );
 
     combineLatest([
@@ -309,7 +380,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
             window.top.location.href = window.location.href.split('/view/')[0];
           }
         }),
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe();
 
@@ -318,10 +389,10 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         tap(
           () =>
             (this.remainingTime = this.calculateRemainingTime(
-              this.expirationDate
-            ))
+              this.expirationDate,
+            )),
         ),
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe();
   }
@@ -363,7 +434,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
    */
   failureReportText(
     event: AlloyEvent,
-    pageEventTemplate?: EventTemplate
+    pageEventTemplate?: EventTemplate,
   ): string {
     const eventTemplateId =
       event?.eventTemplateId ?? pageEventTemplate?.id ?? 'unknown';
@@ -371,7 +442,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     // resolves the current event by viewId, which is not guaranteed to be an event of the
     // template on screen, and a report naming the wrong template misdirects the reader.
     const eventTemplateName =
-      pageEventTemplate?.id === eventTemplateId ? pageEventTemplate?.name : null;
+      pageEventTemplate?.id === eventTemplateId
+        ? pageEventTemplate?.name
+        : null;
     const eventTemplate = eventTemplateName
       ? `${eventTemplateName} (${eventTemplateId})`
       : eventTemplateId;
@@ -410,7 +483,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
     }
 
     const newest = [...candidates].sort(
-      (a, b) => this.attemptedAt(b) - this.attemptedAt(a)
+      (a, b) => this.attemptedAt(b) - this.attemptedAt(a),
     )[0];
 
     return newest?.status === EventStatus.Failed ? newest : null;
@@ -478,14 +551,14 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
             // leaves them on "Please wait!" with no way to find out what happened.
             // The service reports a hub it cannot reach.
             catchError(() => of(null)),
-            map(() => event.id)
-          )
+            map(() => event.id),
+          ),
         ),
         switchMap((eventId: string) => this.eventDataService.getEvent(eventId)),
         tap((event: AlloyEvent) => this.eventDataService.stateUpdate(event)),
         // A refused launch - an event already running, or the event limit reached - is left
         // to the error handler, which shows the API's reason.
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe();
   }

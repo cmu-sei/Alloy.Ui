@@ -1,22 +1,22 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import {
-  Component,
-  EventEmitter,
-  Inject,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, output } from '@angular/core';
 import {
   UntypedFormControl,
   FormGroupDirective,
   NgForm,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { CrucibleDialogService } from '@cmusei/crucible-common';
+import {
+  CrucibleDialogService,
+  CrucibleDialogComponent,
+  CrucibleDialogContentDirective,
+  CrucibleDialogActionsDirective,
+} from '@cmusei/crucible-common';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
@@ -28,16 +28,32 @@ import {
 import { CasterDataService } from 'src/app/data/caster/caster-data-service';
 import { PlayerDataService } from 'src/app/data/player/player-data-service';
 import { SteamfitterDataService } from 'src/app/data/steamfitter/steamfitter-data.service';
-import {
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  MatFormField,
+  MatLabel,
+  MatInput,
+  MatError,
+  MatSuffix,
+} from '@angular/material/input';
+import {
+  MatAutocompleteTrigger,
+  MatAutocomplete,
+  MatOption,
+} from '@angular/material/autocomplete';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { ClipboardModule } from 'ngx-clipboard';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { AsyncPipe } from '@angular/common';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
     control: UntypedFormControl | null,
-    form: FormGroupDirective | NgForm | null
+    form: FormGroupDirective | NgForm | null,
   ): boolean {
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || isSubmitted));
@@ -57,13 +73,46 @@ export class ImmediateErrorStateMatcher implements ErrorStateMatcher {
 }
 
 @Component({
-    selector: 'app-event-template-edit',
-    templateUrl: './event-template-edit.component.html',
-    styleUrls: ['./event-template-edit.component.scss'],
-    standalone: false
+  selector: 'app-event-template-edit',
+  templateUrl: './event-template-edit.component.html',
+  styleUrls: ['./event-template-edit.component.scss'],
+  imports: [
+    CrucibleDialogComponent,
+    CrucibleDialogContentDirective,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    FormsModule,
+    ReactiveFormsModule,
+    MatError,
+    MatAutocompleteTrigger,
+    MatAutocomplete,
+    MatOption,
+    MatTooltip,
+    MatIconButton,
+    MatSuffix,
+    ClipboardModule,
+    MatIcon,
+    MatCheckbox,
+    CrucibleDialogActionsDirective,
+    MatButton,
+    AsyncPipe,
+  ],
 })
 export class EventTemplateEditComponent implements OnInit, OnDestroy {
-  @Output() editComplete = new EventEmitter<any>();
+  crucibleDialog = inject(CrucibleDialogService);
+  private snackBar = inject(MatSnackBar);
+  data = inject(MAT_DIALOG_DATA);
+  private playerDataService = inject(PlayerDataService);
+  private casterDataService = inject(CasterDataService);
+  private steamfitterDataService = inject(SteamfitterDataService);
+
+  // An empty list on its own looks like there is nothing to choose; these say the load failed.
+  public viewLoadError$ = this.playerDataService.loadError;
+  public directoryLoadError$ = this.casterDataService.loadError;
+  public scenarioTemplateLoadError$ = this.steamfitterDataService.loadError;
+
+  readonly editComplete = output<any>();
 
   private _viewList: View[] = [];
   private _directoryList: Directory[] = [];
@@ -74,7 +123,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public filteredViewList = new BehaviorSubject<View[]>([]);
   public filteredDirectoryList = new BehaviorSubject<Directory[]>([]);
   public filteredScenarioTemplateList = new BehaviorSubject<ScenarioTemplate[]>(
-    []
+    [],
   );
   public eventTemplateNameFormControl = new UntypedFormControl('', [
     Validators.required,
@@ -111,20 +160,6 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
   public scenarioTemplateSearchControl = new UntypedFormControl('', []);
   private unsubscribe$ = new Subject();
 
-  constructor(
-    public crucibleDialog: CrucibleDialogService,
-    private snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private playerDataService: PlayerDataService,
-    private casterDataService: CasterDataService,
-    private steamfitterDataService: SteamfitterDataService
-  ) { }
-
-  // An empty list on its own looks like there is nothing to choose; these say the load failed.
-  public viewLoadError$ = this.playerDataService.loadError;
-  public directoryLoadError$ = this.casterDataService.loadError;
-  public scenarioTemplateLoadError$ = this.steamfitterDataService.loadError;
-
   /**
    * Notifies the user after a value is copied to the clipboard
    */
@@ -156,7 +191,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
       .subscribe((scenarioTemplates) => {
         this._scenarioTemplateList = scenarioTemplates;
         this.scenarioTemplateSearchControl.setValue(
-          this.scenarioTemplateSearchControl.value
+          this.scenarioTemplateSearchControl.value,
         );
       });
     this.viewSearchControl.valueChanges
@@ -180,7 +215,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     this.eventTemplateNameFormControl.setValue(this.data.eventTemplate.name);
     this.descriptionFormControl.setValue(this.data.eventTemplate.description);
     this.durationHoursFormControl.setValue(
-      this.data.eventTemplate.durationHours
+      this.data.eventTemplate.durationHours,
     );
     // Disable in code (not via template) to avoid the reactive-form
     // "changed after checked" warning when combining [formControl] + [disabled].
@@ -190,11 +225,11 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     this.viewIdFormControl.setValue(this.data.eventTemplate.viewId);
     this.directoryIdFormControl.setValue(this.data.eventTemplate.directoryId);
     this.scenarioTemplateIdFormControl.setValue(
-      this.data.eventTemplate.scenarioTemplateId
+      this.data.eventTemplate.scenarioTemplateId,
     );
     this.isPublishedFormControl.setValue(this.data.eventTemplate.isPublished);
     this.useDynamicHostFormControl.setValue(
-      this.data.eventTemplate.useDynamicHost
+      this.data.eventTemplate.useDynamicHost,
     );
   }
 
@@ -273,7 +308,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         }
         this.directorySearchControl.setValue('');
         this.directoryIdFormControl.setValue(
-          this.data.eventTemplate.directoryId
+          this.data.eventTemplate.directoryId,
         );
         break;
       case 'scenarioTemplateId':
@@ -285,7 +320,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         }
         this.scenarioTemplateSearchControl.setValue('');
         this.scenarioTemplateIdFormControl.setValue(
-          this.data.eventTemplate.scenarioTemplateId
+          this.data.eventTemplate.scenarioTemplateId,
         );
         break;
       default:
@@ -297,12 +332,12 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     const term = (this._viewFilter ?? '').toLowerCase();
     const filteredList = this._viewList
       .sort((a: View, b: View) =>
-        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1
+        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1,
       )
       .filter(
         (item) =>
           (item.name ?? '').toLowerCase().includes(term) ||
-          (item.id ?? '').toLowerCase().includes(term)
+          (item.id ?? '').toLowerCase().includes(term),
       );
     this.filteredViewList.next(filteredList);
   }
@@ -311,12 +346,12 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     const term = (this._directoryFilter ?? '').toLowerCase();
     const filteredList = this._directoryList
       .sort((a: Directory, b: Directory) =>
-        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1
+        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1,
       )
       .filter(
         (item) =>
           (item.name ?? '').toLowerCase().includes(term) ||
-          (item.id ?? '').toLowerCase().includes(term)
+          (item.id ?? '').toLowerCase().includes(term),
       );
     this.filteredDirectoryList.next(filteredList);
   }
@@ -325,12 +360,12 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     const term = (this._scenarioTemplateFilter ?? '').toLowerCase();
     const filteredList = this._scenarioTemplateList
       .sort((a: ScenarioTemplate, b: ScenarioTemplate) =>
-        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1
+        (a.name ?? '').toLowerCase() < (b.name ?? '').toLowerCase() ? -1 : 1,
       )
       .filter(
         (item) =>
           (item.name ?? '').toLowerCase().includes(term) ||
-          (item.id ?? '').toLowerCase().includes(term)
+          (item.id ?? '').toLowerCase().includes(term),
       );
     this.filteredScenarioTemplateList.next(filteredList);
   }
@@ -426,8 +461,10 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
         return;
       }
       this.saveError = null;
-      this.data.eventTemplate.durationHours =
-        parseInt(this.durationHoursFormControl.value, 10);
+      this.data.eventTemplate.durationHours = parseInt(
+        this.durationHoursFormControl.value,
+        10,
+      );
       this.editComplete.emit({
         action: 'save',
         eventTemplate: this.data.eventTemplate,
@@ -444,7 +481,8 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
    */
   showSaveError(error: any): void {
     this.saveError =
-      error?.error?.title ?? 'Could not save the event template. Please try again.';
+      error?.error?.title ??
+      'Could not save the event template. Please try again.';
   }
 
   ngOnDestroy() {

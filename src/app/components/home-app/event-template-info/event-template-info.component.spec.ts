@@ -2,7 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, vi } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Params } from '@angular/router';
 import { screen, within } from '@testing-library/angular';
@@ -44,14 +44,15 @@ import {
 import { AnyProvider } from 'src/app/test-utils/unstubbed';
 import { TopbarView } from '../../shared/top-bar/topbar.models';
 import { EventTemplateInfoComponent } from './event-template-info.component';
+import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
 
 const TEMPLATE_ID = 'template-1';
 const USER_ID = 'user-1';
 
 @Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {
-  @Input() title?: string;
-  @Input() topbarView?: TopbarView;
+  readonly title = input<string>(undefined);
+  readonly topbarView = input<TopbarView>(undefined);
 }
 
 function template(): EventTemplate {
@@ -132,7 +133,7 @@ async function renderEventTemplateInfo(overrides: RenderOverrides = {}) {
   };
 
   const rendered = await renderComponent(EventTemplateInfoComponent, {
-    declarations: [EventTemplateInfoComponent],
+    childStubs: [{ replace: TopbarComponent, with: TopbarStubComponent }],
     imports: [
       MatButtonModule,
       MatCardModule,

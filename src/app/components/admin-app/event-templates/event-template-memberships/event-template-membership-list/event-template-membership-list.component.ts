@@ -7,42 +7,86 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Input,
   OnChanges,
   OnInit,
-  Output,
-  ViewChild,
+  inject,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
+import {
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+  MatNoDataRow,
+} from '@angular/material/table';
 import {
   EventTemplateMembership,
   Group,
   User,
 } from 'src/app/generated/alloy.api';
+import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @Component({
-    selector: 'app-event-template-membership-list',
-    templateUrl: './event-template-membership-list.component.html',
-    styleUrls: ['./event-template-membership-list.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-event-template-membership-list',
+  templateUrl: './event-template-membership-list.component.html',
+  styleUrls: ['./event-template-membership-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    MatToolbar,
+    MatToolbarRow,
+    MatIcon,
+    MatFormField,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatPaginator,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatSortHeader,
+    MatCellDef,
+    MatCell,
+    ClipboardModule,
+    MatButton,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatNoDataRow,
+  ],
 })
-export class EventTemplateMembershipListComponent implements OnInit, OnChanges, AfterViewInit {
-  @Input()
-  users: User[];
+export class EventTemplateMembershipListComponent
+  implements OnInit, OnChanges, AfterViewInit
+{
+  snackBar = inject(MatSnackBar);
 
-  @Input()
-  groups: Group[];
+  readonly users = input<User[]>(undefined);
 
-  @Input()
-  canEdit: boolean;
+  readonly groups = input<Group[]>(undefined);
 
-  @Output()
-  createMembership = new EventEmitter<EventTemplateMembership>();
+  readonly canEdit = input<boolean>(undefined);
+
+  readonly createMembership = output<EventTemplateMembership>();
 
   viewColumns = ['name', 'type'];
   editColumns = ['actions'];
@@ -52,23 +96,21 @@ export class EventTemplateMembershipListComponent implements OnInit, OnChanges, 
 
   filterString = '';
 
-  constructor(public snackBar: MatSnackBar) {}
-
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  readonly sort = viewChild(MatSort);
+  readonly paginator = viewChild(MatPaginator);
 
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator();
+    this.dataSource.sort = this.sort();
   }
 
   ngOnChanges() {
     this.dataSource.data = this.buildModel();
 
     this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : []
+      this.canEdit() ? this.editColumns : [],
     );
   }
 
@@ -85,13 +127,15 @@ export class EventTemplateMembershipListComponent implements OnInit, OnChanges, 
   }
 
   buildModel(): EventTemplateMemberModel[] {
-    if (!this.users || !this.groups) {
+    const users = this.users();
+    const groups = this.groups();
+    if (!users || !groups) {
       return [];
     }
 
     const eventTemplateMemberModels = [] as EventTemplateMemberModel[];
 
-    this.users.forEach((x) => {
+    users.forEach((x) => {
       eventTemplateMemberModels.push({
         user: x,
         group: null,
@@ -101,7 +145,7 @@ export class EventTemplateMembershipListComponent implements OnInit, OnChanges, 
       });
     });
 
-    this.groups.forEach((x) => {
+    groups.forEach((x) => {
       eventTemplateMemberModels.push({
         user: null,
         group: x,

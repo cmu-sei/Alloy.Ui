@@ -6,53 +6,90 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 import {
   AfterViewInit,
   Component,
-  EventEmitter,
-  Input,
   OnChanges,
   OnInit,
-  Output,
-  ViewChild,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSelectChange } from '@angular/material/select';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSelectChange, MatSelect } from '@angular/material/select';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
+import {
+  MatTableDataSource,
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow,
+  MatNoDataRow,
+} from '@angular/material/table';
 import {
   Group,
   EventMembership,
   EventRole,
   User,
 } from 'src/app/generated/alloy.api';
+import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatOption } from '@angular/material/autocomplete';
 
 @Component({
-    selector: 'app-event-member-list',
-    templateUrl: './event-member-list.component.html',
-    styleUrls: ['./event-member-list.component.scss'],
-    standalone: false
+  selector: 'app-event-member-list',
+  templateUrl: './event-member-list.component.html',
+  styleUrls: ['./event-member-list.component.scss'],
+  imports: [
+    MatToolbar,
+    MatToolbarRow,
+    MatIcon,
+    MatFormField,
+    MatInput,
+    FormsModule,
+    MatIconButton,
+    MatSuffix,
+    MatPaginator,
+    MatTable,
+    MatSort,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatSortHeader,
+    MatCellDef,
+    MatCell,
+    MatSelect,
+    MatOption,
+    MatButton,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatNoDataRow,
+  ],
 })
 export class EventMemberListComponent
   implements OnInit, OnChanges, AfterViewInit
 {
-  @Input()
-  memberships: EventMembership[];
+  readonly memberships = input<EventMembership[]>(undefined);
 
-  @Input()
-  users: User[];
+  readonly users = input<User[]>(undefined);
 
-  @Input()
-  groups: Group[];
+  readonly groups = input<Group[]>(undefined);
 
-  @Input()
-  roles: EventRole[];
+  readonly roles = input<EventRole[]>(undefined);
 
-  @Input()
-  canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
-  @Output()
-  deleteMembership = new EventEmitter<string>();
+  readonly deleteMembership = output<string>();
 
-  @Output()
-  editMembership = new EventEmitter<EventMembership>();
+  readonly editMembership = output<EventMembership>();
 
   viewColumns = ['name', 'type', 'role'];
   editColumns = ['actions'];
@@ -63,12 +100,12 @@ export class EventMemberListComponent
 
   constructor() {}
 
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  readonly sort = viewChild(MatSort);
+  readonly paginator = viewChild(MatPaginator);
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator();
+    this.dataSource.sort = this.sort();
     this.dataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'role':
@@ -93,20 +130,21 @@ export class EventMemberListComponent
     this.buildModel();
 
     this.displayedColumns = this.viewColumns.concat(
-      this.canEdit ? this.editColumns : []
+      this.canEdit() ? this.editColumns : [],
     );
   }
 
   buildModel() {
-    if (!this.memberships || !this.users || !this.groups || !this.roles) {
+    const memberships = this.memberships();
+    if (!memberships || !this.users() || !this.groups() || !this.roles()) {
       return;
     }
 
-    this.dataSource.data = this.memberships
+    this.dataSource.data = memberships
       .map((x) => {
-        const user = this.users.find((u) => u.id === x.userId);
-        const group = this.groups.find((g) => g.id === x.groupId);
-        const role = this.roles.find((r) => r.id === x.roleId);
+        const user = this.users().find((u) => u.id === x.userId);
+        const group = this.groups().find((g) => g.id === x.groupId);
+        const role = this.roles().find((r) => r.id === x.roleId);
 
         const membership = {
           membership: x,

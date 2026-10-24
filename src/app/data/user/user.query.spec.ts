@@ -2,6 +2,7 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect, beforeEach } from 'vitest';
+import { Injector, runInInjectionContext } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Theme } from '@cmusei/crucible-common';
 import { recordEmissions } from 'src/app/test-utils/record-emissions';
@@ -14,7 +15,10 @@ describe('UserQuery', () => {
 
   beforeEach(() => {
     store = new UserStore();
-    query = new UserQuery(store);
+    query = runInInjectionContext(
+      Injector.create({ providers: [{ provide: UserStore, useValue: store }] }),
+      () => new UserQuery(),
+    );
   });
 
   /**
@@ -113,7 +117,12 @@ describe('CurrentUserQuery', () => {
 
   beforeEach(() => {
     store = new CurrentUserStore();
-    query = new CurrentUserQuery(store);
+    query = runInInjectionContext(
+      Injector.create({
+        providers: [{ provide: CurrentUserStore, useValue: store }],
+      }),
+      () => new CurrentUserQuery(),
+    );
   });
 
   /**

@@ -1,35 +1,61 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Inject,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import {
   UntypedFormControl,
   FormGroupDirective,
   NgForm,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { CrucibleDialogService } from '@cmusei/crucible-common';
-import { Event, EventStatus } from '../../../../generated/alloy.api';
 import {
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+  CrucibleDialogService,
+  CrucibleDialogComponent,
+  CrucibleDialogContentDirective,
+  CrucibleDialogActionsDirective,
+} from '@cmusei/crucible-common';
+import { Event, EventStatus } from '../../../../generated/alloy.api';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatFormField,
+  MatLabel,
+  MatInput,
+  MatError,
+  MatPrefix,
+} from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @Component({
-    selector: 'app-event-edit',
-    templateUrl: './event-edit.component.html',
-    styleUrls: ['./event-edit.component.scss'],
-    standalone: false
+  selector: 'app-event-edit',
+  templateUrl: './event-edit.component.html',
+  styleUrls: ['./event-edit.component.scss'],
+  imports: [
+    CrucibleDialogComponent,
+    CrucibleDialogContentDirective,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    FormsModule,
+    ReactiveFormsModule,
+    MatError,
+    MatIcon,
+    MatIconButton,
+    MatPrefix,
+    ClipboardModule,
+    CrucibleDialogActionsDirective,
+    MatButton,
+  ],
 })
 export class EventEditComponent implements OnInit {
-  @Output() editComplete = new EventEmitter<any>();
+  crucibleDialog = inject(CrucibleDialogService);
+  data = inject(MAT_DIALOG_DATA);
+
+  readonly editComplete = output<any>();
 
   public eventNameFormControl: UntypedFormControl;
   public descriptionFormControl: UntypedFormControl;
@@ -52,11 +78,6 @@ export class EventEditComponent implements OnInit {
   public selectedViewId: any;
   public changesWereMade = false;
 
-  constructor(
-    public crucibleDialog: CrucibleDialogService,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
-
   /**
    * Initialize component
    */
@@ -72,51 +93,51 @@ export class EventEditComponent implements OnInit {
     ]);
     this.descriptionFormControl = new UntypedFormControl(
       this.data.event.description,
-      [Validators.required]
+      [Validators.required],
     );
     this.launchDateFormControl = new UntypedFormControl(
       this.data.event.launchDate,
-      []
+      [],
     );
     this.endDateFormControl = new UntypedFormControl(
       this.data.event.endDate,
-      []
+      [],
     );
     this.expirationDateFormControl = new UntypedFormControl(
       this.data.event.expirationDate,
-      []
+      [],
     );
     this.statusDateFormControl = new UntypedFormControl(
       this.data.event.statusDate,
-      []
+      [],
     );
     this.userIdFormControl = new UntypedFormControl(this.data.event.userId, [
       Validators.required,
     ]);
     this.usernameFormControl = new UntypedFormControl(
       this.data.event.username,
-      [Validators.required]
+      [Validators.required],
     );
     this.statusFormControl = new UntypedFormControl(this.data.event.status, [
       Validators.required,
     ]);
     this.internalStatusFormControl = new UntypedFormControl(
       this.data.event.internalStatus,
-      [Validators.required]
+      [Validators.required],
     );
     this.eventTemplateIdFormControl = new UntypedFormControl(
       this.data.event.eventTemplateId,
-      []
+      [],
     );
     this.viewIdFormControl = new UntypedFormControl(this.data.event.viewId, []);
     this.workspaceIdFormControl = new UntypedFormControl(
       this.data.event.workspaceId,
-      []
+      [],
     );
     this.runIdFormControl = new UntypedFormControl(this.data.event.runId, []);
     this.scenarioIdFormControl = new UntypedFormControl(
       this.data.event.scenarioId,
-      []
+      [],
     );
   }
 
@@ -243,7 +264,7 @@ export class EventEditComponent implements OnInit {
         ) {
           if (this.launchDateFormControl.value > '') {
             this.data.event.launchDate = new Date(
-              this.launchDateFormControl.value
+              this.launchDateFormControl.value,
             );
           } else {
             this.data.event.launchDate = null;
@@ -269,7 +290,7 @@ export class EventEditComponent implements OnInit {
         ) {
           if (this.expirationDateFormControl.value > '') {
             this.data.event.expirationDate = new Date(
-              this.expirationDateFormControl.value
+              this.expirationDateFormControl.value,
             );
           } else {
             this.data.event.expirationDate = null;
@@ -283,7 +304,7 @@ export class EventEditComponent implements OnInit {
         ) {
           if (this.statusDateFormControl.value > '') {
             this.data.event.statusDate = new Date(
-              this.statusDateFormControl.value
+              this.statusDateFormControl.value,
             );
           } else {
             this.data.event.statusDate = null;
@@ -300,7 +321,7 @@ export class EventEditComponent implements OnInit {
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
     control: UntypedFormControl | null,
-    form: FormGroupDirective | NgForm | null
+    form: FormGroupDirective | NgForm | null,
   ): boolean {
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || isSubmitted));

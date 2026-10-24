@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import {
   ScenarioTemplate,
@@ -15,10 +15,14 @@ import { Router, ActivatedRoute } from '@angular/router';
   providedIn: 'root',
 })
 export class SteamfitterDataService {
+  private steamfitterService = inject(SteamfitterService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+
   private _scenarioTemplates: ScenarioTemplate[] = [];
   private _scenarioTemplateMask: Observable<string>;
   readonly scenarioTemplates = new BehaviorSubject<ScenarioTemplate[]>(
-    this._scenarioTemplates
+    this._scenarioTemplates,
   );
   /** Why the last load failed, shown in the Event Template editor. Null once a load succeeds. */
   readonly loadError = new BehaviorSubject<string>(null);
@@ -28,16 +32,15 @@ export class SteamfitterDataService {
   private _selectedScenarioTemplateId: string;
   private _vmMask: Observable<string>;
   private requestedScenarioTemplateId = this.activatedRoute.queryParamMap.pipe(
-    map((params) => params.get('stId') || '')
+    map((params) => params.get('stId') || ''),
   );
 
-  constructor(
-    private steamfitterService: SteamfitterService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) {
+  constructor() {
+    const router = this.router;
+    const activatedRoute = this.activatedRoute;
+
     this._scenarioTemplateMask = activatedRoute.queryParamMap.pipe(
-      map((params) => params.get('stMask') || '')
+      map((params) => params.get('stMask') || ''),
     );
     this.scenarioTemplateFilter.valueChanges.subscribe((term) => {
       router.navigate([], {
@@ -53,15 +56,15 @@ export class SteamfitterDataService {
         items
           ? (items as ScenarioTemplate[])
               .sort((a: ScenarioTemplate, b: ScenarioTemplate) =>
-                a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+                a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
               )
               .filter(
                 (item) =>
                   item.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
-                  item.id.toLowerCase().includes(filterTerm.toLowerCase())
+                  item.id.toLowerCase().includes(filterTerm.toLowerCase()),
               )
-          : []
-      )
+          : [],
+      ),
     );
     this.selectedScenarioTemplate = combineLatest([
       this.scenarioTemplateList,
@@ -75,7 +78,7 @@ export class SteamfitterDataService {
         ) {
           const selectedScenarioTemplate = scenarioTemplateList.find(
             (scenarioTemplate) =>
-              scenarioTemplate.id === requestedScenarioTemplateId
+              scenarioTemplate.id === requestedScenarioTemplateId,
           );
           if (
             selectedScenarioTemplate &&
@@ -88,7 +91,7 @@ export class SteamfitterDataService {
           this._selectedScenarioTemplateId = '';
           return undefined;
         }
-      })
+      }),
     );
   }
 
@@ -111,7 +114,7 @@ export class SteamfitterDataService {
           // ProblemDetails.title names the service and why; never .detail, which for a 500
           // outside development holds the raw exception message
           this.loadError.next(error?.error?.title ?? 'Could not load the Steamfitter scenario templates.');
-        }
+        },
       );
   }
 

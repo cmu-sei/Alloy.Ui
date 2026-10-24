@@ -2,19 +2,19 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { describe, it, expect } from 'vitest';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { renderComponent } from '../../../test-utils/render-component';
 import { EventsComponent } from './events.component';
+import { AdminEventListComponent } from 'src/app/components/admin-app/events/event-list/event-list.component';
 
 @Component({
   selector: 'app-admin-event-list',
   template: '',
-  standalone: false,
 })
 class AdminEventListStubComponent {
-  @Input() refresh: Subject<boolean>;
+  readonly refresh = input<Subject<boolean>>(undefined);
 }
 
 describe('EventsComponent', () => {
@@ -26,7 +26,9 @@ describe('EventsComponent', () => {
   it('renders with the default test providers', async () => {
     const refresh = new Subject<boolean>();
     const { fixture } = await renderComponent(EventsComponent, {
-      declarations: [EventsComponent, AdminEventListStubComponent],
+      childStubs: [
+        { replace: AdminEventListComponent, with: AdminEventListStubComponent },
+      ],
       inputs: { refresh },
     });
 
@@ -34,6 +36,6 @@ describe('EventsComponent', () => {
     const list = fixture.debugElement.query(
       By.directive(AdminEventListStubComponent),
     ).componentInstance as AdminEventListStubComponent;
-    expect(list.refresh).toBe(refresh);
+    expect(list.refresh()).toBe(refresh);
   });
 });

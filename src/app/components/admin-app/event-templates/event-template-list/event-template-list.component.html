@@ -226,6 +226,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     [ids]="exportIds()"
     [all]="canExportAll()"
     [selected]="selection.hasValue()"
+    [filtered]="exportFiltered()"
+    [skipped]="exportSkipped()"
     (complete)="closeDialog()"
   ></app-event-template-export>
 </ng-template>

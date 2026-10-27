@@ -52,6 +52,7 @@ import { Observable, Subject } from 'rxjs';
 import {
   Directory,
   EventTemplate,
+  EventTemplatePermission,
   SystemPermission,
   View,
 } from 'src/app/generated/alloy.api';
@@ -135,6 +136,7 @@ export class EventTemplateListComponent
   readonly scenarioTemplateList = input<Observable<EventTemplate[]>>(undefined);
   @Input() set eventTemplates(value: EventTemplate[]) {
     this.eventTemplateDataSource.data = value || [];
+    this.pruneSelection();
   }
   @Input() isLoading: boolean;
   readonly adminMode = input(false);
@@ -237,21 +239,72 @@ export class EventTemplateListComponent
         );
   }
 
-  /** The selected Event Templates that are still in the list, or every one in the list if none are selected. */
-  exportIds(): string[] {
-    const ids = this.eventTemplateDataSource.data.map((row) => row.id);
+  /**
+   * Drops selected ids whose Event Template is no longer in the list (deleted, or gone on a reload), so the
+   * badge, the export count and the header checkbox only count templates the user can see.
+   */
+  private pruneSelection() {
+    const ids = new Set(this.eventTemplateDataSource.data.map((row) => row.id));
+    const gone = this.selection.selected.filter((id) => !ids.has(id));
+
+    if (gone.length > 0) {
+      this.selection.deselect(...gone);
+    }
+  }
+
+  /** The Event Templates an export would take: the selection, or with nothing selected, what the search shows. */
+  private exportCandidates(): EventTemplate[] {
     return this.selection.hasValue()
-      ? ids.filter((id) => this.selection.isSelected(id))
-      : ids;
+      ? this.eventTemplateDataSource.data.filter((row) =>
+          this.selection.isSelected(row.id),
+        )
+      : this.eventTemplateDataSource.filteredData;
   }
 
   /**
-   * Whether an export with nothing selected can ask for every template rather than list each id. That needs
-   * the ViewEventTemplates system permission, and keeps a long list of ids out of the query string.
+   * Whether the user may export an Event Template, as the API decides: the ViewEventTemplates system
+   * permission, or ViewEventTemplate on the template. A user without ViewEventTemplates also sees every
+   * published template in the list, and the API refuses the whole export if one of them is asked for.
+   */
+  private canExport(eventTemplate: EventTemplate): boolean {
+    return (
+      this.systemPermissions.includes(SystemPermission.ViewEventTemplates) ||
+      (eventTemplate.eventTemplatePermissions ?? []).some((claim) =>
+        claim.split(',').includes(EventTemplatePermission.ViewEventTemplate),
+      )
+    );
+  }
+
+  /** The ids to export: the export candidates the user may export. */
+  exportIds(): string[] {
+    return this.exportCandidates()
+      .filter((row) => this.canExport(row))
+      .map((row) => row.id);
+  }
+
+  /** How many export candidates are left out because the user may not export them. */
+  exportSkipped(): number {
+    return this.exportCandidates().length - this.exportIds().length;
+  }
+
+  /** Whether nothing is selected and the search hides part of the list. */
+  exportFiltered(): boolean {
+    return (
+      !this.selection.hasValue() &&
+      this.eventTemplateDataSource.filteredData.length <
+        this.eventTemplateDataSource.data.length
+    );
+  }
+
+  /**
+   * Whether an export can ask for every template rather than list each id: nothing is selected, the search
+   * hides nothing, and the user holds the ViewEventTemplates system permission. It keeps a long list of ids
+   * out of the query string.
    */
   canExportAll(): boolean {
     return (
       !this.selection.hasValue() &&
+      !this.exportFiltered() &&
       this.systemPermissions.includes(SystemPermission.ViewEventTemplates)
     );
   }

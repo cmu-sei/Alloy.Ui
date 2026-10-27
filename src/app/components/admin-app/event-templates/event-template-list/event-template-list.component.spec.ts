@@ -55,7 +55,7 @@ type EditResult = { action: string; eventTemplate: EventTemplate | null };
 
 async function renderList(
   grants: PermissionGrants,
-  options: { events?: AlloyEvent[] } = {},
+  options: { events?: AlloyEvent[]; eventTemplates?: EventTemplate[] } = {},
 ) {
   const templateApi = {
     getEventTemplates: vi.fn(() => of(templates())),
@@ -110,7 +110,7 @@ async function renderList(
       { provide: MatDialog, useValue: dialog as unknown as MatDialog },
       ...permissionDataProviders(grants),
     ],
-    inputs: { ...lists, eventTemplates: templates() },
+    inputs: { ...lists, eventTemplates: options.eventTemplates ?? templates() },
   });
   let refreshes = 0;
   rendered.fixture.componentInstance.refreshTemplates.subscribe(
@@ -522,21 +522,96 @@ describe('EventTemplateListComponent', () => {
     });
 
     /**
-     * Verifies: with nothing selected the export covers the whole list, asking for every template only with ViewEventTemplates.
-     * Interacts with: exportIds, canExportAll (system ViewEventTemplates check).
-     * Data: no selection; ViewEventTemplates, and the near miss of a template member with CreateEventTemplates.
+     * Verifies: with nothing selected the export covers the whole list, asking for every template only with
+     * ViewEventTemplates; without it, only the templates the user may view are sent, and the rest are counted.
+     * Interacts with: exportIds, exportSkipped, canExportAll (system and template ViewEventTemplate checks).
+     * Data: no selection; ViewEventTemplates; and CreateEventTemplates with ViewEventTemplate on Alpha only
+     * (Bravo stands for a published template the user is not a member of).
      */
-    it.each<{ grants: PermissionGrants; all: boolean }>([
-      { grants: { system: ['ViewEventTemplates'] }, all: true },
-      { grants: { system: ['CreateEventTemplates'] }, all: false },
-    ])('exports the whole list (all=$all)', async ({ grants, all }) => {
-      const { fixture } = await renderList(grants);
+    it.each<{
+      grants: PermissionGrants;
+      ids: string[];
+      skipped: number;
+      all: boolean;
+    }>([
+      {
+        grants: { system: ['ViewEventTemplates'] },
+        ids: ['t1', 't2'],
+        skipped: 0,
+        all: true,
+      },
+      {
+        grants: { system: ['CreateEventTemplates'] },
+        ids: ['t1'],
+        skipped: 1,
+        all: false,
+      },
+    ])(
+      'exports the whole list (all=$all, skipped=$skipped)',
+      async ({ grants, ids, skipped, all }) => {
+        const [alpha, bravo] = templates();
+        const { fixture } = await renderList(grants, {
+          eventTemplates: [
+            {
+              ...alpha,
+              eventTemplatePermissions: ['ViewEventTemplate,EditEventTemplate'],
+            },
+            bravo,
+          ],
+        });
 
+        expect(
+          screen.getByRole('button', { name: 'Export Event Templates' }),
+        ).toBeInTheDocument();
+        const list = fixture.componentInstance;
+        expect(list.exportIds()).toEqual(ids);
+        expect(list.exportSkipped()).toBe(skipped);
+        expect(list.canExportAll()).toBe(all);
+      },
+    );
+
+    /**
+     * Verifies: with nothing selected the export takes what the search shows, and does not ask for every template.
+     * Interacts with: exportIds, exportFiltered, canExportAll, the data source filter.
+     * Data: ViewEventTemplates; filter "alpha".
+     */
+    it('exports only what the search shows', async () => {
+      const { fixture } = await renderList({ system: ['ViewEventTemplates'] });
+      const list = fixture.componentInstance;
+
+      list.eventTemplateDataSource.filter = 'alpha';
+
+      expect(list.exportIds()).toEqual(['t1']);
+      expect(list.exportFiltered()).toBe(true);
+      expect(list.canExportAll()).toBe(false);
+    });
+
+    /**
+     * Verifies: a selected template that leaves the list (deleted, or gone on a reload) leaves the selection,
+     * so the button, the export and the header checkbox count only what is listed.
+     * Interacts with: the eventTemplates input, pruneSelection, exportLabel, isAllSelected.
+     * Data: both templates selected; then the list is reloaded without Bravo.
+     */
+    it('drops a selected template that leaves the list', async () => {
+      const { user, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+      const list = fixture.componentInstance;
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all Event Templates' }),
+      );
+
+      fixture.componentRef.setInput('eventTemplates', [templates()[0]]);
+      fixture.detectChanges();
+
+      expect(list.selection.selected).toEqual(['t1']);
+      expect(list.exportIds()).toEqual(['t1']);
+      expect(list.isAllSelected()).toBe(true);
       expect(
-        screen.getByRole('button', { name: 'Export Event Templates' }),
+        screen.getByRole('button', {
+          name: 'Export 1 Selected Event Template',
+        }),
       ).toBeInTheDocument();
-      expect(fixture.componentInstance.exportIds()).toEqual(['t1', 't2']);
-      expect(fixture.componentInstance.canExportAll()).toBe(all);
     });
 
     /**

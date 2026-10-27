@@ -1,6 +1,6 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { coerceArray } from '@datorama/akita';
 import { combineLatest, Observable, of, Subject } from 'rxjs';
 import { map, switchMap, take, tap } from 'rxjs/operators';
@@ -14,17 +14,15 @@ import { PermissionDataService } from '../permission/permission-data.service';
   providedIn: 'root',
 })
 export class EventDataService implements OnDestroy {
+  eventTemplateDataService = inject(EventTemplateDataService);
+  eventService = inject(EventService);
+  private eventStore = inject(EventStore);
+  private userEventsStore = inject(UserEventsStore);
+  private permissionDataService = inject(PermissionDataService);
+
   public currentEvents$: Observable<AlloyEvent[]>;
   public events$: Observable<AlloyEvent[]>;
   private unsubscribe$ = new Subject<null>();
-
-  constructor(
-    public eventTemplateDataService: EventTemplateDataService,
-    public eventService: EventService,
-    private eventStore: EventStore,
-    private userEventsStore: UserEventsStore,
-    private permissionDataService: PermissionDataService
-  ) {}
 
   loadEvents(templateId?: string) {
     // if admin load events from getAllEvents, and template events.
@@ -50,7 +48,7 @@ export class EventDataService implements OnDestroy {
       take(1),
       tap((event) => {
         this.eventStore.upsert(event.id, event);
-      })
+      }),
     );
   }
 
@@ -59,18 +57,18 @@ export class EventDataService implements OnDestroy {
   }
 
   redeployEvent(id: string) {
-    this.eventService.redeployEvent(id).pipe(take(1)).subscribe();
+    return this.eventService.redeployEvent(id).pipe(take(1));
   }
 
   getAllEvents() {
     return of(this.permissionDataService.canViewEventList).pipe(
       switchMap((isAdmin) =>
-        isAdmin ? this.eventService.getEvents() : of([])
+        isAdmin ? this.eventService.getEvents() : of([]),
       ),
       tap((events) =>
-        events ? this.eventStore.upsertMany(events) : undefined
+        events ? this.eventStore.upsertMany(events) : undefined,
       ),
-      take(1)
+      take(1),
     );
   }
 
@@ -85,14 +83,14 @@ export class EventDataService implements OnDestroy {
       switchMap((isAdmin) =>
         isAdmin
           ? this.eventService.getEventTemplateEvents(id)
-          : this.eventService.getMyEventTemplateEvents(id)
+          : this.eventService.getMyEventTemplateEvents(id),
       ),
       map((events) => coerceArray(events)),
       tap((events: AlloyEvent[]) => {
         events = coerceArray(events);
         events ? this.eventStore.upsertMany(events) : undefined;
       }),
-      take(1)
+      take(1),
     );
   }
 

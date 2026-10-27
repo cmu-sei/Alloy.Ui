@@ -1,8 +1,8 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   ComnAuthQuery,
   ComnAuthService,
@@ -17,13 +17,59 @@ import { PermissionDataService } from 'src/app/data/permission/permission-data.s
 import { SystemPermission } from 'src/app/generated/alloy.api';
 import { CurrentUserQuery } from 'src/app/data/user/user.query';
 import { SignalRService } from 'src/app/shared/signalr/signalr.service';
+import {
+  MatSidenavContainer,
+  MatSidenav,
+  MatSidenavContent,
+} from '@angular/material/sidenav';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatIcon } from '@angular/material/icon';
+import { MatList, MatListItem, MatListItemIcon } from '@angular/material/list';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatIconButton } from '@angular/material/button';
+import { TopbarComponent } from '../shared/top-bar/topbar.component';
+import { EventTemplatesComponent } from './event-templates/event-templates.component';
+import { EventsComponent } from './events/events.component';
+import { AdminRolesComponent } from './admin-roles/admin-roles.component';
+import { AdminGroupsComponent } from './admin-groups/admin-groups.component';
+import { AdminUsersComponent } from './admin-users/admin-users.component';
 @Component({
-    selector: 'app-admin-app',
-    templateUrl: './admin-app.component.html',
-    styleUrls: ['./admin-app.component.scss'],
-    standalone: false
+  selector: 'app-admin-app',
+  templateUrl: './admin-app.component.html',
+  styleUrls: ['./admin-app.component.scss'],
+  imports: [
+    MatSidenavContainer,
+    MatSidenav,
+    MatToolbar,
+    RouterLink,
+    MatIcon,
+    MatList,
+    MatListItem,
+    NgClass,
+    MatListItemIcon,
+    MatIconButton,
+    MatSidenavContent,
+    TopbarComponent,
+    EventTemplatesComponent,
+    EventsComponent,
+    AdminRolesComponent,
+    AdminGroupsComponent,
+    AdminUsersComponent,
+    AsyncPipe,
+  ],
 })
 export class AdminAppComponent implements OnInit {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(ComnAuthService);
+  private settingsService = inject(ComnSettingsService);
+  private titleService = inject(Title);
+  private userDataService = inject(UserDataService);
+  private permissionDataService = inject(PermissionDataService);
+  private signalRService = inject(SignalRService);
+  private currentUserQuery = inject(CurrentUserQuery);
+  private authQuery = inject(ComnAuthQuery);
+
   username: string;
   titleText: string;
   hideTopbar = false;
@@ -43,18 +89,7 @@ export class AdminAppComponent implements OnInit {
   readonly SystemPermission = SystemPermission;
   private unsubscribe$ = new Subject();
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private authService: ComnAuthService,
-    private settingsService: ComnSettingsService,
-    private titleService: Title,
-    private userDataService: UserDataService,
-    private permissionDataService: PermissionDataService,
-    private signalRService: SignalRService,
-    private currentUserQuery: CurrentUserQuery,
-    private authQuery: ComnAuthQuery
-  ) {
+  constructor() {
     this.theme$ = this.authQuery.userTheme$;
   }
 
@@ -69,19 +104,24 @@ export class AdminAppComponent implements OnInit {
       .select()
       .pipe(
         filter((cu) => !!cu.id),
-        take(1)
+        take(1),
       )
       .subscribe((cu) => {
         this.username = cu.name;
-        this.signalRService.startConnection().then(() => {
-          this.signalRService.joinAdmin();
-        });
+        this.signalRService
+          .startConnection()
+          .then(() => {
+            this.signalRService.joinAdmin();
+          })
+          .catch(() => {
+            // the service reports the failure to the user
+          });
       });
 
     this.route.queryParams
       .pipe(
         map((params) => params['section'] as string),
-        takeUntil(this.unsubscribe$)
+        takeUntil(this.unsubscribe$),
       )
       .subscribe((section) => {
         if (section != null) {

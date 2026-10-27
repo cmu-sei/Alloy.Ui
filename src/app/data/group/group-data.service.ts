@@ -1,7 +1,7 @@
 // Copyright 2024 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Group, GroupService } from 'src/app/generated/alloy.api';
@@ -10,10 +10,10 @@ import { Group, GroupService } from 'src/app/generated/alloy.api';
   providedIn: 'root',
 })
 export class GroupDataService {
+  private groupService = inject(GroupService);
+
   private groupSubject = new BehaviorSubject<Group[]>([]);
   public groups$ = this.groupSubject.asObservable();
-
-  constructor(private groupService: GroupService) {}
 
   load(): Observable<Group[]> {
     return this.groupService
@@ -27,7 +27,7 @@ export class GroupDataService {
         const groups = this.groupSubject.getValue();
         groups.push(x);
         this.groupSubject.next(groups);
-      })
+      }),
     );
   }
 
@@ -41,7 +41,7 @@ export class GroupDataService {
           groups[index] = x;
           this.groupSubject.next(groups);
         }
-      })
+      }),
     );
   }
 
@@ -51,7 +51,7 @@ export class GroupDataService {
         let groups = this.groupSubject.getValue();
         groups = groups.filter((x) => !(x.id === id));
         this.groupSubject.next(groups);
-      })
+      }),
     );
   }
 }

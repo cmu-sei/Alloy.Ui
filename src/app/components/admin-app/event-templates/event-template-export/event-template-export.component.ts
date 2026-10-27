@@ -2,7 +2,17 @@
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+} from '@angular/forms';
+import { MatFormField, MatLabel } from '@angular/material/input';
+import { MatOption, MatSelect } from '@angular/material/select';
+import {
+  CrucibleDialogComponent,
+  CrucibleDialogContentDirective,
+} from '@cmusei/crucible-common';
 import { finalize } from 'rxjs';
 import { ArchiveType } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
@@ -15,7 +25,15 @@ import FileDownloadUtils from 'src/app/utilities/file-download-utils';
   selector: 'app-event-template-export',
   templateUrl: './event-template-export.component.html',
   styleUrls: ['./event-template-export.component.scss'],
-  standalone: false,
+  imports: [
+    CrucibleDialogComponent,
+    CrucibleDialogContentDirective,
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatSelect,
+    MatOption,
+  ],
 })
 export class EventTemplateExportComponent {
   /** The Event Templates to export. */
@@ -34,7 +52,7 @@ export class EventTemplateExportComponent {
 
   constructor(
     private eventTemplateDataService: EventTemplateDataService,
-    formBuilder: UntypedFormBuilder
+    formBuilder: UntypedFormBuilder,
   ) {
     this.form = formBuilder.group({
       archiveType: [this.archiveTypes[0]],

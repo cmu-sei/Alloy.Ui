@@ -3,10 +3,19 @@
 
 import { Component, EventEmitter, Optional, Output } from '@angular/core';
 import {
+  ReactiveFormsModule,
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatTooltip } from '@angular/material/tooltip';
+import {
+  CrucibleDialogActionsDirective,
+  CrucibleDialogComponent,
+  CrucibleDialogContentDirective,
+} from '@cmusei/crucible-common';
 import { MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 import { ImportEventTemplatesResult } from 'src/app/generated/alloy.api';
@@ -20,7 +29,15 @@ import { EventTemplateDataService } from 'src/app/data/event-template/event-temp
   selector: 'app-event-template-import',
   templateUrl: './event-template-import.component.html',
   styleUrls: ['./event-template-import.component.scss'],
-  standalone: false,
+  imports: [
+    CrucibleDialogComponent,
+    CrucibleDialogContentDirective,
+    CrucibleDialogActionsDirective,
+    ReactiveFormsModule,
+    MatButton,
+    MatSlideToggle,
+    MatTooltip,
+  ],
 })
 export class EventTemplateImportComponent {
   @Output() complete = new EventEmitter<boolean>();
@@ -35,7 +52,7 @@ export class EventTemplateImportComponent {
     private eventTemplateDataService: EventTemplateDataService,
     formBuilder: UntypedFormBuilder,
     @Optional()
-    private dialogRef?: MatDialogRef<EventTemplateImportComponent>
+    private dialogRef?: MatDialogRef<EventTemplateImportComponent>,
   ) {
     this.form = formBuilder.group({
       archive: [null, Validators.required],

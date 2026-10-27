@@ -1,7 +1,7 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { Directory, CasterService } from 'src/app/generated/alloy.api';
 import { map, take } from 'rxjs/operators';
@@ -12,26 +12,31 @@ import { Router, ActivatedRoute } from '@angular/router';
   providedIn: 'root',
 })
 export class CasterDataService {
+  private casterService = inject(CasterService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+
   private _apiDirectories: Directory[];
   private _directories: Directory[] = [];
   private _directoryMask: Observable<string>;
   readonly directories = new BehaviorSubject<Directory[]>(this._directories);
+  /** Why the last load failed, shown in the Event Template editor. Null once a load succeeds. */
+  readonly loadError = new BehaviorSubject<string>(null);
   readonly directoryList: Observable<Directory[]>;
   readonly directoryFilter = new UntypedFormControl();
   readonly selectedDirectory: Observable<Directory>;
   private _selectedDirectoryId: string;
   private _vmMask: Observable<string>;
   private requestedDirectoryId = this.activatedRoute.queryParamMap.pipe(
-    map((params) => params.get('exId') || '')
+    map((params) => params.get('exId') || ''),
   );
 
-  constructor(
-    private casterService: CasterService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) {
+  constructor() {
+    const router = this.router;
+    const activatedRoute = this.activatedRoute;
+
     this._directoryMask = activatedRoute.queryParamMap.pipe(
-      map((params) => params.get('exmask') || '')
+      map((params) => params.get('exmask') || ''),
     );
     this.directoryFilter.valueChanges.subscribe((term) => {
       router.navigate([], {
@@ -47,15 +52,15 @@ export class CasterDataService {
         items
           ? (items as Directory[])
               .sort((a: Directory, b: Directory) =>
-                a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+                a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
               )
               .filter(
                 (item) =>
                   item.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
-                  item.id.toLowerCase().includes(filterTerm.toLowerCase())
+                  item.id.toLowerCase().includes(filterTerm.toLowerCase()),
               )
-          : []
-      )
+          : [],
+      ),
     );
     this.selectedDirectory = combineLatest([
       this.directoryList,
@@ -64,7 +69,7 @@ export class CasterDataService {
       map(([directoryList, requestedDirectoryId]) => {
         if (directoryList && directoryList.length > 0 && requestedDirectoryId) {
           const selectedDirectory = directoryList.find(
-            (directory) => directory.id === requestedDirectoryId
+            (directory) => directory.id === requestedDirectoryId,
           );
           if (
             selectedDirectory &&
@@ -77,7 +82,7 @@ export class CasterDataService {
           this._selectedDirectoryId = '';
           return undefined;
         }
-      })
+      }),
     );
   }
 
@@ -92,6 +97,7 @@ export class CasterDataService {
       .pipe(take(1))
       .subscribe(
         (directories) => {
+          this.loadError.next(null);
           this._apiDirectories = directories;
           const directoryList = new Array<Directory>();
           const parentIds = new Array<string>();
@@ -109,13 +115,16 @@ export class CasterDataService {
           });
           this.updateDirectories(
             directoryList.sort((a: Directory, b: Directory) =>
-              a.name < b.name ? -1 : 1
-            )
+              a.name < b.name ? -1 : 1,
+            ),
           );
         },
         (error) => {
           this.updateDirectories([]);
-        }
+          // ProblemDetails.title names the service and why; never .detail, which for a 500
+          // outside development holds the raw exception message
+          this.loadError.next(error?.error?.title ?? 'Could not load the Caster directories.');
+        },
       );
   }
 

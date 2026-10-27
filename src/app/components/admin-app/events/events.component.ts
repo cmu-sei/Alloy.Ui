@@ -3,30 +3,31 @@
 
 import {
   Component,
-  EventEmitter,
-  Input,
   NgZone,
   OnInit,
-  Output,
+  inject,
+  input,
+  output,
 } from '@angular/core';
 import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { Subject } from 'rxjs';
+import { AdminEventListComponent } from './event-list/event-list.component';
 
 @Component({
-    selector: 'app-events',
-    templateUrl: './events.component.html',
-    styleUrls: ['./events.component.scss'],
-    standalone: false
+  selector: 'app-events',
+  templateUrl: './events.component.html',
+  styleUrls: ['./events.component.scss'],
+  imports: [AdminEventListComponent],
 })
 export class EventsComponent implements OnInit {
-  @Input() refresh: Subject<boolean>;
-  @Output() editComplete = new EventEmitter<boolean>();
+  zone = inject(NgZone);
+
+  readonly refresh = input<Subject<boolean>>(undefined);
+  readonly editComplete = output<boolean>();
 
   matcher = new UserErrorStateMatcher();
   isLinear = false;
-
-  constructor(public zone: NgZone) {}
 
   /**
    * Initialize component
@@ -38,7 +39,7 @@ export class EventsComponent implements OnInit {
 export class UserErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
     control: UntypedFormControl | null,
-    form: FormGroupDirective | NgForm | null
+    form: FormGroupDirective | NgForm | null,
   ): boolean {
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || isSubmitted));

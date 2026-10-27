@@ -5,49 +5,86 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <div class="cssLayoutRowStartCenter">
   <div class="sp-icon">
-    <mat-icon class="mdi-24px" fontIcon="mdi-clipboard" [ngStyle]="{ color: 'var(--mat-sys-primary)' }"
-      alt="Event Templates"></mat-icon>
+    <mat-icon
+      class="mdi-24px"
+      fontIcon="mdi-clipboard"
+      [style.color]="'var(--mat-sys-primary)'"
+      alt="Event Templates"
+    />
   </div>
   <mat-form-field class="search-field">
     <input matInput [formControl]="filterControl" placeholder="Search" />
     @if (filterControl.value) {
-    <button mat-icon-button matSuffix (click)="clearFilter()" title="Clear Search">
-      <mat-icon style="transform: scale(0.85)" fontIcon="mdi-close-circle-outline"></mat-icon>
-    </button>
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="clearFilter()"
+        title="Clear Search"
+      >
+        <mat-icon
+          style="transform: scale(0.85)"
+          fontIcon="mdi-close-circle-outline"
+        />
+      </button>
     }
   </mat-form-field>
   <div class="archive-buttons">
     @if (canCreateEventTemplates()) {
-    <button mat-icon-button (click)="openDialog(importDialog)" title="Import Event Templates">
-      <mat-icon class="mdi-24px" fontIcon="mdi-file-import"></mat-icon>
-    </button>
+      <button
+        mat-icon-button
+        (click)="openDialog(importDialog)"
+        title="Import Event Templates"
+      >
+        <mat-icon class="mdi-24px" fontIcon="mdi-file-import"></mat-icon>
+      </button>
     }
-    <button mat-icon-button (click)="openDialog(exportDialog)"
+    <button
+      mat-icon-button
+      (click)="openDialog(exportDialog)"
       title="Export Event Templates"
-      [matBadge]="selection.selected.length > 0 ? selection.selected.length : ''"
-      [matBadgeHidden]="!selection.hasValue()">
+      [matBadge]="
+        selection.selected.length > 0 ? selection.selected.length : ''
+      "
+      [matBadgeHidden]="!selection.hasValue()"
+    >
       <mat-icon class="mdi-24px" fontIcon="mdi-file-export"></mat-icon>
     </button>
   </div>
   <div class="nator-div">
-    <mat-paginator #paginator [pageSize]="20"
-      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"></mat-paginator>
+    <mat-paginator
+      #paginator
+      [pageSize]="20"
+      [pageSizeOptions]="[5, 10, 15, 20, 25, 50, 100, 200]"
+    />
   </div>
 </div>
 
 <div class="table-container">
-  <table mat-table [dataSource]="eventTemplateDataSource" matSort matSortActive="dateCreated"
-    matSortDirection="desc" multiTemplateDataRows>
-
+  <table
+    mat-table
+    [dataSource]="eventTemplateDataSource"
+    matSort
+    matSortActive="dateCreated"
+    matSortDirection="desc"
+    multiTemplateDataRows
+  >
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef>
-        <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
-          [indeterminate]="selection.hasValue() && !isAllSelected()" aria-label="Select all Event Templates">
+        <mat-checkbox
+          (change)="$event ? toggleAllRows() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          aria-label="Select all Event Templates"
+        >
         </mat-checkbox>
       </th>
       <td mat-cell *matCellDef="let element">
-        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(element.id) : null"
-          [checked]="selection.isSelected(element.id)" [aria-label]="'Select ' + element.name">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(element.id) : null"
+          [checked]="selection.isSelected(element.id)"
+          [aria-label]="'Select ' + element.name"
+        >
         </mat-checkbox>
       </td>
     </ng-container>
@@ -55,21 +92,45 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>
         @if (canCreateEventTemplates()) {
-        <button mat-icon-button (click)="addNewEventTemplate(); $event.stopPropagation()"
-          style="outline: none; margin-left: 20px;" title="Add Event Template">
-          <mat-icon class="mdi-24px" fontIcon="mdi-plus-circle"></mat-icon>
-        </button>
+          <button
+            mat-icon-button
+            (click)="addNewEventTemplate(); $event.stopPropagation()"
+            style="outline: none; margin-left: 20px"
+            title="Add Event Template"
+          >
+            <mat-icon class="mdi-24px" fontIcon="mdi-plus-circle" />
+          </button>
         }
       </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-icon-button (click)="editEventTemplate(element); $event.stopPropagation()"
-          title="{{ (canEditEventTemplate(element.id) || canManageEventTemplate(element.id)) ? 'Edit' : 'View' }}: {{ element.name }}">
-          <mat-icon class="mdi-18px"
-            [fontIcon]="(canEditEventTemplate(element.id) || canManageEventTemplate(element.id)) ? 'mdi-square-edit-outline' : 'mdi-eye-outline'"></mat-icon>
+        <button
+          mat-icon-button
+          (click)="editEventTemplate(element); $event.stopPropagation()"
+          title="{{
+            canEditEventTemplate(element.id) ||
+            canManageEventTemplate(element.id)
+              ? 'Edit'
+              : 'View'
+          }}: {{ element.name }}"
+        >
+          <mat-icon
+            class="mdi-18px"
+            [fontIcon]="
+              canEditEventTemplate(element.id) ||
+              canManageEventTemplate(element.id)
+                ? 'mdi-square-edit-outline'
+                : 'mdi-eye-outline'
+            "
+          />
         </button>
-        <button mat-icon-button ngxClipboard [cbContent]="element.id" (click)="$event.stopPropagation()"
-          title="Copy: {{ element.id }}">
-          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy"></mat-icon>
+        <button
+          mat-icon-button
+          ngxClipboard
+          [cbContent]="element.id"
+          (click)="$event.stopPropagation()"
+          title="Copy: {{ element.id }}"
+        >
+          <mat-icon class="mdi-18px" fontIcon="mdi-content-copy" />
         </button>
       </td>
     </ng-container>
@@ -81,57 +142,94 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
     <ng-container matColumnDef="description">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
-      <td mat-cell *matCellDef="let element" title="{{ element.description }}">{{
-        element.description && element.description.length > 80
-        ? element.description.slice(0, 80) + ' ...'
-        : element.description
-        }}</td>
+      <td mat-cell *matCellDef="let element" title="{{ element.description }}">
+        {{
+          element.description && element.description.length > 80
+            ? element.description.slice(0, 80) + ' ...'
+            : element.description
+        }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="durationHours">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Duration (Hours)</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        Duration (Hours)
+      </th>
       <td mat-cell *matCellDef="let element">{{ element.durationHours }}</td>
     </ng-container>
 
     <ng-container matColumnDef="dateCreated">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
-      <td mat-cell *matCellDef="let element">{{ element.dateCreated | date: 'yyyy-MM-dd HH:mm' }}</td>
+      <td mat-cell *matCellDef="let element">
+        {{ element.dateCreated | date: 'yyyy-MM-dd HH:mm' }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="expandedDetail">
-      <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
-        <div [@detailExpand]="element.id === expandedEventTemplateId ? 'expanded' : 'collapsed'"
-          (click)="$event.stopPropagation()">
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [attr.colspan]="displayedColumns.length"
+      >
+        <div
+          [@detailExpand]="
+            element.id === expandedEventTemplateId ? 'expanded' : 'collapsed'
+          "
+          (click)="$event.stopPropagation()"
+        >
           @if (element.id === expandedEventTemplateId) {
-          <div class="memberships-container">
-            <label class="memberships-label">Memberships</label>
-            <app-event-template-memberships [eventTemplateId]="element.id"
-              [showHeader]="false"></app-event-template-memberships>
-          </div>
+            <div class="memberships-container">
+              <label class="memberships-label">Memberships</label>
+              <app-event-template-memberships
+                [eventTemplateId]="element.id"
+                [showHeader]="false"
+              />
+            </div>
           }
         </div>
       </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"
-      (click)="selectEventTemplate(row.id)"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="element-row"
+      (click)="selectEventTemplate(row.id)"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="detail-row"
+    ></tr>
   </table>
 </div>
 
 @if (isLoading) {
-<mat-card appearance="outlined" style="display: flex; justify-content: center; align-items: center; width: 100%">
-  <mat-progress-spinner color="primary" mode="indeterminate">
-  </mat-progress-spinner>
-</mat-card>
+  <mat-card
+    appearance="outlined"
+    style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    "
+  >
+    <mat-progress-spinner color="primary" mode="indeterminate" />
+  </mat-card>
 }
 
 <ng-template #exportDialog>
-  <app-event-template-export [ids]="exportIds()" [all]="canExportAll()" [selected]="selection.hasValue()"
-    (complete)="closeDialog()"></app-event-template-export>
+  <app-event-template-export
+    [ids]="exportIds()"
+    [all]="canExportAll()"
+    [selected]="selection.hasValue()"
+    (complete)="closeDialog()"
+  ></app-event-template-export>
 </ng-template>
 
 <ng-template #importDialog>
-  <app-event-template-import (complete)="importComplete()"></app-event-template-import>
+  <app-event-template-import
+    (complete)="importComplete()"
+  ></app-event-template-import>
 </ng-template>

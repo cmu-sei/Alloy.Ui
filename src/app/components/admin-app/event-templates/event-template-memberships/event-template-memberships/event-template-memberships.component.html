@@ -3,12 +3,12 @@ Copyright 2025 Carnegie Mellon University. All Rights Reserved.
 Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 -->
 
-@if (showHeader) {
+@if (showHeader()) {
   @if (eventTemplate$ | async; as eventTemplate) {
     <div class="d-flex justify-content-center align-items-center">
-      @if (embedded) {
+      @if (embedded()) {
         <button mat-icon-button (click)="goBack.emit()" matTooltip="Return">
-          <mat-icon class="mdi-24px" fontIcon="mdi-keyboard-return"></mat-icon>
+          <mat-icon class="mdi-24px" fontIcon="mdi-keyboard-return" />
         </button>
       }
       <h1>{{ eventTemplate.name }}</h1>
@@ -16,11 +16,20 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
   }
 }
 <div class="d-flex gap-5 justify-content-center">
-  <app-event-template-membership-list [users]="nonMembers$ | async" [groups]="groupNonMembers$ | async"
-  [canEdit]="canEdit$ | async" (createMembership)="createMembership($event)"></app-event-template-membership-list>
+  <app-event-template-membership-list
+    [users]="nonMembers$ | async"
+    [groups]="groupNonMembers$ | async"
+    [canEdit]="canEdit$ | async"
+    (createMembership)="createMembership($event)"
+  />
 
-  <app-event-template-member-list [memberships]="memberships$ | async" [users]="members$ | async"
-    [groups]="groupMembers$ | async" [roles]="roles$ | async" [canEdit]="canEdit$ | async"
+  <app-event-template-member-list
+    [memberships]="memberships$ | async"
+    [users]="members$ | async"
+    [groups]="groupMembers$ | async"
+    [roles]="roles$ | async"
+    [canEdit]="canEdit$ | async"
     (deleteMembership)="deleteMembership($event)"
-  (editMembership)="editMembership($event)"></app-event-template-member-list>
+    (editMembership)="editMembership($event)"
+  />
 </div>

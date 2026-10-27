@@ -4,7 +4,7 @@
 import { Order, QueryConfig, QueryEntity } from '@datorama/akita';
 import { EventState, EventStore } from './event.store';
 import { Event } from 'src/app/generated/alloy.api';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @QueryConfig({
@@ -15,8 +15,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class EventQuery extends QueryEntity<EventState> {
-  constructor(protected store: EventStore) {
+  protected store: EventStore;
+
+  constructor() {
+    const store = inject(EventStore);
+
     super(store);
+
+    this.store = store;
   }
 
   selectById(id: string): Observable<Event> {

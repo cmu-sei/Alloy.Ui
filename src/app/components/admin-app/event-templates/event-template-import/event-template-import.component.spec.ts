@@ -5,9 +5,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { ImportEventTemplatesResult } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import { MatDialogRef } from '@angular/material/dialog';
+import { dialogRefStub } from 'src/app/test-utils/dialog-refs';
 import { renderComponent } from 'src/app/test-utils/render-component';
 import { EventTemplateImportComponent } from './event-template-import.component';
 
@@ -24,13 +26,19 @@ async function renderImport() {
   const data = {
     import: vi.fn((_file: Blob, _match: boolean) => of(result())),
   } satisfies Partial<EventTemplateDataService>;
+  // the dialog the component is opened in, whose Escape and close crucible-dialog drives
+  const { dialogRef, close, keydown } =
+    dialogRefStub<EventTemplateImportComponent>();
+  const escape = () =>
+    keydown.next(new KeyboardEvent('keydown', { key: 'Escape' }));
   const rendered = await renderComponent(EventTemplateImportComponent, {
-    providers: [{ provide: EventTemplateDataService, useValue: data }],
+    providers: [
+      { provide: EventTemplateDataService, useValue: data },
+      { provide: MatDialogRef, useValue: dialogRef },
+    ],
   });
-  const completed: boolean[] = [];
-  rendered.fixture.componentInstance.complete.subscribe((x) =>
-    completed.push(x),
-  );
+  let completed = 0;
+  rendered.fixture.componentInstance.complete.subscribe(() => completed++);
   const fileInput = rendered.container.querySelector(
     'input[type="file"]',
   ) as HTMLInputElement;
@@ -38,7 +46,9 @@ async function renderImport() {
     ...rendered,
     user: userEvent.setup({ applyAccept: false }),
     data,
-    completed,
+    close,
+    escape,
+    completed: () => completed,
     fileInput,
   };
 }
@@ -113,7 +123,7 @@ describe('EventTemplateImportComponent', () => {
   });
 
   /**
-   * Verifies: per-item failures are listed with their reason, and OK completes with true since something was imported.
+   * Verifies: per-item failures are listed with their reason, and OK closes the dialog.
    * Interacts with: result view, complete output.
    * Data: one imported template and one item that is not a template (no name).
    */
@@ -140,7 +150,7 @@ describe('EventTemplateImportComponent', () => {
     ).toBeInTheDocument();
     expect(screen.queryByText('Name:')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'OK' }));
-    expect(completed).toEqual([true]);
+    expect(completed()).toBe(1);
   });
 
   /**
@@ -167,7 +177,7 @@ describe('EventTemplateImportComponent', () => {
       await screen.findByText('The file is not an Event Template export'),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Import' })).toBeInTheDocument();
-    expect(completed).toEqual([]);
+    expect(completed()).toBe(0);
   });
 
   /**
@@ -202,29 +212,63 @@ describe('EventTemplateImportComponent', () => {
   });
 
   /**
-   * Verifies: Cancel, and closing the dialog any other way, leave a running import alone, since the API may
-   * already have committed it.
-   * Interacts with: cancel, component destroy, the request subscription.
-   * Data: an import that never answers; its teardown would count an abort.
+   * Verifies: before anything is sent, Cancel and Escape close the dialog.
+   * Interacts with: the dialog's own Cancel button, complete output, crucible-dialog's Escape handling.
+   * Data: no file chosen.
    */
-  it.each(['cancel', 'destroy'] as const)(
-    'does not abort a running import on %s',
-    async (how) => {
-      const { user, data, fileInput, fixture, completed } =
-        await renderImport();
-      const aborted = vi.fn();
-      data.import.mockReturnValueOnce(new Observable(() => aborted));
-      await user.upload(fileInput, jsonFile());
-      await user.click(screen.getByRole('button', { name: 'Import' }));
+  it('closes from Cancel or Escape before the file is sent', async () => {
+    const { user, completed, close, escape } = await renderImport();
 
-      if (how === 'cancel') {
-        fixture.componentInstance.cancel();
-        expect(completed).toEqual([false]);
-      } else {
-        fixture.destroy();
-      }
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    escape();
 
-      expect(aborted).not.toHaveBeenCalled();
-    },
-  );
+    expect(completed()).toBe(1);
+    expect(close).toHaveBeenCalled();
+  });
+
+  /**
+   * Verifies: while the import runs nothing closes the dialog: Cancel is disabled, crucible-dialog ignores
+   * Escape while loading, and Importing... shows; once the answer arrives OK closes it.
+   * Interacts with: import, [loading], the Cancel and Import buttons, crucible-dialog's Escape handling.
+   * Data: an import answered by the test.
+   */
+  it('cannot be closed while the import runs', async () => {
+    const { user, data, fileInput, close, escape, completed } =
+      await renderImport();
+    const answer = new Subject<ImportEventTemplatesResult>();
+    data.import.mockReturnValueOnce(answer);
+    await user.upload(fileInput, jsonFile());
+
+    await user.click(screen.getByRole('button', { name: 'Import' }));
+
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Importing/ })).toBeDisabled();
+    escape();
+    expect(close).not.toHaveBeenCalled();
+    expect(completed()).toBe(0);
+
+    answer.next(result());
+    answer.complete();
+    await user.click(await screen.findByRole('button', { name: 'OK' }));
+
+    expect(completed()).toBe(1);
+  });
+
+  /**
+   * Verifies: a refused import enables Cancel again, and keeps the form for another try.
+   * Interacts with: import error path, finalize.
+   * Data: a 403.
+   */
+  it('can be closed again after a refused import', async () => {
+    const { user, data, fileInput } = await renderImport();
+    data.import.mockReturnValueOnce(
+      throwError(() => new HttpErrorResponse({ status: 403 })),
+    );
+    await user.upload(fileInput, jsonFile());
+
+    await user.click(screen.getByRole('button', { name: 'Import' }));
+
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Import' })).toBeEnabled();
+  });
 });

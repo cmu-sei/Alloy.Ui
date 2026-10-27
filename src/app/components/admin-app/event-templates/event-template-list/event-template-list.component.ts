@@ -344,11 +344,6 @@ export class EventTemplateListComponent
     this.archiveDialogRef?.close();
   }
 
-  importComplete() {
-    // The data service reloads the list once the import returns
-    this.archiveDialogRef?.close();
-  }
-
   canCreateEventTemplates(): boolean {
     return this.permissionDataService.canCreateEventTemplates();
   }

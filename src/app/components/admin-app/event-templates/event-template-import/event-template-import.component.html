@@ -43,20 +43,16 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       }
     </div>
     <ng-container crucibleDialogActions>
-      <button matButton="filled" (click)="cancel()">OK</button>
+      <button matButton="filled" (click)="close()">OK</button>
     </ng-container>
   </crucible-dialog>
 } @else {
   <crucible-dialog
     dialogTitle="Import Event Templates"
     [form]="form"
-    submitLabel="Import"
-    loadingLabel="Importing..."
     [loading]="loading"
     [errorMessage]="errorMessage"
-    [submitDisabled]="!form.valid"
-    (cancel)="cancel()"
-    (submit)="import()"
+    [hideDefaultActions]="true"
   >
     <div crucibleDialogContent [formGroup]="form" class="dialog-fields">
       <div class="file-row">
@@ -81,5 +77,38 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         >
       </div>
     </div>
+    <!-- Once the file is sent the dialog cannot be dismissed: the API may already have committed the import.
+         crucible-dialog already ignores the backdrop, and Escape while [loading]; its default Cancel would not
+         be disabled, so these buttons replace it. -->
+    <ng-container crucibleDialogActions>
+      <button
+        matButton="outlined"
+        type="button"
+        [disabled]="loading"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button
+        matButton="filled"
+        type="button"
+        cdkFocusInitial
+        [disabled]="!form.valid || loading"
+        (click)="import()"
+      >
+        @if (loading) {
+          <span class="importing">
+            Importing...
+            <mat-progress-spinner
+              mode="indeterminate"
+              diameter="18"
+              aria-label="Importing"
+            />
+          </span>
+        } @else {
+          Import
+        }
+      </button>
+    </ng-container>
   </crucible-dialog>
 }

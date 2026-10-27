@@ -9,7 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
 import {
@@ -39,19 +39,17 @@ import ArchiveErrorUtils from 'src/app/utilities/archive-error-utils';
     MatButton,
     MatSlideToggle,
     MatTooltip,
+    MatProgressSpinner,
   ],
 })
 export class EventTemplateImportComponent {
   private eventTemplateDataService = inject(EventTemplateDataService);
-  private dialogRef = inject<MatDialogRef<EventTemplateImportComponent>>(
-    MatDialogRef,
-    { optional: true },
-  );
 
   /** The file types the file picker offers. The API tells JSON from zip by content. */
   readonly accept = '.json,.zip,application/json,application/zip';
 
-  readonly complete = output<boolean>();
+  /** Asks the host to close the dialog: from Cancel before anything is sent, or from OK after the result. */
+  readonly complete = output<void>();
 
   form: UntypedFormGroup = inject(UntypedFormBuilder).group({
     file: [null, Validators.required],
@@ -60,21 +58,18 @@ export class EventTemplateImportComponent {
   loading = false;
   errorMessage = '';
   result: ImportEventTemplatesResult | null = null;
-  private completeEmitted = false;
-
-  constructor() {
-    this.dialogRef?.beforeClosed().subscribe(() => {
-      if (this.result) {
-        this.emitComplete();
-      }
-    });
-  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.form.patchValue({ file: input.files?.[0] ?? null });
   }
 
+  /**
+   * Sends the file. Until the answer arrives the dialog cannot be closed: Cancel is disabled, and crucible-dialog
+   * ignores Escape while loading and the backdrop always. Once the request is sent the browser cannot know whether
+   * the API has committed it, so no cancel could be honest. The import is one short transaction; closing the tab
+   * is still a way out, and the API rolls back an import whose client goes away before the commit.
+   */
   import() {
     this.loading = true;
     this.errorMessage = '';
@@ -92,21 +87,9 @@ export class EventTemplateImportComponent {
       });
   }
 
-  /**
-   * Closes the dialog. An import still running is not aborted: the API may already have committed it, and
-   * aborting then would leave the templates created with nothing to say so. The data service lets it finish
-   * and reloads the list.
-   */
-  cancel() {
-    this.emitComplete();
-  }
-
-  private emitComplete() {
-    if (this.completeEmitted) {
-      return;
+  close() {
+    if (!this.loading) {
+      this.complete.emit();
     }
-
-    this.completeEmitted = true;
-    this.complete.emit(!!this.result);
   }
 }

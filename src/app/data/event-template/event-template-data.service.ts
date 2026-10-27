@@ -5,7 +5,6 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, take, tap } from 'rxjs/operators';
 import {
-  ArchiveType,
   EventTemplate,
   EventTemplateService,
   ImportEventTemplatesResult,
@@ -64,39 +63,36 @@ export class EventTemplateDataService {
   }
 
   /**
-   * Exports the given Event Templates as an archive, in the same shape Player uses for Views.
+   * Exports the given Event Templates, or every one if there are no ids, as a JSON file: an object for
+   * one template, an array for several. The file name is the API's, read from Content-Disposition.
    */
-  export(
-    ids: string[],
-    archiveType: ArchiveType
-  ): Observable<{ blob: Blob; filename: string }> {
-    return this.eventTemplateService
-      .exportEventTemplates(ids, archiveType, 'response')
-      .pipe(
-        map((response) => ({
-          blob: response.body,
-          filename: HttpHeaderUtils.getFilename(
-            response.headers,
-            `event_templates.${archiveType === ArchiveType.Tgz ? 'tar.gz' : 'zip'}`
-          ),
-        })),
-        take(1)
-      );
+  export(ids: string[]): Observable<{ blob: Blob; filename: string }> {
+    return this.eventTemplateService.exportEventTemplates(ids, 'response').pipe(
+      map((response) => ({
+        blob: response.body,
+        filename: HttpHeaderUtils.getFilename(
+          response.headers,
+          'event-templates.json',
+        ),
+      })),
+      take(1),
+    );
   }
 
   /**
-   * Imports an archive created by export. Reloads the list afterwards, since some templates
-   * may have been imported even when others failed.
+   * Imports a .json file created by export, or a .zip archive holding one. Each template is created
+   * as a new template. Reloads the list afterwards, since some templates may have been imported even
+   * when others failed.
    */
   import(
-    archive: Blob,
-    matchReferencesByName: boolean
+    file: Blob,
+    matchReferencesByName: boolean,
   ): Observable<ImportEventTemplatesResult> {
     return this.eventTemplateService
-      .importEventTemplates(archive, matchReferencesByName)
+      .importEventTemplates(file, matchReferencesByName)
       .pipe(
         tap(() => this.loadTemplates()),
-        take(1)
+        take(1),
       );
   }
 

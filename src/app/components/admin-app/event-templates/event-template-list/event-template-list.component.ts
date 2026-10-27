@@ -70,6 +70,7 @@ import { MatCard } from '@angular/material/card';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatBadge } from '@angular/material/badge';
+import { MatTooltip } from '@angular/material/tooltip';
 import { EventTemplateExportComponent } from '../event-template-export/event-template-export.component';
 import { EventTemplateImportComponent } from '../event-template-import/event-template-import.component';
 
@@ -115,6 +116,7 @@ import { EventTemplateImportComponent } from '../event-template-import/event-tem
     DatePipe,
     MatCheckbox,
     MatBadge,
+    MatTooltip,
     EventTemplateExportComponent,
     EventTemplateImportComponent,
   ],
@@ -252,6 +254,14 @@ export class EventTemplateListComponent
       !this.selection.hasValue() &&
       this.systemPermissions.includes(SystemPermission.ViewEventTemplates)
     );
+  }
+
+  /** The export button's name, which says how many are selected, since the badge alone is not read out. */
+  exportLabel(): string {
+    const count = this.selection.selected.length;
+    return count > 0
+      ? `Export ${count} Selected Event Template${count === 1 ? '' : 's'}`
+      : 'Export Event Templates';
   }
 
   openDialog(templateRef: TemplateRef<any>) {

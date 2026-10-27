@@ -1,7 +1,7 @@
 // Copyright 2026 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, EventEmitter, Optional, Output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormBuilder,
@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
 import {
@@ -16,14 +17,14 @@ import {
   CrucibleDialogComponent,
   CrucibleDialogContentDirective,
 } from '@cmusei/crucible-common';
-import { MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 import { ImportEventTemplatesResult } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 
 /**
- * Imports an Event Template archive, following Player's View import dialog. Unlike Player, a reference
- * that cannot be resolved does not fail the template: it is cleared and listed as a warning.
+ * Imports a .json file of Event Templates written by export, or a .zip archive holding one. Each
+ * template is created as a new template; a name already in use gets the importer's name appended,
+ * and a reference that cannot be resolved is cleared. Both are listed as warnings.
  */
 @Component({
   selector: 'app-event-template-import',
@@ -40,25 +41,27 @@ import { EventTemplateDataService } from 'src/app/data/event-template/event-temp
   ],
 })
 export class EventTemplateImportComponent {
-  @Output() complete = new EventEmitter<boolean>();
+  private eventTemplateDataService = inject(EventTemplateDataService);
+  private dialogRef = inject<MatDialogRef<EventTemplateImportComponent>>(
+    MatDialogRef,
+    { optional: true },
+  );
 
-  form: UntypedFormGroup;
+  /** The file types the file picker offers. The API tells JSON from zip by content. */
+  readonly accept = '.json,.zip,application/json,application/zip';
+
+  readonly complete = output<boolean>();
+
+  form: UntypedFormGroup = inject(UntypedFormBuilder).group({
+    file: [null, Validators.required],
+    matchReferencesByName: [false],
+  });
   loading = false;
   errorMessage = '';
   result: ImportEventTemplatesResult | null = null;
   private completeEmitted = false;
 
-  constructor(
-    private eventTemplateDataService: EventTemplateDataService,
-    formBuilder: UntypedFormBuilder,
-    @Optional()
-    private dialogRef?: MatDialogRef<EventTemplateImportComponent>,
-  ) {
-    this.form = formBuilder.group({
-      archive: [null, Validators.required],
-      matchReferencesByName: [false],
-    });
-
+  constructor() {
     this.dialogRef?.beforeClosed().subscribe(() => {
       if (this.result) {
         this.emitComplete();
@@ -68,21 +71,21 @@ export class EventTemplateImportComponent {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.form.patchValue({ archive: input.files?.[0] ?? null });
+    this.form.patchValue({ file: input.files?.[0] ?? null });
   }
 
   import() {
     this.loading = true;
     this.errorMessage = '';
     this.eventTemplateDataService
-      .import(this.form.value.archive, !!this.form.value.matchReferencesByName)
+      .import(this.form.value.file, !!this.form.value.matchReferencesByName)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (result) => (this.result = result),
-        // A request that is rejected as a whole (not an archive, no permission) keeps the form open
+        // A request that is rejected as a whole (not an export file, no permission) keeps the form open
         error: (err) =>
           (this.errorMessage =
-            err?.error?.title ?? 'The archive could not be imported.'),
+            err?.error?.title ?? 'The file could not be imported.'),
       });
   }
 

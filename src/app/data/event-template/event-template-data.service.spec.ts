@@ -4,9 +4,11 @@
 import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, of, throwError } from 'rxjs';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import {
   EventTemplate,
   EventTemplateService,
+  ImportEventTemplatesResult,
 } from 'src/app/generated/alloy.api';
 import { ApiStub } from 'src/app/test-utils/api-stub';
 import { recordEmissions } from 'src/app/test-utils/record-emissions';
@@ -35,6 +37,24 @@ function eventTemplateServiceStub() {
     ),
     updateEventTemplate: vi.fn((_id: string, t: EventTemplate) => of(t)),
     deleteEventTemplate: vi.fn(() => of({})),
+    exportEventTemplates: vi.fn((_ids?: string[], _observe?: 'response') =>
+      of(
+        new HttpResponse<Blob>({
+          body: new Blob(['{}'], { type: 'application/json' }),
+          headers: new HttpHeaders({
+            'Content-Disposition':
+              'attachment; filename="Range.json"; filename*=UTF-8\'\'Range.json',
+          }),
+        }),
+      ),
+    ),
+    importEventTemplates: vi.fn((_file?: Blob, _match?: boolean) =>
+      of<ImportEventTemplatesResult>({
+        imported: [makeTemplate({ id: 'imported' })],
+        failures: [],
+        warnings: [],
+      }),
+    ),
   } satisfies ApiStub<EventTemplateService>;
 }
 
@@ -261,5 +281,60 @@ describe('EventTemplateDataService', () => {
       durationHours: 2,
     });
     expect(query.hasEntity('unknown')).toBe(false);
+  });
+
+  /**
+   * Verifies: export asks the API for the ids with the full response and names the file from Content-Disposition.
+   * Interacts with: EventTemplateService.exportEventTemplates ('response' overload), HttpHeaderUtils.getFilename.
+   * Data: two ids; the API names the file Range.json.
+   */
+  it('export downloads the ids as the file the API names', async () => {
+    const { service, api } = setup();
+
+    const result = await firstValueFrom(service.export(['a', 'b']));
+
+    expect(api.exportEventTemplates).toHaveBeenCalledWith(
+      ['a', 'b'],
+      'response',
+    );
+    expect(result.filename).toBe('Range.json');
+    expect(await result.blob.text()).toBe('{}');
+  });
+
+  /**
+   * Verifies: without a readable Content-Disposition the export falls back to event-templates.json.
+   * Interacts with: EventTemplateService.exportEventTemplates, HttpHeaderUtils.getFilename fallback.
+   * Data: a response with no headers (Content-Disposition not exposed by CORS).
+   */
+  it('export falls back to event-templates.json', async () => {
+    const { service, api } = setup();
+    api.exportEventTemplates.mockReturnValueOnce(
+      of(new HttpResponse<Blob>({ body: new Blob(['[]']) })),
+    );
+
+    const result = await firstValueFrom(service.export([]));
+
+    expect(result.filename).toBe('event-templates.json');
+  });
+
+  /**
+   * Verifies: import sends the file and the match option, returns the per-item result and reloads the list.
+   * Interacts with: EventTemplateService.importEventTemplates, getEventTemplates (reload), real EventTemplateQuery.
+   * Data: a .json file; the API reports one imported template and the reload returns it.
+   */
+  it('import sends the file and reloads the templates', async () => {
+    const { service, query, api } = setup();
+    const file = new File(['[]'], 'event-templates.json', {
+      type: 'application/json',
+    });
+    api.getEventTemplates.mockReturnValueOnce(
+      of([makeTemplate({ id: 'imported' })]),
+    );
+
+    const result = await firstValueFrom(service.import(file, true));
+
+    expect(api.importEventTemplates).toHaveBeenCalledWith(file, true);
+    expect(result.imported.map((t) => t.id)).toEqual(['imported']);
+    expect(query.getAll().map((t) => t.id)).toEqual(['imported']);
   });
 });

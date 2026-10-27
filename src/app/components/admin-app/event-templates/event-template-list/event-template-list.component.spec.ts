@@ -477,4 +477,89 @@ describe('EventTemplateListComponent', () => {
     expect(memberships.eventTemplateId()).toBe('t1');
     expect(memberships.showHeader()).toBe(false);
   });
+
+  describe('export and import', () => {
+    /**
+     * Verifies: Import Event Templates shows with system CreateEventTemplates and is hidden without it.
+     * Interacts with: real PermissionDataService.canCreateEventTemplates, rendered toolbar button.
+     * Data: CreateEventTemplates; near miss ViewEventTemplates.
+     */
+    it.each<{ grants: PermissionGrants; shown: boolean }>([
+      { grants: { system: ['CreateEventTemplates'] }, shown: true },
+      { grants: { system: ['ViewEventTemplates'] }, shown: false },
+    ])(
+      'import button shown=$shown for $grants.system',
+      async ({ grants, shown }) => {
+        await renderList(grants);
+
+        const button = screen.queryByRole('button', {
+          name: 'Import Event Templates',
+        });
+        expect(!!button).toBe(shown);
+      },
+    );
+
+    /**
+     * Verifies: the export button's name counts the selected templates, and the dialog is given only those.
+     * Interacts with: row checkbox, SelectionModel, exportLabel, exportIds, canExportAll, MatDialog.open.
+     * Data: Bravo selected; system ViewEventTemplates.
+     */
+    it('exports the selected templates', async () => {
+      const { user, dialog, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+
+      await user.click(screen.getByRole('checkbox', { name: 'Select Bravo' }));
+
+      const button = screen.getByRole('button', {
+        name: 'Export 1 Selected Event Template',
+      });
+      await user.click(button);
+      expect(dialog.open).toHaveBeenCalled();
+      const list = fixture.componentInstance;
+      expect(list.exportIds()).toEqual(['t2']);
+      expect(list.canExportAll()).toBe(false);
+    });
+
+    /**
+     * Verifies: with nothing selected the export covers the whole list, asking for every template only with ViewEventTemplates.
+     * Interacts with: exportIds, canExportAll (system ViewEventTemplates check).
+     * Data: no selection; ViewEventTemplates, and the near miss of a template member with CreateEventTemplates.
+     */
+    it.each<{ grants: PermissionGrants; all: boolean }>([
+      { grants: { system: ['ViewEventTemplates'] }, all: true },
+      { grants: { system: ['CreateEventTemplates'] }, all: false },
+    ])('exports the whole list (all=$all)', async ({ grants, all }) => {
+      const { fixture } = await renderList(grants);
+
+      expect(
+        screen.getByRole('button', { name: 'Export Event Templates' }),
+      ).toBeInTheDocument();
+      expect(fixture.componentInstance.exportIds()).toEqual(['t1', 't2']);
+      expect(fixture.componentInstance.canExportAll()).toBe(all);
+    });
+
+    /**
+     * Verifies: the header checkbox selects every template that passes the filter, and clears them again.
+     * Interacts with: toggleAllRows, isAllSelected, filter.
+     * Data: filter "Alpha"; then clear.
+     */
+    it('select all selects the filtered templates', async () => {
+      const { user, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+      const list = fixture.componentInstance;
+      list.eventTemplateDataSource.filter = 'alpha';
+
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all Event Templates' }),
+      );
+      expect(list.selection.selected).toEqual(['t1']);
+
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all Event Templates' }),
+      );
+      expect(list.selection.hasValue()).toBe(false);
+    });
+  });
 });

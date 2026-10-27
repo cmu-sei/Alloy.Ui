@@ -33,7 +33,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <button
         mat-icon-button
         (click)="openDialog(importDialog)"
-        title="Import Event Templates"
+        aria-label="Import Event Templates"
+        matTooltip="Import Event Templates"
       >
         <mat-icon class="mdi-24px" fontIcon="mdi-file-import"></mat-icon>
       </button>
@@ -41,7 +42,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <button
       mat-icon-button
       (click)="openDialog(exportDialog)"
-      title="Export Event Templates"
+      [attr.aria-label]="exportLabel()"
+      [matTooltip]="exportLabel()"
       [matBadge]="
         selection.selected.length > 0 ? selection.selected.length : ''
       "

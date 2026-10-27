@@ -1,69 +1,44 @@
 // Copyright 2026 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {
-  ReactiveFormsModule,
-  UntypedFormBuilder,
-  UntypedFormGroup,
-} from '@angular/forms';
-import { MatFormField, MatLabel } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
+import { Component, inject, input, output } from '@angular/core';
+import { finalize } from 'rxjs';
 import {
   CrucibleDialogComponent,
   CrucibleDialogContentDirective,
 } from '@cmusei/crucible-common';
-import { finalize } from 'rxjs';
-import { ArchiveType } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import FileDownloadUtils from 'src/app/utilities/file-download-utils';
 
 /**
- * Exports Event Templates to a zip or tar.gz archive, following Player's View export dialog.
+ * Exports Event Templates to a JSON file: an object for one template, an array for several.
  */
 @Component({
   selector: 'app-event-template-export',
   templateUrl: './event-template-export.component.html',
   styleUrls: ['./event-template-export.component.scss'],
-  imports: [
-    CrucibleDialogComponent,
-    CrucibleDialogContentDirective,
-    ReactiveFormsModule,
-    MatFormField,
-    MatLabel,
-    MatSelect,
-    MatOption,
-  ],
+  imports: [CrucibleDialogComponent, CrucibleDialogContentDirective],
 })
 export class EventTemplateExportComponent {
+  private eventTemplateDataService = inject(EventTemplateDataService);
+
   /** The Event Templates to export. */
-  @Input() ids: string[] = [];
+  readonly ids = input<string[]>([]);
   /** Whether the ids are an explicit selection rather than every template in the list. */
-  @Input() selected = false;
-  /** Export every Event Template by sending no ids. The count shown is still ids.length. */
-  @Input() all = false;
+  readonly selected = input(false);
+  /** Export every Event Template by sending no ids. The count shown is still ids().length. */
+  readonly all = input(false);
 
-  @Output() complete = new EventEmitter<boolean>();
+  readonly complete = output<boolean>();
 
-  form: UntypedFormGroup;
-  archiveTypes = Object.values(ArchiveType);
   loading = false;
   errorMessage = '';
-
-  constructor(
-    private eventTemplateDataService: EventTemplateDataService,
-    formBuilder: UntypedFormBuilder,
-  ) {
-    this.form = formBuilder.group({
-      archiveType: [this.archiveTypes[0]],
-    });
-  }
 
   export() {
     this.loading = true;
     this.errorMessage = '';
     this.eventTemplateDataService
-      .export(this.all ? [] : this.ids, this.form.value.archiveType)
+      .export(this.all() ? [] : this.ids())
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (result) => {

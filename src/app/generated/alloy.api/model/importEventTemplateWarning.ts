@@ -17,7 +17,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 
 
 /**
- * An Event Template that was imported with a change, such as a reference that had to be cleared.
+ * An Event Template that was imported with a change, such as a new name or a reference that had to be cleared. The Id and Name are those of the imported template.
  */
 export interface ImportEventTemplateWarning { 
     id?: string | null;

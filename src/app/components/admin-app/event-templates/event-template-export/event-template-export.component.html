@@ -5,32 +5,27 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
 
 <crucible-dialog
   dialogTitle="Export Event Templates"
-  [form]="form"
   submitLabel="Export"
   loadingLabel="Exporting..."
   [loading]="loading"
   [errorMessage]="errorMessage"
-  [submitDisabled]="!form.valid || ids.length === 0"
+  [submitDisabled]="ids().length === 0"
   (cancel)="cancel()"
   (submit)="export()"
 >
-  <div crucibleDialogContent [formGroup]="form" class="dialog-fields">
+  <div crucibleDialogContent class="dialog-fields">
     <p class="export-count">
-      @if (ids.length === 0) {
+      @if (ids().length === 0) {
         There are no Event Templates to export.
       } @else {
-        {{ selected ? 'Selected' : 'All' }} Event Templates: {{ ids.length }}
+        {{ selected() ? 'Selected' : 'All' }} Event Templates:
+        {{ ids().length }}
       }
     </p>
-    <mat-form-field>
-      <mat-label>Archive Type</mat-label>
-      <mat-select formControlName="archiveType">
-        @for (archiveType of archiveTypes; track archiveType) {
-          <mat-option [value]="archiveType">
-            {{ archiveType }}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+    <p>
+      The Event Templates are saved as a .json file. Player Views, Caster
+      Directories and Steamfitter Scenario Templates are saved by Id and Name,
+      not copied.
+    </p>
   </div>
 </crucible-dialog>

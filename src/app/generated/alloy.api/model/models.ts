@@ -3,7 +3,6 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 */
 
-export * from './archiveType';
 export * from './createEventCommand';
 export * from './design';
 export * from './designModule';
@@ -28,7 +27,6 @@ export * from './groupPermission';
 export * from './groupPermissionsClaim';
 export * from './healthStatus';
 export * from './importEventTemplateFailure';
-export * from './importEventTemplateFailureType';
 export * from './importEventTemplateWarning';
 export * from './importEventTemplatesResult';
 export * from './internalEventStatus';

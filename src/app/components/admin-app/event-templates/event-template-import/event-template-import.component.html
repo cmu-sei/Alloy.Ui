@@ -14,8 +14,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         <ul>
           @for (failure of result.failures; track $index) {
             <li>
-              <div><strong>Id:</strong> {{ failure.id }}</div>
-              <div><strong>Name:</strong> {{ failure.name }}</div>
+              @if (failure.name) {
+                <div><strong>Name:</strong> {{ failure.name }}</div>
+              }
               <div><strong>Reason:</strong> {{ failure.reason }}</div>
             </li>
           }
@@ -67,9 +68,9 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           (change)="onFileSelected($event)"
           #fileInput
           type="file"
-          accept=".zip, .tar.gz, .tgz"
+          [accept]="accept"
         />
-        <span class="file-name">{{ form.value.archive?.name }}</span>
+        <span class="file-name">{{ form.value.file?.name }}</span>
       </div>
       <strong>References</strong>
       <div class="toggle-row">

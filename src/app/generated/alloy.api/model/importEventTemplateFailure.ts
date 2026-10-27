@@ -14,19 +14,14 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ImportEventTemplateFailureType } from './importEventTemplateFailureType';
 
 
 /**
- * An Event Template that was not imported, and why.
+ * An Event Template in the file that was not imported, and why. The Id is the one in the file.
  */
 export interface ImportEventTemplateFailure { 
     id?: string | null;
     name?: string | null;
     reason?: string | null;
-    failureType?: ImportEventTemplateFailureType;
 }
-export namespace ImportEventTemplateFailure {
-}
-
 

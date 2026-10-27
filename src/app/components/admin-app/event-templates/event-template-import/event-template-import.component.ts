@@ -1,7 +1,7 @@
 // Copyright 2026 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, inject, output } from '@angular/core';
+import { Component, OnDestroy, inject, output } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormBuilder,
@@ -17,9 +17,10 @@ import {
   CrucibleDialogComponent,
   CrucibleDialogContentDirective,
 } from '@cmusei/crucible-common';
-import { finalize } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 import { ImportEventTemplatesResult } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
+import ArchiveErrorUtils from 'src/app/utilities/archive-error-utils';
 
 /**
  * Imports a .json file of Event Templates written by export, or a .zip archive holding one. Each
@@ -40,7 +41,7 @@ import { EventTemplateDataService } from 'src/app/data/event-template/event-temp
     MatTooltip,
   ],
 })
-export class EventTemplateImportComponent {
+export class EventTemplateImportComponent implements OnDestroy {
   private eventTemplateDataService = inject(EventTemplateDataService);
   private dialogRef = inject<MatDialogRef<EventTemplateImportComponent>>(
     MatDialogRef,
@@ -60,6 +61,7 @@ export class EventTemplateImportComponent {
   errorMessage = '';
   result: ImportEventTemplatesResult | null = null;
   private completeEmitted = false;
+  private request: Subscription | null = null;
 
   constructor() {
     this.dialogRef?.beforeClosed().subscribe(() => {
@@ -77,20 +79,37 @@ export class EventTemplateImportComponent {
   import() {
     this.loading = true;
     this.errorMessage = '';
-    this.eventTemplateDataService
+    this.request = this.eventTemplateDataService
       .import(this.form.value.file, !!this.form.value.matchReferencesByName)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (result) => (this.result = result),
         // A request that is rejected as a whole (not an export file, no permission) keeps the form open
-        error: (err) =>
-          (this.errorMessage =
-            err?.error?.title ?? 'The file could not be imported.'),
+        error: async (err) =>
+          (this.errorMessage = await ArchiveErrorUtils.message(
+            err,
+            'The file could not be imported.',
+          )),
       });
   }
 
   cancel() {
+    this.abort();
     this.emitComplete();
+  }
+
+  /** Closing the dialog any other way (Escape, the backdrop) aborts a request still running, too. */
+  ngOnDestroy() {
+    this.abort();
+  }
+
+  /**
+   * Unsubscribing aborts the HTTP request. The API imports a file in one transaction and rolls it back when
+   * the request is aborted, so nothing from the file is imported.
+   */
+  private abort() {
+    this.request?.unsubscribe();
+    this.request = null;
   }
 
   private emitComplete() {

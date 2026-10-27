@@ -18,10 +18,21 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       @if (ids().length === 0) {
         There are no Event Templates to export.
       } @else {
-        {{ selected() ? 'Selected' : 'All' }} Event Templates:
-        {{ ids().length }}
+        @if (selected()) {
+          Selected Event Templates: {{ ids().length }}
+        } @else if (filtered()) {
+          Event Templates the search shows: {{ ids().length }}
+        } @else {
+          All Event Templates: {{ ids().length }}
+        }
       }
     </p>
+    @if (skipped() > 0) {
+      <p class="export-skipped">
+        {{ skipped() }} Event Template{{ skipped() === 1 ? '' : 's' }} that you
+        can't view {{ skipped() === 1 ? 'is' : 'are' }} left out.
+      </p>
+    }
     <p>
       The Event Templates are saved as a .json file. Player Views, Caster
       Directories and Steamfitter Scenario Templates are saved by Id and Name,

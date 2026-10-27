@@ -5,7 +5,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { HttpErrorResponse } from '@angular/common/http';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { ImportEventTemplatesResult } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import { renderComponent } from 'src/app/test-utils/render-component';
@@ -164,9 +164,64 @@ describe('EventTemplateImportComponent', () => {
     await user.click(screen.getByRole('button', { name: 'Import' }));
 
     expect(
-      screen.getByText('The file is not an Event Template export'),
+      await screen.findByText('The file is not an Event Template export'),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Import' })).toBeInTheDocument();
     expect(completed).toEqual([]);
   });
+
+  /**
+   * Verifies: the messages of a ValidationProblemDetails are shown, and a 413 names the size limit.
+   * Interacts with: EventTemplateDataService.import error path, ArchiveErrorUtils.message.
+   * Data: a model-binding 400 with errors; a 413 with no body.
+   */
+  it.each([
+    {
+      error: new HttpErrorResponse({
+        status: 400,
+        error: {
+          title: 'One or more validation errors occurred.',
+          errors: { File: ['The File field is required.'] },
+        },
+      }),
+      shown: 'The File field is required.',
+    },
+    {
+      error: new HttpErrorResponse({ status: 413 }),
+      shown:
+        'The file is too large to upload. Event Template files can be up to 10 MB.',
+    },
+  ])('says what to fix for a $error.status', async ({ error, shown }) => {
+    const { user, data, fileInput } = await renderImport();
+    data.import.mockReturnValueOnce(throwError(() => error));
+
+    await user.upload(fileInput, jsonFile());
+    await user.click(screen.getByRole('button', { name: 'Import' }));
+
+    expect(await screen.findByText(shown)).toBeInTheDocument();
+  });
+
+  /**
+   * Verifies: Cancel, and closing the dialog any other way, abort a running import request.
+   * Interacts with: cancel, ngOnDestroy, the request subscription.
+   * Data: an import that never answers; its teardown counts the aborts.
+   */
+  it.each(['cancel', 'destroy'] as const)(
+    'aborts a running import on %s',
+    async (how) => {
+      const { user, data, fileInput, fixture } = await renderImport();
+      const aborted = vi.fn();
+      data.import.mockReturnValueOnce(new Observable(() => aborted));
+      await user.upload(fileInput, jsonFile());
+      await user.click(screen.getByRole('button', { name: 'Import' }));
+
+      if (how === 'cancel') {
+        fixture.componentInstance.cancel();
+      } else {
+        fixture.destroy();
+      }
+
+      expect(aborted).toHaveBeenCalledTimes(1);
+    },
+  );
 });

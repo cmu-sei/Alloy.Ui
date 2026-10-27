@@ -5,7 +5,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { HttpErrorResponse } from '@angular/common/http';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import FileDownloadUtils from 'src/app/utilities/file-download-utils';
 import { renderComponent } from 'src/app/test-utils/render-component';
@@ -15,6 +15,8 @@ async function renderExport(inputs: {
   ids: string[];
   selected?: boolean;
   all?: boolean;
+  filtered?: boolean;
+  skipped?: number;
 }) {
   const data = {
     export: vi.fn(() =>
@@ -121,4 +123,47 @@ describe('EventTemplateExportComponent', () => {
     expect(download).not.toHaveBeenCalled();
     expect(completed).toEqual([]);
   });
+
+  /**
+   * Verifies: the count says when it is what the search shows, and how many templates the user cannot view are left out.
+   * Interacts with: the filtered and skipped inputs.
+   * Data: one id left after the search, one template left out.
+   */
+  it('names a search and the templates left out', async () => {
+    await renderExport({ ids: ['t1'], filtered: true, skipped: 1 });
+
+    expect(
+      screen.getByText(/Event Templates the search shows: 1/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/1 Event Template that you can't view is left out/),
+    ).toBeInTheDocument();
+  });
+
+  /**
+   * Verifies: Cancel, and closing the dialog any other way, abort a running export so no file arrives later.
+   * Interacts with: cancel, ngOnDestroy, the request subscription.
+   * Data: an export that never answers; its teardown counts the aborts.
+   */
+  it.each(['cancel', 'destroy'] as const)(
+    'aborts a running export on %s',
+    async (how) => {
+      const { user, data, fixture, download } = await renderExport({
+        ids: ['t1'],
+        selected: true,
+      });
+      const aborted = vi.fn();
+      data.export.mockReturnValueOnce(new Observable(() => aborted));
+      await user.click(screen.getByRole('button', { name: 'Export' }));
+
+      if (how === 'cancel') {
+        fixture.componentInstance.cancel();
+      } else {
+        fixture.destroy();
+      }
+
+      expect(aborted).toHaveBeenCalledTimes(1);
+      expect(download).not.toHaveBeenCalled();
+    },
+  );
 });

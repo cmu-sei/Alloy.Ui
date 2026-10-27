@@ -87,3 +87,14 @@ tr.detail-row {
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
+
+.archive-buttons {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.mat-column-select {
+  width: 48px;
+}

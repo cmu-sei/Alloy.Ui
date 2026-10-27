@@ -55,7 +55,7 @@ type EditResult = { action: string; eventTemplate: EventTemplate | null };
 
 async function renderList(
   grants: PermissionGrants,
-  options: { events?: AlloyEvent[] } = {},
+  options: { events?: AlloyEvent[]; eventTemplates?: EventTemplate[] } = {},
 ) {
   const templateApi = {
     getEventTemplates: vi.fn(() => of(templates())),
@@ -110,7 +110,7 @@ async function renderList(
       { provide: MatDialog, useValue: dialog as unknown as MatDialog },
       ...permissionDataProviders(grants),
     ],
-    inputs: { ...lists, eventTemplates: templates() },
+    inputs: { ...lists, eventTemplates: options.eventTemplates ?? templates() },
   });
   let refreshes = 0;
   rendered.fixture.componentInstance.refreshTemplates.subscribe(
@@ -476,5 +476,191 @@ describe('EventTemplateListComponent', () => {
     ).componentInstance as EventTemplateMembershipsStubComponent;
     expect(memberships.eventTemplateId()).toBe('t1');
     expect(memberships.showHeader()).toBe(false);
+  });
+
+  describe('export and import', () => {
+    /**
+     * Verifies: Import Event Templates shows with system CreateEventTemplates and is hidden without it.
+     * Interacts with: real PermissionDataService.canCreateEventTemplates, rendered toolbar button.
+     * Data: CreateEventTemplates; near miss ViewEventTemplates.
+     */
+    it.each<{ grants: PermissionGrants; shown: boolean }>([
+      { grants: { system: ['CreateEventTemplates'] }, shown: true },
+      { grants: { system: ['ViewEventTemplates'] }, shown: false },
+    ])(
+      'import button shown=$shown for $grants.system',
+      async ({ grants, shown }) => {
+        await renderList(grants);
+
+        const button = screen.queryByRole('button', {
+          name: 'Import Event Templates',
+        });
+        expect(!!button).toBe(shown);
+      },
+    );
+
+    /**
+     * Verifies: the export button's name counts the selected templates, and the dialog is given only those.
+     * Interacts with: row checkbox, SelectionModel, exportLabel, exportIds, canExportAll, MatDialog.open.
+     * Data: Bravo selected; system ViewEventTemplates.
+     */
+    it('exports the selected templates', async () => {
+      const { user, dialog, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+
+      await user.click(screen.getByRole('checkbox', { name: 'Select Bravo' }));
+
+      const button = screen.getByRole('button', {
+        name: 'Export 1 Selected Event Template',
+      });
+      await user.click(button);
+      expect(dialog.open).toHaveBeenCalled();
+      const list = fixture.componentInstance;
+      expect(list.exportIds()).toEqual(['t2']);
+      expect(list.canExportAll()).toBe(false);
+    });
+
+    /**
+     * Verifies: with nothing selected the export covers the whole list, asking for every template only with
+     * ViewEventTemplates; without it, only the templates the user may view are sent, and the rest are counted.
+     * Interacts with: exportIds, exportSkipped, canExportAll (system and template ViewEventTemplate checks).
+     * Data: no selection; ViewEventTemplates; and CreateEventTemplates with ViewEventTemplate on Alpha only
+     * (Bravo stands for a published template the user is not a member of).
+     */
+    it.each<{
+      grants: PermissionGrants;
+      ids: string[];
+      skipped: number;
+      all: boolean;
+    }>([
+      {
+        grants: { system: ['ViewEventTemplates'] },
+        ids: ['t1', 't2'],
+        skipped: 0,
+        all: true,
+      },
+      {
+        grants: { system: ['CreateEventTemplates'] },
+        ids: ['t1'],
+        skipped: 1,
+        all: false,
+      },
+    ])(
+      'exports the whole list (all=$all, skipped=$skipped)',
+      async ({ grants, ids, skipped, all }) => {
+        const [alpha, bravo] = templates();
+        const { fixture } = await renderList(grants, {
+          eventTemplates: [
+            {
+              ...alpha,
+              eventTemplatePermissions: ['ViewEventTemplate,EditEventTemplate'],
+            },
+            bravo,
+          ],
+        });
+
+        expect(
+          screen.getByRole('button', { name: 'Export Event Templates' }),
+        ).toBeInTheDocument();
+        const list = fixture.componentInstance;
+        expect(list.exportIds()).toEqual(ids);
+        expect(list.exportSkipped()).toBe(skipped);
+        expect(list.canExportAll()).toBe(all);
+      },
+    );
+
+    /**
+     * Verifies: with nothing selected the export takes what the search shows, and does not ask for every template.
+     * Interacts with: exportIds, exportFiltered, canExportAll, the data source filter.
+     * Data: ViewEventTemplates; filter "alpha".
+     */
+    it('exports only what the search shows', async () => {
+      const { fixture } = await renderList({ system: ['ViewEventTemplates'] });
+      const list = fixture.componentInstance;
+
+      list.eventTemplateDataSource.filter = 'alpha';
+
+      expect(list.exportIds()).toEqual(['t1']);
+      expect(list.exportFiltered()).toBe(true);
+      expect(list.canExportAll()).toBe(false);
+    });
+
+    /**
+     * Verifies: a selected template that leaves the list (deleted, or gone on a reload) leaves the selection,
+     * so the button, the export and the header checkbox count only what is listed.
+     * Interacts with: the eventTemplates input, pruneSelection, exportLabel, isAllSelected.
+     * Data: both templates selected; then the list is reloaded without Bravo.
+     */
+    it('drops a selected template that leaves the list', async () => {
+      const { user, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+      const list = fixture.componentInstance;
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all Event Templates' }),
+      );
+
+      fixture.componentRef.setInput('eventTemplates', [templates()[0]]);
+      fixture.detectChanges();
+
+      expect(list.selection.selected).toEqual(['t1']);
+      expect(list.exportIds()).toEqual(['t1']);
+      expect(list.isAllSelected()).toBe(true);
+      expect(
+        screen.getByRole('button', {
+          name: 'Export 1 Selected Event Template',
+        }),
+      ).toBeInTheDocument();
+    });
+
+    /**
+     * Verifies: the header checkbox selects every template that passes the filter, and clears them again.
+     * Interacts with: toggleAllRows, isAllSelected, filter.
+     * Data: filter "Alpha"; then clear.
+     */
+    it('select all selects the filtered templates', async () => {
+      const { user, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+      const list = fixture.componentInstance;
+      list.eventTemplateDataSource.filter = 'alpha';
+
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all Event Templates' }),
+      );
+      expect(list.selection.selected).toEqual(['t1']);
+
+      await user.click(
+        screen.getByRole('checkbox', { name: 'Select all Event Templates' }),
+      );
+      expect(list.selection.hasValue()).toBe(false);
+    });
+
+    /**
+     * Verifies: clearing the header checkbox clears only the rows the filter shows; a selection the filter
+     * hides stays, and does not mark the header partly ticked.
+     * Interacts with: toggleAllRows, isAllSelected, isSomeSelected, filter.
+     * Data: Bravo selected; filter "alpha"; the header ticked, then cleared.
+     */
+    it('keeps a selection the filter hides when the header checkbox is cleared', async () => {
+      const { user, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+      const list = fixture.componentInstance;
+      list.selection.select('t2');
+      list.eventTemplateDataSource.filter = 'alpha';
+      fixture.detectChanges();
+      expect(list.isSomeSelected()).toBe(false);
+
+      const header = screen.getByRole('checkbox', {
+        name: 'Select all Event Templates',
+      });
+      await user.click(header);
+      expect(list.selection.selected.sort()).toEqual(['t1', 't2']);
+
+      await user.click(header);
+      expect(list.selection.selected).toEqual(['t2']);
+    });
   });
 });

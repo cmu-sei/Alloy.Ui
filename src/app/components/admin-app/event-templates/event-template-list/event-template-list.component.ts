@@ -14,17 +14,19 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  TemplateRef,
   inject,
   input,
   output,
   viewChild,
 } from '@angular/core';
+import { SelectionModel } from '@angular/cdk/collections';
 import {
   UntypedFormControl,
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import {
@@ -50,6 +52,7 @@ import { Observable, Subject } from 'rxjs';
 import {
   Directory,
   EventTemplate,
+  EventTemplatePermission,
   SystemPermission,
   View,
 } from 'src/app/generated/alloy.api';
@@ -66,6 +69,11 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { EventTemplateMembershipsComponent } from '../event-template-memberships/event-template-memberships/event-template-memberships.component';
 import { MatCard } from '@angular/material/card';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatBadge } from '@angular/material/badge';
+import { MatTooltip } from '@angular/material/tooltip';
+import { EventTemplateExportComponent } from '../event-template-export/event-template-export.component';
+import { EventTemplateImportComponent } from '../event-template-import/event-template-import.component';
 
 @Component({
   selector: 'app-event-template-list',
@@ -107,6 +115,11 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatCard,
     MatProgressSpinner,
     DatePipe,
+    MatCheckbox,
+    MatBadge,
+    MatTooltip,
+    EventTemplateExportComponent,
+    EventTemplateImportComponent,
   ],
 })
 export class EventTemplateListComponent
@@ -123,6 +136,7 @@ export class EventTemplateListComponent
   readonly scenarioTemplateList = input<Observable<EventTemplate[]>>(undefined);
   @Input() set eventTemplates(value: EventTemplate[]) {
     this.eventTemplateDataSource.data = value || [];
+    this.pruneSelection();
   }
   @Input() isLoading: boolean;
   readonly adminMode = input(false);
@@ -133,6 +147,7 @@ export class EventTemplateListComponent
 
   filterControl = new UntypedFormControl();
   displayedColumns: string[] = [
+    'select',
     'actions',
     'name',
     'description',
@@ -142,6 +157,9 @@ export class EventTemplateListComponent
   eventTemplateDataSource = new MatTableDataSource<EventTemplate>([]);
   expandedEventTemplateId: string | null = null;
   systemPermissions: SystemPermission[] = [];
+  /** Event Template ids chosen for export. */
+  selection = new SelectionModel<string>(true, []);
+  private archiveDialogRef: MatDialogRef<any>;
   private unsubscribe$ = new Subject();
 
   constructor() {
@@ -202,6 +220,128 @@ export class EventTemplateListComponent
   selectEventTemplate(id: string) {
     this.expandedEventTemplateId =
       this.expandedEventTemplateId === id ? null : id;
+  }
+
+  /** Whether every Event Template that passes the current filter is selected. */
+  isAllSelected(): boolean {
+    const rows = this.eventTemplateDataSource.filteredData;
+    return (
+      rows.length > 0 && rows.every((row) => this.selection.isSelected(row.id))
+    );
+  }
+
+  /** Selects every Event Template that passes the current filter, or clears the selection. */
+  /** Whether some, but not all, of the Event Templates that pass the current filter are selected. */
+  isSomeSelected(): boolean {
+    return (
+      !this.isAllSelected() &&
+      this.eventTemplateDataSource.filteredData.some((row) =>
+        this.selection.isSelected(row.id),
+      )
+    );
+  }
+
+  /**
+   * Selects every Event Template that passes the current filter, or, when they all are, deselects them.
+   * Selected templates the filter hides are left as they are.
+   */
+  toggleAllRows() {
+    const ids = this.eventTemplateDataSource.filteredData.map((row) => row.id);
+    if (this.isAllSelected()) {
+      this.selection.deselect(...ids);
+    } else {
+      this.selection.select(...ids);
+    }
+  }
+
+  /**
+   * Drops selected ids whose Event Template is no longer in the list (deleted, or gone on a reload), so the
+   * badge, the export count and the header checkbox only count templates the user can see.
+   */
+  private pruneSelection() {
+    const ids = new Set(this.eventTemplateDataSource.data.map((row) => row.id));
+    const gone = this.selection.selected.filter((id) => !ids.has(id));
+
+    if (gone.length > 0) {
+      this.selection.deselect(...gone);
+    }
+  }
+
+  /** The Event Templates an export would take: the selection, or with nothing selected, what the search shows. */
+  private exportCandidates(): EventTemplate[] {
+    return this.selection.hasValue()
+      ? this.eventTemplateDataSource.data.filter((row) =>
+          this.selection.isSelected(row.id),
+        )
+      : this.eventTemplateDataSource.filteredData;
+  }
+
+  /**
+   * Whether the user may export an Event Template, as the API decides: the ViewEventTemplates system
+   * permission, or ViewEventTemplate on the template. A user without ViewEventTemplates also sees every
+   * published template in the list, and the API refuses the whole export if one of them is asked for.
+   */
+  private canExport(eventTemplate: EventTemplate): boolean {
+    return (
+      this.systemPermissions.includes(SystemPermission.ViewEventTemplates) ||
+      (eventTemplate.eventTemplatePermissions ?? []).some((claim) =>
+        claim.split(',').includes(EventTemplatePermission.ViewEventTemplate),
+      )
+    );
+  }
+
+  /** The ids to export: the export candidates the user may export. */
+  exportIds(): string[] {
+    return this.exportCandidates()
+      .filter((row) => this.canExport(row))
+      .map((row) => row.id);
+  }
+
+  /** How many export candidates are left out because the user may not export them. */
+  exportSkipped(): number {
+    return this.exportCandidates().length - this.exportIds().length;
+  }
+
+  /** Whether nothing is selected and the search hides part of the list. */
+  exportFiltered(): boolean {
+    return (
+      !this.selection.hasValue() &&
+      this.eventTemplateDataSource.filteredData.length <
+        this.eventTemplateDataSource.data.length
+    );
+  }
+
+  /**
+   * Whether an export can ask for every template rather than list each id: nothing is selected, the search
+   * hides nothing, and the user holds the ViewEventTemplates system permission. It keeps a long list of ids
+   * out of the query string.
+   */
+  canExportAll(): boolean {
+    return (
+      !this.selection.hasValue() &&
+      !this.exportFiltered() &&
+      this.systemPermissions.includes(SystemPermission.ViewEventTemplates)
+    );
+  }
+
+  /** The export button's name, which says how many are selected, since the badge alone is not read out. */
+  exportLabel(): string {
+    const count = this.selection.selected.length;
+    return count > 0
+      ? `Export ${count} Selected Event Template${count === 1 ? '' : 's'}`
+      : 'Export Event Templates';
+  }
+
+  openDialog(templateRef: TemplateRef<any>) {
+    this.archiveDialogRef = this.dialog.open(templateRef, {
+      autoFocus: true,
+      width: '480px',
+      maxWidth: '90vw',
+    });
+  }
+
+  closeDialog() {
+    this.archiveDialogRef?.close();
   }
 
   canCreateEventTemplates(): boolean {

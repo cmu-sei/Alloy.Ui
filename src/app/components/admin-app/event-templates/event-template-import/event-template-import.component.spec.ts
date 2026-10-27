@@ -202,14 +202,16 @@ describe('EventTemplateImportComponent', () => {
   });
 
   /**
-   * Verifies: Cancel, and closing the dialog any other way, abort a running import request.
-   * Interacts with: cancel, ngOnDestroy, the request subscription.
-   * Data: an import that never answers; its teardown counts the aborts.
+   * Verifies: Cancel, and closing the dialog any other way, leave a running import alone, since the API may
+   * already have committed it.
+   * Interacts with: cancel, component destroy, the request subscription.
+   * Data: an import that never answers; its teardown would count an abort.
    */
   it.each(['cancel', 'destroy'] as const)(
-    'aborts a running import on %s',
+    'does not abort a running import on %s',
     async (how) => {
-      const { user, data, fileInput, fixture } = await renderImport();
+      const { user, data, fileInput, fixture, completed } =
+        await renderImport();
       const aborted = vi.fn();
       data.import.mockReturnValueOnce(new Observable(() => aborted));
       await user.upload(fileInput, jsonFile());
@@ -217,11 +219,12 @@ describe('EventTemplateImportComponent', () => {
 
       if (how === 'cancel') {
         fixture.componentInstance.cancel();
+        expect(completed).toEqual([false]);
       } else {
         fixture.destroy();
       }
 
-      expect(aborted).toHaveBeenCalledTimes(1);
+      expect(aborted).not.toHaveBeenCalled();
     },
   );
 });

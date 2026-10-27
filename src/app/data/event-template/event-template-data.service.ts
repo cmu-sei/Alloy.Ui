@@ -3,7 +3,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { finalize, map, shareReplay, take, tap } from 'rxjs/operators';
 import {
   EventTemplate,
   EventTemplateService,
@@ -81,19 +81,29 @@ export class EventTemplateDataService {
 
   /**
    * Imports a .json file created by export, or a .zip archive holding one. Each template is created
-   * as a new template. Reloads the list afterwards, since some templates may have been imported even
-   * when others failed.
+   * as a new template.
+   *
+   * The request starts at once and runs to the end whoever is listening: once the API commits the
+   * templates exist, so aborting it when the dialog closes would only hide the result. The list is
+   * reloaded when the request finishes, either way, since it may have imported templates even when it
+   * failed to answer.
    */
   import(
     file: Blob,
     matchReferencesByName: boolean,
   ): Observable<ImportEventTemplatesResult> {
-    return this.eventTemplateService
+    const request = this.eventTemplateService
       .importEventTemplates(file, matchReferencesByName)
       .pipe(
-        tap(() => this.loadTemplates()),
         take(1),
+        finalize(() => this.loadTemplates()),
+        shareReplay({ bufferSize: 1, refCount: false }),
       );
+
+    // this subscription keeps the request alive after the caller unsubscribes; the caller sees any error
+    request.subscribe({ error: () => undefined });
+
+    return request;
   }
 
   stateCreate(template: EventTemplate) {

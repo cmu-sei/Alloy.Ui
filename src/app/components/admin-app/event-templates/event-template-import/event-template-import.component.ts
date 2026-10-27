@@ -1,7 +1,7 @@
 // Copyright 2026 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { Component, OnDestroy, inject, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormBuilder,
@@ -17,7 +17,7 @@ import {
   CrucibleDialogComponent,
   CrucibleDialogContentDirective,
 } from '@cmusei/crucible-common';
-import { Subscription, finalize } from 'rxjs';
+import { finalize } from 'rxjs';
 import { ImportEventTemplatesResult } from 'src/app/generated/alloy.api';
 import { EventTemplateDataService } from 'src/app/data/event-template/event-template-data.service';
 import ArchiveErrorUtils from 'src/app/utilities/archive-error-utils';
@@ -41,7 +41,7 @@ import ArchiveErrorUtils from 'src/app/utilities/archive-error-utils';
     MatTooltip,
   ],
 })
-export class EventTemplateImportComponent implements OnDestroy {
+export class EventTemplateImportComponent {
   private eventTemplateDataService = inject(EventTemplateDataService);
   private dialogRef = inject<MatDialogRef<EventTemplateImportComponent>>(
     MatDialogRef,
@@ -61,7 +61,6 @@ export class EventTemplateImportComponent implements OnDestroy {
   errorMessage = '';
   result: ImportEventTemplatesResult | null = null;
   private completeEmitted = false;
-  private request: Subscription | null = null;
 
   constructor() {
     this.dialogRef?.beforeClosed().subscribe(() => {
@@ -79,7 +78,7 @@ export class EventTemplateImportComponent implements OnDestroy {
   import() {
     this.loading = true;
     this.errorMessage = '';
-    this.request = this.eventTemplateDataService
+    this.eventTemplateDataService
       .import(this.form.value.file, !!this.form.value.matchReferencesByName)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
@@ -93,23 +92,13 @@ export class EventTemplateImportComponent implements OnDestroy {
       });
   }
 
-  cancel() {
-    this.abort();
-    this.emitComplete();
-  }
-
-  /** Closing the dialog any other way (Escape, the backdrop) aborts a request still running, too. */
-  ngOnDestroy() {
-    this.abort();
-  }
-
   /**
-   * Unsubscribing aborts the HTTP request. The API imports a file in one transaction and rolls it back when
-   * the request is aborted, so nothing from the file is imported.
+   * Closes the dialog. An import still running is not aborted: the API may already have committed it, and
+   * aborting then would leave the templates created with nothing to say so. The data service lets it finish
+   * and reloads the list.
    */
-  private abort() {
-    this.request?.unsubscribe();
-    this.request = null;
+  cancel() {
+    this.emitComplete();
   }
 
   private emitComplete() {

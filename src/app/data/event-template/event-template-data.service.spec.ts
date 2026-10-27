@@ -3,8 +3,12 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom, of, throwError } from 'rxjs';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Observable, Subject, firstValueFrom, of, throwError } from 'rxjs';
+import {
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpResponse,
+} from '@angular/common/http';
 import {
   EventTemplate,
   EventTemplateService,
@@ -336,5 +340,62 @@ describe('EventTemplateDataService', () => {
     expect(api.importEventTemplates).toHaveBeenCalledWith(file, true);
     expect(result.imported.map((t) => t.id)).toEqual(['imported']);
     expect(query.getAll().map((t) => t.id)).toEqual(['imported']);
+  });
+
+  /**
+   * Verifies: an import keeps running when its caller stops listening (the dialog closed), and the list is
+   * reloaded when it finishes, so templates the API committed are shown.
+   * Interacts with: import's own subscription, shareReplay, finalize -> loadTemplates, real EventTemplateQuery.
+   * Data: an import answered after the caller unsubscribed; its teardown would count an abort.
+   */
+  it('import finishes and reloads the list after the caller unsubscribes', async () => {
+    const { service, query, api } = setup();
+    const answer = new Subject<ImportEventTemplatesResult>();
+    const aborted = vi.fn();
+    api.importEventTemplates.mockReturnValueOnce(
+      new Observable<ImportEventTemplatesResult>((subscriber) => {
+        const inner = answer.subscribe(subscriber);
+        return () => {
+          inner.unsubscribe();
+          aborted();
+        };
+      }) as never,
+    );
+    api.getEventTemplates.mockReturnValueOnce(
+      of([makeTemplate({ id: 'imported' })]),
+    );
+
+    service
+      .import(new Blob(['[]']), false)
+      .subscribe()
+      .unsubscribe();
+    expect(api.getEventTemplates).not.toHaveBeenCalled();
+
+    answer.next({
+      imported: [makeTemplate({ id: 'imported' })],
+      failures: [],
+      warnings: [],
+    });
+
+    expect(query.getAll().map((t) => t.id)).toEqual(['imported']);
+    expect(api.getEventTemplates).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * Verifies: an import that fails still reloads the list, since the API may have committed before the answer was lost.
+   * Interacts with: finalize -> loadTemplates on error.
+   * Data: the import errors with status 0.
+   */
+  it('import reloads the list when it fails', async () => {
+    const { service, api } = setup();
+    api.importEventTemplates.mockReturnValueOnce(
+      throwError(() => new HttpErrorResponse({ status: 0 })) as never,
+    );
+
+    await expect(
+      firstValueFrom(service.import(new Blob(['[]']), false)),
+    ).rejects.toBeTruthy();
+
+    expect(api.getEventTemplates).toHaveBeenCalled();
   });
 });

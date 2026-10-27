@@ -216,10 +216,11 @@ describe('AdminGroupsComponent', () => {
    * Data: system ManageGroups; name 'Green Team'.
    */
   it('creates a group from the name dialog', async () => {
-    const { user, dialog, groupService, fixture } = await renderGroups(
-      { system: ['ManageGroups'] },
-      { nameResult: { nameValue: 'Green Team' } },
-    );
+    const { user, dialog, groupService, nameDialog, fixture } =
+      await renderGroups(
+        { system: ['ManageGroups'] },
+        { nameResult: { nameValue: 'Green Team' } },
+      );
 
     await user.click(addButton());
     fixture.detectChanges();
@@ -228,6 +229,7 @@ describe('AdminGroupsComponent', () => {
       NameDialogComponent,
       expect.objectContaining({ data: { nameValue: '' } }),
     );
+    expect(nameDialog.dialogRef.componentInstance.title).toBe('Add Group');
     expect(groupService.createGroup).toHaveBeenCalledWith({
       name: 'Green Team',
     });
@@ -252,9 +254,7 @@ describe('AdminGroupsComponent', () => {
       NameDialogComponent,
       expect.objectContaining({ data: { nameValue: 'Blue Team' } }),
     );
-    expect(nameDialog.dialogRef.componentInstance.title).toBe(
-      'Rename Blue Team',
-    );
+    expect(nameDialog.dialogRef.componentInstance.title).toBe('Edit Group');
     expect(groupService.updateGroup).toHaveBeenCalledWith('g1', {
       id: 'g1',
       name: 'Navy Team',
@@ -283,7 +283,11 @@ describe('AdminGroupsComponent', () => {
       await user.click(rowButton('Blue Team', 'Delete Blue Team'));
 
       expect(confirm).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Delete Group Blue Team?' }),
+        expect.objectContaining({
+          title: 'Delete Group',
+          message: 'Are you sure that you want to delete Blue Team?',
+          confirmText: 'Delete',
+        }),
       );
       expect(groupService.deleteGroup.mock.calls).toEqual(calls);
       fixture.detectChanges();

@@ -123,7 +123,12 @@ describe('AdminGroupsMemberListComponent', () => {
       await user.click(screen.getByRole('button', { name: 'Remove Alex Doe' }));
 
       expect(confirm).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Remove yourself from this group?' }),
+        expect.objectContaining({
+          title: 'Remove Group Member',
+          message:
+            'Are you sure that you want to remove yourself from this group? You may lose access to manage it.',
+          confirmText: 'Remove',
+        }),
       );
       expect(deleted).toEqual(expected);
     },

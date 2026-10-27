@@ -186,10 +186,7 @@ export class EventEditComponent implements OnInit {
     this.crucibleDialog
       .confirm({
         title: 'Delete Event',
-        message:
-          'Are you sure that you want to delete event ' +
-          this.data.event.name +
-          '?',
+        message: `Are you sure that you want to delete ${this.data.event.name}?`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
       })
@@ -210,11 +207,10 @@ export class EventEditComponent implements OnInit {
   endEvent(): void {
     this.crucibleDialog
       .confirm({
-        title: 'End Event Now',
-        message:
-          'Are you sure that you want to end event ' +
-          this.data.event.name +
-          '?',
+        title: 'End Event',
+        message: `Are you sure that you want to end ${this.data.event.name}?`,
+        confirmText: 'End',
+        cancelText: 'Cancel',
       })
       .afterClosed()
       .subscribe((confirmed) => {

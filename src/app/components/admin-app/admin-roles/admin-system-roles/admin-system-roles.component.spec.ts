@@ -88,6 +88,7 @@ async function renderSystemRoles(
     rolesApi,
     signalR,
     dialog,
+    nameDialog,
     confirm,
   };
 }
@@ -191,10 +192,11 @@ describe('AdminSystemRolesComponent', () => {
    * Data: system ManageRoles; name 'Auditor'.
    */
   it('creates a role from the name dialog', async () => {
-    const { user, rolesApi, dialog, fixture } = await renderSystemRoles(
-      { system: ['ManageRoles'] },
-      { nameResult: { nameValue: 'Auditor' } },
-    );
+    const { user, rolesApi, dialog, nameDialog, fixture } =
+      await renderSystemRoles(
+        { system: ['ManageRoles'] },
+        { nameResult: { nameValue: 'Auditor' } },
+      );
 
     await user.click(addButton());
     fixture.detectChanges();
@@ -203,6 +205,7 @@ describe('AdminSystemRolesComponent', () => {
       NameDialogComponent,
       expect.objectContaining({ data: { nameValue: '' } }),
     );
+    expect(nameDialog.dialogRef.componentInstance.title).toBe('Add Role');
     expect(rolesApi.createSystemRole).toHaveBeenCalledWith({ name: 'Auditor' });
     expect(
       within(table()).getByRole('columnheader', { name: /Auditor/ }),
@@ -239,7 +242,9 @@ describe('AdminSystemRolesComponent', () => {
 
       expect(confirm).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Are you sure you want to delete Observer?',
+          title: 'Delete Role',
+          message: 'Are you sure that you want to delete Observer?',
+          confirmText: 'Delete',
         }),
       );
       expect(rolesApi.deleteSystemRole.mock.calls).toEqual(calls);

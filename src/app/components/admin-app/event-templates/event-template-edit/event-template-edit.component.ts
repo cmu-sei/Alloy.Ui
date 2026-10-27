@@ -240,10 +240,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
     this.crucibleDialog
       .confirm({
         title: 'Delete Event Template',
-        message:
-          'Are you sure that you want to delete Event Template ' +
-          this.data.eventTemplate.name +
-          '?',
+        message: `Are you sure that you want to delete ${this.data.eventTemplate.name}?`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
       })
@@ -275,7 +272,7 @@ export class EventTemplateEditComponent implements OnInit, OnDestroy {
 
   get dialogTitle(): string {
     if (this.data.isNew) {
-      return 'Create New Event Template';
+      return 'Add Event Template';
     }
 
     return this.data.canEdit ? 'Edit Event Template' : 'View Event Template';

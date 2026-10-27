@@ -636,5 +636,31 @@ describe('EventTemplateListComponent', () => {
       );
       expect(list.selection.hasValue()).toBe(false);
     });
+
+    /**
+     * Verifies: clearing the header checkbox clears only the rows the filter shows; a selection the filter
+     * hides stays, and does not mark the header partly ticked.
+     * Interacts with: toggleAllRows, isAllSelected, isSomeSelected, filter.
+     * Data: Bravo selected; filter "alpha"; the header ticked, then cleared.
+     */
+    it('keeps a selection the filter hides when the header checkbox is cleared', async () => {
+      const { user, fixture } = await renderList({
+        system: ['ViewEventTemplates'],
+      });
+      const list = fixture.componentInstance;
+      list.selection.select('t2');
+      list.eventTemplateDataSource.filter = 'alpha';
+      fixture.detectChanges();
+      expect(list.isSomeSelected()).toBe(false);
+
+      const header = screen.getByRole('checkbox', {
+        name: 'Select all Event Templates',
+      });
+      await user.click(header);
+      expect(list.selection.selected.sort()).toEqual(['t1', 't2']);
+
+      await user.click(header);
+      expect(list.selection.selected).toEqual(['t2']);
+    });
   });
 });

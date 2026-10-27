@@ -74,8 +74,8 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox
           (change)="$event ? toggleAllRows() : null"
-          [checked]="selection.hasValue() && isAllSelected()"
-          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [checked]="isAllSelected()"
+          [indeterminate]="isSomeSelected()"
           aria-label="Select all Event Templates"
         >
         </mat-checkbox>

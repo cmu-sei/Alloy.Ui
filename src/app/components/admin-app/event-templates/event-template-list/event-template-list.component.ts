@@ -231,12 +231,27 @@ export class EventTemplateListComponent
   }
 
   /** Selects every Event Template that passes the current filter, or clears the selection. */
+  /** Whether some, but not all, of the Event Templates that pass the current filter are selected. */
+  isSomeSelected(): boolean {
+    return (
+      !this.isAllSelected() &&
+      this.eventTemplateDataSource.filteredData.some((row) =>
+        this.selection.isSelected(row.id),
+      )
+    );
+  }
+
+  /**
+   * Selects every Event Template that passes the current filter, or, when they all are, deselects them.
+   * Selected templates the filter hides are left as they are.
+   */
   toggleAllRows() {
-    this.isAllSelected()
-      ? this.selection.clear()
-      : this.selection.select(
-          ...this.eventTemplateDataSource.filteredData.map((row) => row.id),
-        );
+    const ids = this.eventTemplateDataSource.filteredData.map((row) => row.id);
+    if (this.isAllSelected()) {
+      this.selection.deselect(...ids);
+    } else {
+      this.selection.select(...ids);
+    }
   }
 
   /**

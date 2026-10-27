@@ -1337,7 +1337,7 @@ export class EventService {
             }
         }
 
-        let localVarPath = `/api/events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/qrade`;
+        let localVarPath = `/api/events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/grade`;
         return this.httpClient.request<Array<QuestionView>>('post', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,

@@ -12,7 +12,7 @@ permissions: {}
 
 jobs:
   build-test:
-    uses: cmu-sei/Crucible-Github-Actions/.github/workflows/npm-test.yaml@feat/npm-test
+    uses: cmu-sei/Crucible-Github-Actions/.github/workflows/npm-test.yaml@npm-test-v1
     permissions:
       contents: read
     with:

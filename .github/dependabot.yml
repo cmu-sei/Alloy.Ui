@@ -24,12 +24,15 @@ updates:
       semver-minor-days: 7
       semver-patch-days: 3
     groups:
-      # Angular packages move together. The update-types make this group more
-      # specific than minor-and-patch, which otherwise claims them.
+      # Angular packages move together. A dependency goes to the group whose
+      # pattern matches it most specifically, and a group with no patterns
+      # outranks every wildcard, so minor-and-patch needs its own "*" to let
+      # "@angular*" win.
       angular:
         patterns: ["@angular*", "zone.js"]
         update-types: [minor, patch]
       minor-and-patch:
+        patterns: ["*"]
         update-types: [minor, patch]
     ignore:
       # Angular and TypeScript majors need `ng update` migrations; do them by hand.

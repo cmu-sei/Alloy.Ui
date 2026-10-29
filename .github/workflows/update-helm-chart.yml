@@ -10,6 +10,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Update Helm chart
         uses: cmu-sei/Crucible-Github-Actions/actions/update-helm-chart@update-helm-chart-v3

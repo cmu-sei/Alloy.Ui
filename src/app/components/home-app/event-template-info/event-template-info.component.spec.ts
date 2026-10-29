@@ -20,7 +20,11 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ClipboardModule } from 'ngx-clipboard';
-import { ComnAuthService, ComnSettingsService } from '@cmusei/crucible-common';
+import {
+  ComnAuthService,
+  ComnSettingsService,
+  CrucibleDialogService,
+} from '@cmusei/crucible-common';
 import {
   Event as AlloyEvent,
   EventService,
@@ -42,6 +46,7 @@ import {
   flush,
 } from 'src/app/test-utils/unhandled-rx-errors';
 import { AnyProvider } from 'src/app/test-utils/unstubbed';
+import { dialogRefStub } from 'src/app/test-utils/dialog-refs';
 import { TopbarView } from '../../shared/top-bar/topbar.models';
 import { EventTemplateInfoComponent } from './event-template-info.component';
 import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.component';
@@ -439,6 +444,57 @@ describe('EventTemplateInfoComponent', () => {
         expected,
       );
     });
+  });
+
+  describe('confirm wording', () => {
+    /**
+     * Verifies: End Event and Redeploy Event confirm with "<Verb> Event", name the event in the question, and label the buttons with the verb and Cancel.
+     * Interacts with: endEvent/redeployEvent, CrucibleDialogService.confirm (declines), EventService (not called).
+     * Data: an Active event named 'Cyber Range 101 - Alex Doe'.
+     */
+    it.each([
+      {
+        action: 'endEvent' as const,
+        wording: {
+          title: 'End Event',
+          message:
+            'Are you sure that you want to end Cyber Range 101 - Alex Doe?',
+          confirmText: 'End',
+          cancelText: 'Cancel',
+        },
+      },
+      {
+        action: 'redeployEvent' as const,
+        wording: {
+          title: 'Redeploy Event',
+          message:
+            'Are you sure that you want to redeploy Cyber Range 101 - Alex Doe?',
+          confirmText: 'Redeploy',
+          cancelText: 'Cancel',
+        },
+      },
+    ])(
+      '$action asks with the standard wording',
+      async ({ action, wording }) => {
+        const confirm = vi.fn(
+          () => dialogRefStub<unknown, boolean>(false).dialogRef,
+        );
+        const crucibleDialog: Pick<CrucibleDialogService, 'confirm'> = {
+          confirm,
+        };
+        const { fixture } = await renderEventTemplateInfo({
+          providers: [
+            { provide: CrucibleDialogService, useValue: crucibleDialog },
+          ],
+        });
+
+        fixture.componentInstance[action](
+          myEvent({ name: 'Cyber Range 101 - Alex Doe' }),
+        );
+
+        expect(confirm).toHaveBeenCalledWith(wording);
+      },
+    );
   });
 
   describe('the /view route', () => {

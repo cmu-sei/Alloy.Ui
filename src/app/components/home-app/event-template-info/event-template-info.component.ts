@@ -350,7 +350,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         events.forEach((e) =>
           this.signalRService.joinEvent(e.id).catch(() => {
             // the service reports a hub it cannot reach
-          })
+          }),
         );
         this.userEvents = events.filter(
           (m) => m.createdBy !== this.currentUserId,
@@ -573,7 +573,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       this.crucibleDialog
         .confirm({
           title: 'End Event',
-          message: 'Are you sure that you want to end this event?',
+          message: `Are you sure that you want to end ${event.name}?`,
+          confirmText: 'End',
+          cancelText: 'Cancel',
         })
         .afterClosed()
         .pipe(take(1))
@@ -590,7 +592,9 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       this.crucibleDialog
         .confirm({
           title: 'Redeploy Event',
-          message: 'Are you sure that you want to redeploy this event?',
+          message: `Are you sure that you want to redeploy ${event.name}?`,
+          confirmText: 'Redeploy',
+          cancelText: 'Cancel',
         })
         .afterClosed()
         .pipe(take(1))

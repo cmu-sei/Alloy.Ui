@@ -185,26 +185,39 @@ describe('EventEditComponent', () => {
   it.each([
     {
       name: 'End Event Now',
-      title: 'End Event Now',
+      wording: {
+        title: 'End Event',
+        message: 'Are you sure that you want to end Cyber Range 101?',
+        confirmText: 'End',
+      },
       answer: true,
       actions: ['end'],
     },
     {
       name: 'End Event Now',
-      title: 'End Event Now',
+      wording: { title: 'End Event' },
       answer: false,
       actions: [],
     },
     {
       name: 'Delete Event',
-      title: 'Delete Event',
+      wording: {
+        title: 'Delete Event',
+        message: 'Are you sure that you want to delete Cyber Range 101?',
+        confirmText: 'Delete',
+      },
       answer: true,
       actions: ['delete'],
     },
-    { name: 'Delete Event', title: 'Delete Event', answer: false, actions: [] },
+    {
+      name: 'Delete Event',
+      wording: { title: 'Delete Event' },
+      answer: false,
+      actions: [],
+    },
   ])(
     '$name emits only when confirmed (answer $answer)',
-    async ({ name, title, answer, actions }) => {
+    async ({ name, wording, answer, actions }) => {
       const { user, confirm, emitted } = await renderEdit(
         { event: makeEvent(), canEdit: false, canManage: true },
         { confirm: answer },
@@ -212,7 +225,7 @@ describe('EventEditComponent', () => {
 
       await user.click(button(name));
 
-      expect(confirm).toHaveBeenCalledWith(expect.objectContaining({ title }));
+      expect(confirm).toHaveBeenCalledWith(expect.objectContaining(wording));
       expect(emitted.map((e) => e.action)).toEqual(actions);
     },
   );

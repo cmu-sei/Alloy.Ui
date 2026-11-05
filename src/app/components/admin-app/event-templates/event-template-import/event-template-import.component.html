@@ -1,0 +1,114 @@
+<!--
+Copyright 2026 Carnegie Mellon University. All Rights Reserved.
+Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
+-->
+
+@if (result) {
+  <crucible-dialog
+    dialogTitle="Import Event Templates"
+    [hideDefaultActions]="true"
+  >
+    <div crucibleDialogContent class="import-result">
+      @if (result.failures.length > 0) {
+        <p class="text-danger">The following errors occurred:</p>
+        <ul>
+          @for (failure of result.failures; track $index) {
+            <li>
+              @if (failure.name) {
+                <div><strong>Name:</strong> {{ failure.name }}</div>
+              }
+              <div><strong>Reason:</strong> {{ failure.reason }}</div>
+            </li>
+          }
+        </ul>
+      }
+      @if (result.warnings.length > 0) {
+        <p class="text-warning">Imported with changes:</p>
+        <ul>
+          @for (warning of result.warnings; track $index) {
+            <li>
+              <div><strong>Name:</strong> {{ warning.name }}</div>
+              <div><strong>Change:</strong> {{ warning.message }}</div>
+            </li>
+          }
+        </ul>
+      }
+      @if (result.imported.length > 0) {
+        <p class="text-success">
+          Imported Event Templates: {{ result.imported.length }}
+        </p>
+      }
+      @if (result.failures.length === 0 && result.warnings.length === 0) {
+        <p class="text-success">Import Successful</p>
+      }
+    </div>
+    <ng-container crucibleDialogActions>
+      <button matButton="filled" (click)="close()">OK</button>
+    </ng-container>
+  </crucible-dialog>
+} @else {
+  <crucible-dialog
+    dialogTitle="Import Event Templates"
+    [form]="form"
+    [loading]="loading"
+    [errorMessage]="errorMessage"
+    [hideDefaultActions]="true"
+  >
+    <div crucibleDialogContent [formGroup]="form" class="dialog-fields">
+      <div class="file-row">
+        <button type="button" matButton="outlined" (click)="fileInput.click()">
+          Choose File
+        </button>
+        <input
+          hidden
+          (change)="onFileSelected($event)"
+          #fileInput
+          type="file"
+          [accept]="accept"
+        />
+        <span class="file-name">{{ form.value.file?.name }}</span>
+      </div>
+      <strong>References</strong>
+      <div class="toggle-row">
+        <mat-slide-toggle
+          formControlName="matchReferencesByName"
+          matTooltip="If a Player View, Caster Directory or Steamfitter Scenario Template cannot be found by Id, use the one with the same Name, if exactly one has it. A reference that still cannot be found is cleared."
+          >Match By Name</mat-slide-toggle
+        >
+      </div>
+    </div>
+    <!-- Once the file is sent the dialog cannot be dismissed: the API may already have committed the import.
+         crucible-dialog already ignores the backdrop, and Escape while [loading]; its default Cancel would not
+         be disabled, so these buttons replace it. -->
+    <ng-container crucibleDialogActions>
+      <button
+        matButton="outlined"
+        type="button"
+        [disabled]="loading"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button
+        matButton="filled"
+        type="button"
+        cdkFocusInitial
+        [disabled]="!form.valid || loading"
+        (click)="import()"
+      >
+        @if (loading) {
+          <span class="importing">
+            Importing...
+            <mat-progress-spinner
+              mode="indeterminate"
+              diameter="18"
+              aria-label="Importing"
+            />
+          </span>
+        } @else {
+          Import
+        }
+      </button>
+    </ng-container>
+  </crucible-dialog>
+}

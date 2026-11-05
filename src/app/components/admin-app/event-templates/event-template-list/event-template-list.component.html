@@ -28,6 +28,30 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       </button>
     }
   </mat-form-field>
+  <div class="archive-buttons">
+    @if (canCreateEventTemplates()) {
+      <button
+        mat-icon-button
+        (click)="openDialog(importDialog)"
+        aria-label="Import Event Templates"
+        matTooltip="Import Event Templates"
+      >
+        <mat-icon class="mdi-24px" fontIcon="mdi-file-import"></mat-icon>
+      </button>
+    }
+    <button
+      mat-icon-button
+      (click)="openDialog(exportDialog)"
+      [attr.aria-label]="exportLabel()"
+      [matTooltip]="exportLabel()"
+      [matBadge]="
+        selection.selected.length > 0 ? selection.selected.length : ''
+      "
+      [matBadgeHidden]="!selection.hasValue()"
+    >
+      <mat-icon class="mdi-24px" fontIcon="mdi-file-export"></mat-icon>
+    </button>
+  </div>
   <div class="nator-div">
     <mat-paginator
       #paginator
@@ -46,6 +70,27 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     matSortDirection="desc"
     multiTemplateDataRows
   >
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          (change)="$event ? toggleAllRows() : null"
+          [checked]="isAllSelected()"
+          [indeterminate]="isSomeSelected()"
+          aria-label="Select all Event Templates"
+        >
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(element.id) : null"
+          [checked]="selection.isSelected(element.id)"
+          [aria-label]="'Select ' + element.name"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>
         @if (canCreateEventTemplates()) {
@@ -175,3 +220,20 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     <mat-progress-spinner color="primary" mode="indeterminate" />
   </mat-card>
 }
+
+<ng-template #exportDialog>
+  <app-event-template-export
+    [ids]="exportIds()"
+    [all]="canExportAll()"
+    [selected]="selection.hasValue()"
+    [filtered]="exportFiltered()"
+    [skipped]="exportSkipped()"
+    (complete)="closeDialog()"
+  ></app-event-template-export>
+</ng-template>
+
+<ng-template #importDialog>
+  <app-event-template-import
+    (complete)="closeDialog()"
+  ></app-event-template-import>
+</ng-template>

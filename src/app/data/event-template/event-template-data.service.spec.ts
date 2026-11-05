@@ -5,8 +5,14 @@ import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import {
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpResponse,
+} from '@angular/common/http';
+import {
   EventTemplate,
   EventTemplateService,
+  ImportEventTemplatesResult,
 } from 'src/app/generated/alloy.api';
 import { ApiStub } from 'src/app/test-utils/api-stub';
 import { recordEmissions } from 'src/app/test-utils/record-emissions';
@@ -35,6 +41,24 @@ function eventTemplateServiceStub() {
     ),
     updateEventTemplate: vi.fn((_id: string, t: EventTemplate) => of(t)),
     deleteEventTemplate: vi.fn(() => of({})),
+    exportEventTemplates: vi.fn((_ids?: string[], _observe?: 'response') =>
+      of(
+        new HttpResponse<Blob>({
+          body: new Blob(['{}'], { type: 'application/json' }),
+          headers: new HttpHeaders({
+            'Content-Disposition':
+              'attachment; filename="Range.json"; filename*=UTF-8\'\'Range.json',
+          }),
+        }),
+      ),
+    ),
+    importEventTemplates: vi.fn((_file?: Blob, _match?: boolean) =>
+      of<ImportEventTemplatesResult>({
+        imported: [makeTemplate({ id: 'imported' })],
+        failures: [],
+        warnings: [],
+      }),
+    ),
   } satisfies ApiStub<EventTemplateService>;
 }
 
@@ -262,4 +286,81 @@ describe('EventTemplateDataService', () => {
     });
     expect(query.hasEntity('unknown')).toBe(false);
   });
+
+  /**
+   * Verifies: export asks the API for the ids with the full response and names the file from Content-Disposition.
+   * Interacts with: EventTemplateService.exportEventTemplates ('response' overload), HttpHeaderUtils.getFilename.
+   * Data: two ids; the API names the file Range.json.
+   */
+  it('export downloads the ids as the file the API names', async () => {
+    const { service, api } = setup();
+
+    const result = await firstValueFrom(service.export(['a', 'b']));
+
+    expect(api.exportEventTemplates).toHaveBeenCalledWith(
+      ['a', 'b'],
+      'response',
+    );
+    expect(result.filename).toBe('Range.json');
+    expect(await result.blob.text()).toBe('{}');
+  });
+
+  /**
+   * Verifies: without a readable Content-Disposition the export falls back to event-templates.json.
+   * Interacts with: EventTemplateService.exportEventTemplates, HttpHeaderUtils.getFilename fallback.
+   * Data: a response with no headers (Content-Disposition not exposed by CORS).
+   */
+  it('export falls back to event-templates.json', async () => {
+    const { service, api } = setup();
+    api.exportEventTemplates.mockReturnValueOnce(
+      of(new HttpResponse<Blob>({ body: new Blob(['[]']) })),
+    );
+
+    const result = await firstValueFrom(service.export([]));
+
+    expect(result.filename).toBe('event-templates.json');
+  });
+
+  /**
+   * Verifies: import sends the file and the match option, returns the per-item result, and adds each imported
+   * template to the list without reloading it.
+   * Interacts with: EventTemplateService.importEventTemplates, stateCreate, real EventTemplateQuery.
+   * Data: a .json file; the API reports one imported template.
+   */
+  it('import sends the file and adds the imported templates', async () => {
+    const { service, query, api } = setup();
+    const file = new File(['[]'], 'event-templates.json', {
+      type: 'application/json',
+    });
+
+    const result = await firstValueFrom(service.import(file, true));
+
+    expect(api.importEventTemplates).toHaveBeenCalledWith(file, true);
+    expect(result.imported.map((t) => t.id)).toEqual(['imported']);
+    expect(query.getAll().map((t) => t.id)).toEqual(['imported']);
+    expect(api.getEventTemplates).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Verifies: an import refused as a whole (400, 403, 413) imports nothing, so it leaves the list alone.
+   * Interacts with: import error path, real EventTemplateQuery.
+   * Data: one template in the store; each status in turn.
+   */
+  it.each([400, 403, 413])(
+    'import leaves the list alone on a %s',
+    async (status) => {
+      const { service, query, api } = setup();
+      service.stateCreate(makeTemplate({ id: 'existing' }));
+      api.importEventTemplates.mockReturnValueOnce(
+        throwError(() => new HttpErrorResponse({ status })) as never,
+      );
+
+      await expect(
+        firstValueFrom(service.import(new Blob(['[]']), false)),
+      ).rejects.toBeTruthy();
+
+      expect(query.getAll().map((t) => t.id)).toEqual(['existing']);
+      expect(api.getEventTemplates).not.toHaveBeenCalled();
+    },
+  );
 });

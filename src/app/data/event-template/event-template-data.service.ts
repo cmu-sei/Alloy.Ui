@@ -3,11 +3,13 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { take, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import {
   EventTemplate,
   EventTemplateService,
+  ImportEventTemplatesResult,
 } from 'src/app/generated/alloy.api';
+import HttpHeaderUtils from 'src/app/utilities/http-header-utils';
 import { EventTemplateStore } from './event-template.store';
 
 @Injectable({
@@ -58,6 +60,42 @@ export class EventTemplateDataService {
       .subscribe(() => {
         this.stateDelete(eventTemplateId);
       });
+  }
+
+  /**
+   * Exports the given Event Templates, or every one if there are no ids, as a JSON file: an object for
+   * one template, an array for several. The file name is the API's, read from Content-Disposition.
+   */
+  export(ids: string[]): Observable<{ blob: Blob; filename: string }> {
+    return this.eventTemplateService.exportEventTemplates(ids, 'response').pipe(
+      map((response) => ({
+        blob: response.body,
+        filename: HttpHeaderUtils.getFilename(
+          response.headers,
+          'event-templates.json',
+        ),
+      })),
+      take(1),
+    );
+  }
+
+  /**
+   * Imports a .json file created by export, or a .zip archive holding one. Each template is created
+   * as a new template, and each one the API reports created is added to the list. A request refused as
+   * a whole (not an export, no permission, too large) imports nothing, so it leaves the list alone.
+   */
+  import(
+    file: Blob,
+    matchReferencesByName: boolean,
+  ): Observable<ImportEventTemplatesResult> {
+    return this.eventTemplateService
+      .importEventTemplates(file, matchReferencesByName)
+      .pipe(
+        take(1),
+        tap((result) =>
+          result.imported.forEach((template) => this.stateCreate(template)),
+        ),
+      );
   }
 
   stateCreate(template: EventTemplate) {

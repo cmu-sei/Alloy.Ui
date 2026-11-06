@@ -3,7 +3,10 @@
 
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ComnSettingsService } from '@cmusei/crucible-common';
+import {
+  ComnSettingsService,
+  CrucibleLandingBackgroundDirective,
+} from '@cmusei/crucible-common';
 import { combineLatest, forkJoin, Subject } from 'rxjs';
 import { filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { EventDataService } from 'src/app/data/event/event-data.service';
@@ -27,6 +30,7 @@ import { EventListComponent } from './event-list/event-list.component';
     RouterLink,
     MatIcon,
     EventListComponent,
+    CrucibleLandingBackgroundDirective,
   ],
 })
 export class HomeAppComponent implements OnInit, OnDestroy {

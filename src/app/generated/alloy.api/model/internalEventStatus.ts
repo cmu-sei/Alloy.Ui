@@ -16,7 +16,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  */
 
 
-export type InternalEventStatus = 'LaunchQueued' | 'CreatingView' | 'CreatingScenario' | 'CreatingWorkspace' | 'WritingWorkspaceFile' | 'PlanningLaunch' | 'PlannedLaunch' | 'ApplyingLaunch' | 'FailedLaunch' | 'AppliedLaunch' | 'StartingScenario' | 'Launched' | 'EndQueued' | 'DeletingView' | 'DeletedView' | 'DeletingScenario' | 'DeletedScenario' | 'DeletingWorkspace' | 'VerifyingWorkspace' | 'DeletedWorkspace' | 'PlanningDestroy' | 'PlannedDestroy' | 'ApplyingDestroy' | 'FailedDestroy' | 'AppliedDestroy' | 'Ended' | 'PlanningRedeploy' | 'PlannedRedeploy' | 'ApplyingRedeploy' | 'AppliedRedeploy';
+export type InternalEventStatus = 'LaunchQueued' | 'CreatingView' | 'CreatingScenario' | 'CreatingWorkspace' | 'WritingWorkspaceFile' | 'PlanningLaunch' | 'PlannedLaunch' | 'ApplyingLaunch' | 'FailedLaunch' | 'AppliedLaunch' | 'StartingScenario' | 'Launched' | 'EndQueued' | 'DeletingView' | 'DeletedView' | 'DeletingScenario' | 'DeletedScenario' | 'DeletingWorkspace' | 'VerifyingWorkspace' | 'DeletedWorkspace' | 'PlanningDestroy' | 'PlannedDestroy' | 'ApplyingDestroy' | 'FailedDestroy' | 'AppliedDestroy' | 'Ended' | 'PlanningRedeploy' | 'PlannedRedeploy' | 'ApplyingRedeploy' | 'AppliedRedeploy' | 'SuspendingView' | 'Suspended' | 'ResumingView';
 
 export const InternalEventStatus = {
     LaunchQueued: 'LaunchQueued' as InternalEventStatus,
@@ -48,6 +48,9 @@ export const InternalEventStatus = {
     PlanningRedeploy: 'PlanningRedeploy' as InternalEventStatus,
     PlannedRedeploy: 'PlannedRedeploy' as InternalEventStatus,
     ApplyingRedeploy: 'ApplyingRedeploy' as InternalEventStatus,
-    AppliedRedeploy: 'AppliedRedeploy' as InternalEventStatus
+    AppliedRedeploy: 'AppliedRedeploy' as InternalEventStatus,
+    SuspendingView: 'SuspendingView' as InternalEventStatus,
+    Suspended: 'Suspended' as InternalEventStatus,
+    ResumingView: 'ResumingView' as InternalEventStatus
 };
 

@@ -13,6 +13,7 @@ import {
   CRUCIBLE_DIALOG_IMPORTS,
   CrucibleDialogService,
 } from '@cmusei/crucible-common';
+import { formatDate } from '@angular/common';
 import { Event as AlloyEvent } from 'src/app/generated/alloy.api';
 import { dialogRefStub } from 'src/app/test-utils/dialog-refs';
 import { renderComponent } from 'src/app/test-utils/render-component';
@@ -30,7 +31,12 @@ const makeEvent = (overrides: Partial<AlloyEvent> = {}): AlloyEvent => ({
 });
 
 async function renderEdit(
-  data: { event: AlloyEvent; canEdit: boolean; canManage: boolean },
+  data: {
+    event: AlloyEvent;
+    canEdit: boolean;
+    canManage: boolean;
+    canEndNow?: boolean;
+  },
   options: { confirm?: boolean } = {},
 ) {
   const confirm = vi.fn(
@@ -52,7 +58,11 @@ async function renderEdit(
       { provide: CrucibleDialogService, useValue: crucibleDialog },
     ],
   });
-  const emitted: { action: string; event: AlloyEvent | null }[] = [];
+  const emitted: {
+    action: string;
+    event: AlloyEvent | null;
+    immediate?: boolean;
+  }[] = [];
   rendered.fixture.componentInstance.editComplete.subscribe((e) =>
     emitted.push(e),
   );
@@ -63,14 +73,17 @@ async function renderEdit(
 const actionsEl = () => document.querySelector('.bottom-button') as HTMLElement;
 const button = (name: string) =>
   within(actionsEl()).getByRole('button', { name });
+/** The end button, whichever of its two labels canEndNow gives it. */
+const endButton = () =>
+  within(actionsEl()).getByRole('button', { name: /^End Event( Now)?$/ });
 const field = (name: string) =>
   screen.getByLabelText(name, { selector: 'input, textarea' });
 
 describe('EventEditComponent', () => {
   /**
-   * Verifies: with canEdit and canManage on an active event, the editable fields, Save, End Event Now and Delete Event are enabled, and the record fields stay read-only.
+   * Verifies: with canEdit and canManage on an active event, the editable fields, Save, the end button and Delete Event are enabled, and the record fields stay read-only.
    * Interacts with: MAT_DIALOG_DATA canEdit/canManage, rendered fields and buttons.
-   * Data: an Active event; canEdit and canManage true.
+   * Data: an Active event; canEdit and canManage true, canEndNow unset.
    */
   it('enables editing, Save, End and Delete when allowed', async () => {
     await renderEdit({ event: makeEvent(), canEdit: true, canManage: true });
@@ -80,12 +93,12 @@ describe('EventEditComponent', () => {
     expect(field('Expiration Date')).toBeEnabled();
     expect(field('Username')).toBeDisabled();
     expect(button('Save')).toBeEnabled();
-    expect(button('End Event Now')).toBeEnabled();
+    expect(endButton()).toBeEnabled();
     expect(button('Delete Event')).toBeEnabled();
   });
 
   /**
-   * Verifies: without canEdit and canManage every field, Save, End Event Now and Delete Event are disabled.
+   * Verifies: without canEdit and canManage every field, Save, the end button and Delete Event are disabled.
    * Interacts with: MAT_DIALOG_DATA gates (AdminEventListComponent passes false without EditEvent/ManageEvent rights), rendered fields and buttons.
    * Data: an Active event; canEdit and canManage false.
    */
@@ -96,7 +109,7 @@ describe('EventEditComponent', () => {
     expect(field('Description')).toBeDisabled();
     expect(field('Expiration Date')).toBeDisabled();
     expect(button('Save')).toBeDisabled();
-    expect(button('End Event Now')).toBeDisabled();
+    expect(endButton()).toBeDisabled();
     expect(button('Delete Event')).toBeDisabled();
   });
 
@@ -115,22 +128,23 @@ describe('EventEditComponent', () => {
       !gates.canEdit,
     );
     expect(button('Save').hasAttribute('disabled')).toBe(!gates.canEdit);
-    expect(button('End Event Now').hasAttribute('disabled')).toBe(
-      !gates.canManage,
-    );
+    expect(endButton().hasAttribute('disabled')).toBe(!gates.canManage);
     expect(button('Delete Event').hasAttribute('disabled')).toBe(
       !gates.canManage,
     );
   });
 
   /**
-   * Verifies: an Ended or Expired event cannot be ended again, a Failed one can; Ended and Failed events lock the editable fields even with canEdit.
-   * Interacts with: data.event.status, rendered fields and End button.
-   * Data: canEdit and canManage true; status Ended, Expired, Failed.
+   * Verifies: without canEndNow an Ended, Expired or Suspended event cannot be ended again, a Failed or Recovering one can; Ended and Failed events lock the editable fields even with canEdit.
+   * Interacts with: data.event.status, rendered fields and End Event button.
+   * Data: canEdit and canManage true, canEndNow unset; status Ended, Expired, Suspended, Recovering, Failed.
+   * Why: a Suspended event has already been ended and waits out its grace period; a Recovering one can be ended again (the API suspends it again).
    */
   it.each([
     { status: 'Ended', endable: false, editable: false },
     { status: 'Expired', endable: false, editable: true },
+    { status: 'Suspended', endable: false, editable: true },
+    { status: 'Recovering', endable: true, editable: true },
     { status: 'Failed', endable: true, editable: false },
   ] as const)(
     'with status $status, End is enabled: $endable, Name is editable: $editable',
@@ -141,10 +155,165 @@ describe('EventEditComponent', () => {
         canManage: true,
       });
 
-      expect(button('End Event Now').hasAttribute('disabled')).toBe(!endable);
+      expect(button('End Event').hasAttribute('disabled')).toBe(!endable);
       expect(field('Name (required)').hasAttribute('disabled')).toBe(!editable);
     },
   );
+
+  /**
+   * Verifies: with canEndNow the button reads End Event Now and is enabled for every status but Ended and Expired, including a Suspended event, whose grace period it cuts short.
+   * Interacts with: MAT_DIALOG_DATA canEndNow (system ManageEvents), data.event.status, rendered End Event Now button.
+   * Data: canManage and canEndNow true; status Active, Suspended, Recovering, Failed, Ended, Expired.
+   */
+  it.each([
+    { status: 'Active', endable: true },
+    { status: 'Suspended', endable: true },
+    { status: 'Recovering', endable: true },
+    { status: 'Failed', endable: true },
+    { status: 'Ended', endable: false },
+    { status: 'Expired', endable: false },
+  ] as const)(
+    'with canEndNow and status $status, End Event Now is enabled: $endable',
+    async ({ status, endable }) => {
+      await renderEdit({
+        event: makeEvent({ status }),
+        canEdit: false,
+        canManage: true,
+        canEndNow: true,
+      });
+
+      expect(button('End Event Now').hasAttribute('disabled')).toBe(!endable);
+      expect(
+        within(actionsEl()).queryByRole('button', { name: 'End Event' }),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  /**
+   * Verifies: canEndNow does not enable ending without canManage.
+   * Interacts with: MAT_DIALOG_DATA canManage and canEndNow, rendered End Event Now button.
+   * Data: near miss: an Active event with canEndNow true and canManage false.
+   */
+  it('disables End Event Now without canManage', async () => {
+    await renderEdit({
+      event: makeEvent(),
+      canEdit: true,
+      canManage: false,
+      canEndNow: true,
+    });
+
+    expect(button('End Event Now')).toBeDisabled();
+  });
+
+  /**
+   * Verifies: the confirmation and the emitted end action follow canEndNow: with it the dialog warns that the resources are destroyed at once and the action is immediate; without it the plain question is asked and the action is not immediate.
+   * Interacts with: the end button (user-event), CrucibleDialogService.confirm (confirmed), editComplete output.
+   * Data: an Active event named Cyber Range 101; canManage true; per row canEndNow true or false.
+   */
+  it.each([
+    {
+      canEndNow: true,
+      name: 'End Event Now',
+      message:
+        'Are you sure that you want to end event Cyber Range 101 now? Its resources are destroyed right away, and it cannot be recovered.',
+    },
+    {
+      canEndNow: false,
+      name: 'End Event',
+      message: 'Are you sure that you want to end event Cyber Range 101?',
+    },
+  ])(
+    'with canEndNow $canEndNow, $name confirms and emits immediate $canEndNow',
+    async ({ canEndNow, name, message }) => {
+      const event = makeEvent();
+      const { user, confirm, emitted } = await renderEdit(
+        { event, canEdit: false, canManage: true, canEndNow },
+        { confirm: true },
+      );
+
+      await user.click(button(name));
+
+      expect(confirm).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({ title: name, message }),
+      );
+      expect(emitted).toEqual([{ action: 'end', event, immediate: canEndNow }]);
+    },
+  );
+
+  /**
+   * Verifies: Recover Event is offered only for a Suspended event.
+   * Interacts with: data.event.status, the dialog's action row.
+   * Data: canEdit and canManage true; every other status an admin can open, including Recovering and Ending.
+   */
+  it.each([
+    'Active',
+    'Paused',
+    'Creating',
+    'Recovering',
+    'Ending',
+    'Ended',
+    'Expired',
+    'Failed',
+  ] as const)('hides Recover Event for a %s event', async (status) => {
+    await renderEdit({
+      event: makeEvent({ status }),
+      canEdit: true,
+      canManage: true,
+    });
+
+    expect(endButton()).toBeInTheDocument();
+    expect(
+      within(actionsEl()).queryByRole('button', { name: 'Recover Event' }),
+    ).not.toBeInTheDocument();
+  });
+
+  /**
+   * Verifies: with canManage, a Suspended event's Recover Event is enabled and describes the end of its grace period, and clicking it emits recover with the event and no confirmation.
+   * Interacts with: MAT_DIALOG_DATA canManage, Recover Event button (user-event), its matTooltip description, CrucibleDialogService.confirm, editComplete output.
+   * Data: a Suspended event recoverable until 2026-11-06T18:30:00Z; canManage true, canEdit false.
+   * Why: nothing has been destroyed yet, so recovering asks nothing; the tooltip is the only place the dialog shows the deadline.
+   */
+  it('recovers a Suspended event without confirming when canManage', async () => {
+    const recoverableUntil = new Date('2026-11-06T18:30:00Z');
+    const event = makeEvent({ status: 'Suspended', recoverableUntil });
+    const { user, confirm, emitted, fixture } = await renderEdit({
+      event,
+      canEdit: false,
+      canManage: true,
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const recover = button('Recover Event');
+    expect(recover).toBeEnabled();
+    expect(recover).toHaveAccessibleDescription(
+      'Recoverable until ' + formatDate(recoverableUntil, 'medium', 'en-US'),
+    );
+
+    await user.click(recover);
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(emitted).toEqual([{ action: 'recover', event }]);
+  });
+
+  /**
+   * Verifies: without canManage a Suspended event's Recover Event is shown but disabled, even with canEdit.
+   * Interacts with: MAT_DIALOG_DATA canManage gate (AdminEventListComponent passes false without ManageEvent rights), Recover Event button.
+   * Data: near miss: a Suspended event with canEdit true and canManage false.
+   */
+  it('disables Recover Event without canManage', async () => {
+    await renderEdit({
+      event: makeEvent({
+        status: 'Suspended',
+        recoverableUntil: new Date('2026-11-06T18:30:00Z'),
+      }),
+      canEdit: true,
+      canManage: false,
+    });
+
+    expect(button('Recover Event')).toBeDisabled();
+    expect(button('Save')).toBeEnabled();
+  });
 
   /**
    * Verifies: a name and a description edited and left (blur) are saved into the event that Save emits.
@@ -178,35 +347,58 @@ describe('EventEditComponent', () => {
   });
 
   /**
-   * Verifies: End Event Now and Delete Event ask for confirmation and emit only when confirmed.
-   * Interacts with: the two buttons (user-event), CrucibleDialogService.confirm (answers per row), editComplete output.
-   * Data: canManage true; per row the button, the confirm answer and the expected actions.
+   * Verifies: End Event Now (with canEndNow), End Event (without) and Delete Event ask for confirmation and emit only when confirmed.
+   * Interacts with: the three buttons (user-event), CrucibleDialogService.confirm (answers per row), editComplete output.
+   * Data: canManage true; per row the button, canEndNow, the confirm answer and the expected actions.
    */
   it.each([
     {
       name: 'End Event Now',
       title: 'End Event Now',
+      canEndNow: true,
       answer: true,
       actions: ['end'],
     },
     {
       name: 'End Event Now',
       title: 'End Event Now',
+      canEndNow: true,
+      answer: false,
+      actions: [],
+    },
+    {
+      name: 'End Event',
+      title: 'End Event',
+      canEndNow: false,
+      answer: true,
+      actions: ['end'],
+    },
+    {
+      name: 'End Event',
+      title: 'End Event',
+      canEndNow: false,
       answer: false,
       actions: [],
     },
     {
       name: 'Delete Event',
       title: 'Delete Event',
+      canEndNow: false,
       answer: true,
       actions: ['delete'],
     },
-    { name: 'Delete Event', title: 'Delete Event', answer: false, actions: [] },
+    {
+      name: 'Delete Event',
+      title: 'Delete Event',
+      canEndNow: false,
+      answer: false,
+      actions: [],
+    },
   ])(
     '$name emits only when confirmed (answer $answer)',
-    async ({ name, title, answer, actions }) => {
+    async ({ name, title, canEndNow, answer, actions }) => {
       const { user, confirm, emitted } = await renderEdit(
-        { event: makeEvent(), canEdit: false, canManage: true },
+        { event: makeEvent(), canEdit: false, canManage: true, canEndNow },
         { confirm: answer },
       );
 

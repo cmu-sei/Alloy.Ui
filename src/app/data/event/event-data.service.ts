@@ -60,6 +60,10 @@ export class EventDataService implements OnDestroy {
     return this.eventService.redeployEvent(id).pipe(take(1));
   }
 
+  recoverEvent(id: string) {
+    return this.eventService.recoverEvent(id).pipe(take(1));
+  }
+
   getAllEvents() {
     return of(this.permissionDataService.canViewEventList).pipe(
       switchMap((isAdmin) =>

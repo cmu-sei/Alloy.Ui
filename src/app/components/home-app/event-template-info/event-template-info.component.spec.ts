@@ -1,13 +1,14 @@
 // Copyright 2026 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { formatDate } from '@angular/common';
 import { ActivatedRoute, Params } from '@angular/router';
 import { screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { defer, of, throwError } from 'rxjs';
+import { defer, of, Subject, throwError } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -48,6 +49,12 @@ import { TopbarComponent } from 'src/app/components/shared/top-bar/topbar.compon
 
 const TEMPLATE_ID = 'template-1';
 const USER_ID = 'user-1';
+
+/** The part of jsdom's VirtualConsole the /view route tests listen on. */
+interface JsdomVirtualConsole {
+  on(event: 'jsdomError', listener: (error: Error) => void): void;
+  off(event: 'jsdomError', listener: (error: Error) => void): void;
+}
 
 @Component({ selector: 'app-topbar', template: '' })
 class TopbarStubComponent {
@@ -90,6 +97,7 @@ function eventServiceStub(
     ),
     getEvent: vi.fn((id: string) => of(myEvent({ id, status: 'Planning' }))),
     invite: vi.fn((id: string) => of(myEvent({ id, shareCode: 'abc' }))),
+    recoverEvent: vi.fn(() => of(null)),
   } satisfies ApiStub<EventService>;
 }
 type EventServiceStub = ReturnType<typeof eventServiceStub>;
@@ -364,6 +372,200 @@ describe('EventTemplateInfoComponent', () => {
     });
   });
 
+  describe('an ended event inside its grace period', () => {
+    const RECOVERABLE_UNTIL = '2026-11-06T18:30:00Z';
+    const suspended = (overrides: Partial<AlloyEvent> = {}) =>
+      myEvent({
+        status: 'Suspended',
+        recoverableUntil: new Date(RECOVERABLE_UNTIL),
+        ...overrides,
+      });
+
+    /**
+     * Verifies: the owner of a Suspended event sees the ended card with the time it stays recoverable and a Recover Event button, instead of Launch or the running event's controls.
+     * Interacts with: EventService.getMyEventTemplateEvents → real EventStore/Query, resolveCurrentEvent, determineEventStatus, rendered card.
+     * Data: one Suspended event of this user and template, recoverable until 2026-11-06T18:30:00Z, no error message.
+     * Why: a Suspended event is not active, so without its own card the page would fall back to Launch and the owner could not recover it.
+     */
+    it('offers the owner of a Suspended event to recover it', async () => {
+      await renderEventTemplateInfo({ events: [suspended()] });
+
+      expect(
+        card().getByRole('heading', { name: 'This event has ended' }),
+      ).toBeInTheDocument();
+      expect(
+        card().getByText(
+          // Testing Library collapses whitespace, including the narrow no-break
+          // space the 'medium' format puts before AM/PM.
+          'It can be recovered until ' +
+            formatDate(RECOVERABLE_UNTIL, 'medium', 'en-US').replace(/\s+/g, ' '),
+          { exact: false },
+        ),
+      ).toBeInTheDocument();
+      expect(
+        card().getByRole('button', { name: 'Recover Event' }),
+      ).toBeEnabled();
+      expect(card().queryByRole('alert')).not.toBeInTheDocument();
+      expect(
+        card().queryByRole('button', { name: 'Launch' }),
+      ).not.toBeInTheDocument();
+      expect(
+        card().queryByRole('button', { name: 'Open Event' }),
+      ).not.toBeInTheDocument();
+      expect(
+        card().queryByRole('button', { name: 'End Event' }),
+      ).not.toBeInTheDocument();
+    });
+
+    /**
+     * Verifies: a Suspended event whose Player view could not be hidden shows the API's message on the ended card.
+     * Interacts with: currentEvent.errorMessage, rendered card.
+     * Data: one Suspended event of this user with the API's view-hiding error message.
+     */
+    it('shows the error message of a Suspended event', async () => {
+      const message =
+        'The event was ended, but its Player view could not be hidden.';
+      await renderEventTemplateInfo({
+        events: [suspended({ errorMessage: message })],
+      });
+
+      expect(card().getByRole('alert')).toHaveTextContent(message);
+      expect(
+        card().getByRole('button', { name: 'Recover Event' }),
+      ).toBeInTheDocument();
+    });
+
+    /**
+     * Verifies: an active event wins over a Suspended one, and a Suspended one wins over a newer failure.
+     * Interacts with: resolveCurrentEvent, rendered card.
+     * Data: per row, a Suspended event with an Active one, or with a Failed one created an hour later.
+     * Why: a user who launched again cares about the new event; a failure must not hide the only way to get the ended one back.
+     */
+    it.each<{
+      label: string;
+      other: AlloyEvent;
+      shown: 'Open Event' | 'Recover Event';
+      hidden: 'Open Event' | 'Recover Event';
+    }>([
+      {
+        label: 'an Active event over it',
+        other: myEvent({ id: 'event-2', status: 'Active' }),
+        shown: 'Open Event',
+        hidden: 'Recover Event',
+      },
+      {
+        label: 'it over a newer failure',
+        other: myEvent({
+          id: 'event-2',
+          status: 'Failed',
+          dateCreated: new Date('2026-11-06T12:00:00Z'),
+        }),
+        shown: 'Recover Event',
+        hidden: 'Open Event',
+      },
+    ])('prefers $label', async ({ other, shown, hidden }) => {
+      // The Suspended event is stored first, so taking the first candidate would pick it.
+      await renderEventTemplateInfo({
+        events: [
+          suspended({ dateCreated: new Date('2026-11-06T11:00:00Z') }),
+          other,
+        ],
+      });
+
+      expect(card().getByRole('button', { name: shown })).toBeInTheDocument();
+      expect(
+        card().queryByRole('button', { name: hidden }),
+      ).not.toBeInTheDocument();
+      expect(card().queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    /**
+     * Verifies: Recover Event sends the recover request for the event, and the button reads Recovering... and is disabled until the request completes, then is enabled again.
+     * Interacts with: Recover Event button (user-event), real EventDataService.recoverEvent → EventService.recoverEvent (a Subject the test settles), rendered button.
+     * Data: one Suspended event of this user; the request answers 204 (null) and completes.
+     * Why: the button must not send a second request while the first runs; the status then comes back through SignalR.
+     */
+    it('shows Recovering... while the request runs and re-enables the button when it succeeds', async () => {
+      const response = new Subject<null>();
+      const { user, eventService, fixture } = await renderEventTemplateInfo({
+        events: [suspended()],
+        configureApi: (api) => api.recoverEvent.mockReturnValue(response),
+      });
+
+      await user.click(card().getByRole('button', { name: 'Recover Event' }));
+
+      expect(eventService.recoverEvent).toHaveBeenCalledExactlyOnceWith(
+        'event-1',
+      );
+      expect(
+        card().getByRole('button', { name: 'Recovering...' }),
+      ).toBeDisabled();
+
+      response.next(null);
+      response.complete();
+      fixture.detectChanges();
+
+      expect(
+        card().getByRole('button', { name: 'Recover Event' }),
+      ).toBeEnabled();
+    });
+
+    /**
+     * Verifies: a refused recovery re-enables Recover Event, and its error escapes as an unhandled RxJS error for the app's ErrorHandler to report.
+     * Interacts with: Recover Event button (user-event), real EventDataService.recoverEvent → EventService.recoverEvent (a Subject the test fails), captureUnhandledRxErrors, rendered button.
+     * Data: one Suspended event of this user; the request fails with 409 (the grace period is over).
+     * Why: a stuck Recovering... button would leave the owner no way to retry; the global ErrorService shows the API's reason.
+     */
+    it('re-enables Recover Event when the request fails', async () => {
+      const unhandled = captureUnhandledRxErrors();
+      const response = new Subject<null>();
+      const failure = { status: 409 };
+      const { user, fixture } = await renderEventTemplateInfo({
+        events: [suspended()],
+        configureApi: (api) => api.recoverEvent.mockReturnValue(response),
+      });
+
+      await user.click(card().getByRole('button', { name: 'Recover Event' }));
+      expect(
+        card().getByRole('button', { name: 'Recovering...' }),
+      ).toBeDisabled();
+
+      response.error(failure);
+      await flush();
+      fixture.detectChanges();
+
+      expect(
+        card().getByRole('button', { name: 'Recover Event' }),
+      ).toBeEnabled();
+      expect(unhandled).toEqual([failure]);
+    });
+
+    /**
+     * Verifies: a Recovering event shows the wait card with its status, without Launch or Recover.
+     * Interacts with: determineEventStatus, rendered card; real EventDataService.stateUpdate (the SignalR entry point).
+     * Data: one Suspended event of this user, updated to Recovering through the store.
+     */
+    it('shows a Recovering event as in progress', async () => {
+      const { fixture, eventDataService } = await renderEventTemplateInfo({
+        events: [suspended()],
+      });
+
+      eventDataService.stateUpdate({ id: 'event-1', status: 'Recovering' });
+      fixture.detectChanges();
+
+      expect(
+        card().getByRole('heading', { name: 'Please wait!' }),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Status: Recovering')).toBeInTheDocument();
+      expect(
+        card().queryByRole('button', { name: 'Recover Event' }),
+      ).not.toBeInTheDocument();
+      expect(
+        card().queryByRole('button', { name: 'Launch' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('launchEvent()', () => {
     /**
      * Verifies: Launch creates the event, joins its group, then reads it back once and stores the result.
@@ -465,6 +667,96 @@ describe('EventTemplateInfoComponent', () => {
       expect(eventService.getMyEventTemplateEvents).not.toHaveBeenCalled();
       expect(eventService.getEventTemplateEvents).not.toHaveBeenCalled();
       expect(myEventsRequests).toBe(0);
+    });
+
+    describe('when the event changes status', () => {
+      const VIEW_PATH = '/templates/template-1/view/view-1';
+      let navigations: string[];
+      let stopRecording: () => void;
+
+      // jsdom does not navigate: a write to location.href that would load another
+      // document is reported as a "jsdomError" on the window's virtual console, which
+      // the test environment forwards nowhere. Listening there is the only way to see
+      // that window.top.location.href was set.
+      beforeEach(() => {
+        navigations = [];
+        const record = (error: Error) => navigations.push(error.message);
+        const host: object = window;
+        if (!('_virtualConsole' in host)) {
+          throw new Error('jsdom no longer exposes window._virtualConsole');
+        }
+        const virtualConsole = host._virtualConsole as JsdomVirtualConsole;
+        virtualConsole.on('jsdomError', record);
+        stopRecording = () => virtualConsole.off('jsdomError', record);
+        window.history.pushState({}, '', VIEW_PATH);
+      });
+
+      afterEach(() => {
+        stopRecording();
+        window.history.replaceState({}, '', '/');
+      });
+
+      /**
+       * Verifies: on the /view route an event that is ended into its grace period makes the page leave the Player view, and the card shows Recover Event only to the owner.
+       * Interacts with: route params id + viewId, EventService.getMyViewEvents → real EventStore, real EventDataService.stateUpdate (the SignalR entry point), isEventActive, window.top.location (jsdom navigation report), isOwner, rendered card.
+       * Data: an Active event on view-1 owned by the signed-in user (allowed) or by someone else (denied), then updated to Suspended; the page is at /templates/template-1/view/view-1.
+       * Why: a Suspended event's Player view is hidden, so the iframe must not stay on it.
+       */
+      it.each<{ label: string; owner: string; recover: boolean }>([
+        { label: 'with Recover for the owner', owner: USER_ID, recover: true },
+        {
+          label: 'without Recover for another user',
+          owner: 'someone-else',
+          recover: false,
+        },
+      ])(
+        'leaves the view when the event is suspended, $label',
+        async ({ owner, recover }) => {
+          const { fixture, eventDataService } = await renderEventTemplateInfo({
+            routeParams: { id: TEMPLATE_ID, viewId: 'view-1' },
+            viewEvents: [
+              myEvent({ userId: owner, viewId: 'view-1', status: 'Active' }),
+            ],
+          });
+          expect(navigations).toEqual([]);
+
+          eventDataService.stateUpdate({
+            id: 'event-1',
+            status: 'Suspended',
+            recoverableUntil: new Date('2026-11-06T18:30:00Z'),
+          });
+          fixture.detectChanges();
+
+          expect(navigations).toEqual([
+            'Not implemented: navigation to another Document',
+          ]);
+          expect(
+            card().getByRole('heading', { name: 'This event has ended' }),
+          ).toBeInTheDocument();
+          expect(
+            card().queryByRole('button', { name: 'Recover Event' }) !== null,
+          ).toBe(recover);
+        },
+      );
+
+      /**
+       * Verifies: on the /view route a Recovering event stays in the Player view and shows the wait card.
+       * Interacts with: route params id + viewId, real EventDataService.stateUpdate, isEventActive, window.top.location (jsdom navigation report), rendered card.
+       * Data: an Active event of this user on view-1 updated to Recovering; the page is at /templates/template-1/view/view-1.
+       * Why: recovery makes the Player view visible again, so leaving it would throw the user out of the event they are getting back.
+       */
+      it('stays in the view while the event is recovering', async () => {
+        const { fixture, eventDataService } = await renderEventTemplateInfo({
+          routeParams: { id: TEMPLATE_ID, viewId: 'view-1' },
+          viewEvents: [myEvent({ viewId: 'view-1', status: 'Active' })],
+        });
+
+        eventDataService.stateUpdate({ id: 'event-1', status: 'Recovering' });
+        fixture.detectChanges();
+
+        expect(navigations).toEqual([]);
+        expect(screen.getByText('Status: Recovering')).toBeInTheDocument();
+      });
     });
   });
 

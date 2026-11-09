@@ -45,6 +45,7 @@ import {
   Event as AlloyEvent,
   EventErrorDetail,
   EventService,
+  SystemPermission,
 } from 'src/app/generated/alloy.api';
 import { EventEditComponent } from '../event-edit/event-edit.component';
 import { ComnSettingsService } from '@cmusei/crucible-common';
@@ -302,28 +303,6 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
     return selectedEvents;
   }
 
-  /**
-   * Adds a new event
-   */
-  addNewEvent() {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() + 1);
-    startDate.setHours(8, 0, 0, 0);
-    const endDate = new Date(startDate);
-    endDate.setMonth(startDate.getMonth() + 1);
-    const event = {
-      name: 'New Event',
-      description: 'Add description',
-      status: 'ready',
-      startDate: startDate,
-      endDate: endDate,
-    };
-    this.eventService.createEvent(<AlloyEvent>event).subscribe((event) => {
-      this.refreshEvents();
-      this.editEvent(event);
-    });
-  }
-
   editEvent(event: AlloyEvent) {
     const dialogRef = this.dialog.open(EventEditComponent, {
       minWidth: '400px',
@@ -333,13 +312,25 @@ export class AdminEventListComponent implements OnInit, OnDestroy {
         event: { ...event },
         canEdit: this.canEdit(event.id),
         canManage: this.canManage(event.id),
+        // Only an administrator over all events may skip the grace period; the API enforces it.
+        canEndNow: this.permissionDataService.hasPermission(
+          SystemPermission.ManageEvents,
+        ),
       },
     });
     dialogRef.componentInstance.editComplete.subscribe((result) => {
       switch (result.action) {
         case 'end':
           this.eventService
-            .endEvent(result.event.id)
+            .endEvent(result.event.id, result.immediate === true)
+            .pipe(take(1))
+            .subscribe(() => {
+              this.refreshEvents();
+            });
+          break;
+        case 'recover':
+          this.eventService
+            .recoverEvent(result.event.id)
             .pipe(take(1))
             .subscribe(() => {
               this.refreshEvents();

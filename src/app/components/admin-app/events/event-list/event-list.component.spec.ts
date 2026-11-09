@@ -84,10 +84,10 @@ function eventServiceStub(
             errorDetail: 'Error: invalid resource "foo"',
           })),
     ),
-    createEvent: vi.fn((e: AlloyEvent) => of({ ...e, id: 'created' })),
     endEvent: vi.fn((id: string) => of(makeEvent({ id, status: 'Ending' }))),
     updateEvent: vi.fn((_id: string, e: AlloyEvent) => of(e)),
     deleteEvent: vi.fn(() => of({})),
+    recoverEvent: vi.fn(() => of(null)),
   } satisfies ApiStub<EventService>;
 }
 type EventServiceStub = ReturnType<typeof eventServiceStub>;
@@ -109,7 +109,11 @@ async function renderAdminEventList(
   overrides.configureApi?.(eventService);
   // The edit dialog is an edge here: the list only reacts to its editComplete
   // output, so the spec emits that output itself.
-  const editComplete = new Subject<{ action: string; event: AlloyEvent }>();
+  const editComplete = new Subject<{
+    action: string;
+    event: AlloyEvent;
+    immediate?: boolean;
+  }>();
   const { dialogRef, close } = dialogRefStub<EventEditComponent>();
   dialogRef.componentInstance = {
     editComplete,
@@ -405,27 +409,30 @@ describe('AdminEventListComponent', () => {
     );
 
     /**
-     * Verifies: opening Edit passes each event-edit permission independently to the dialog.
-     * Interacts with: rendered Edit button, real PermissionDataService canEdit/canManage, MatDialog.open stub.
-     * Data: exactly EditEvents, ManageEvents, EditEvent or ManageEvent on event-1; each Edit-only row denies canManage and each Manage-only row denies canEdit.
+     * Verifies: opening Edit passes each event-edit permission independently to the dialog, and canEndNow only with the system ManageEvents permission.
+     * Interacts with: rendered Edit button, real PermissionDataService canEdit/canManage/hasPermission, MatDialog.open stub.
+     * Data: exactly EditEvents, ManageEvents, EditEvent or ManageEvent on event-1; each Edit-only row denies canManage and each Manage-only row denies canEdit; the event-scoped ManageEvent row is the near miss for canEndNow.
      */
     it.each<{
       label: string;
       grants: PermissionGrants;
       canEdit: boolean;
       canManage: boolean;
+      canEndNow: boolean;
     }>([
       {
         label: 'EditEvents',
         grants: { system: ['EditEvents'] },
         canEdit: true,
         canManage: false,
+        canEndNow: false,
       },
       {
         label: 'ManageEvents',
         grants: { system: ['ManageEvents'] },
         canEdit: false,
         canManage: true,
+        canEndNow: true,
       },
       {
         label: 'EditEvent',
@@ -434,6 +441,7 @@ describe('AdminEventListComponent', () => {
         },
         canEdit: true,
         canManage: false,
+        canEndNow: false,
       },
       {
         label: 'ManageEvent',
@@ -442,8 +450,9 @@ describe('AdminEventListComponent', () => {
         },
         canEdit: false,
         canManage: true,
+        canEndNow: false,
       },
-    ])('opens the edit dialog with exactly $label', async ({ grants, canEdit, canManage }) => {
+    ])('opens the edit dialog with exactly $label', async ({ grants, canEdit, canManage, canEndNow }) => {
       const event = makeEvent();
       const { user, dialog } = await renderAdminEventList({
         events: [event],
@@ -466,9 +475,91 @@ describe('AdminEventListComponent', () => {
           },
           canEdit,
           canManage,
+          canEndNow,
         },
       });
     });
+  });
+
+  describe('recovering from the edit dialog', () => {
+    /**
+     * Verifies: the dialog's recover action sends the recover request for that event, closes the dialog and reloads the list, which then shows the event's new status; no other event request is made.
+     * Interacts with: the Edit button (user-event), the edit dialog's editComplete output (MatDialog stub), EventService.recoverEvent / getEvents / endEvent / updateEvent / deleteEvent, dialogRef.close, rendered table.
+     * Data: one Suspended event; system ManageEvents; the reload returns it as Recovering.
+     */
+    it('recovers the event and reloads the list', async () => {
+      const suspended = makeEvent({ status: 'Suspended' });
+      const { eventService, editComplete, closeDialog, user, fixture } =
+        await renderAdminEventList({
+          events: [suspended],
+          grants: { system: ['ViewEvents', 'ManageEvents'] },
+        });
+      expect(screen.getByText('Suspended')).toBeInTheDocument();
+      const loads = eventService.getEvents.mock.calls.length;
+      eventService.getEvents.mockReturnValue(
+        of([makeEvent({ status: 'Recovering' })]),
+      );
+
+      await user.click(
+        within(
+          screen.getByText('Cyber Range 101').closest('tr') as HTMLElement,
+        ).getByRole('button', { name: 'Edit event' }),
+      );
+      editComplete.next({ action: 'recover', event: suspended });
+      await flush();
+      fixture.detectChanges();
+
+      expect(eventService.recoverEvent).toHaveBeenCalledExactlyOnceWith(
+        'event-1',
+      );
+      expect(eventService.getEvents).toHaveBeenCalledTimes(loads + 1);
+      expect(closeDialog).toHaveBeenCalledTimes(1);
+      expect(eventService.endEvent).not.toHaveBeenCalled();
+      expect(eventService.updateEvent).not.toHaveBeenCalled();
+      expect(eventService.deleteEvent).not.toHaveBeenCalled();
+      expect(screen.getByText('Recovering')).toBeInTheDocument();
+      expect(screen.queryByText('Suspended')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('ending from the edit dialog', () => {
+    /**
+     * Verifies: the dialog's end action passes its immediate flag to the end request (false when the dialog sends none), closes the dialog and reloads the list.
+     * Interacts with: the Edit button (user-event), the edit dialog's editComplete output (MatDialog stub), EventService.endEvent / getEvents, dialogRef.close.
+     * Data: one Active event; system ManageEvents; per row immediate true, false or absent.
+     * Why: only an immediate end skips the grace period, so a missing flag must not end the event for good.
+     */
+    it.each<{ label: string; immediate: boolean | undefined; sent: boolean }>([
+      { label: 'true', immediate: true, sent: true },
+      { label: 'false', immediate: false, sent: false },
+      { label: 'absent', immediate: undefined, sent: false },
+    ])(
+      'ends the event with immediate $sent when the dialog sends $label',
+      async ({ immediate, sent }) => {
+        const event = makeEvent();
+        const { eventService, editComplete, closeDialog, user } =
+          await renderAdminEventList({
+            events: [event],
+            grants: { system: ['ViewEvents', 'ManageEvents'] },
+          });
+        const loads = eventService.getEvents.mock.calls.length;
+
+        await user.click(
+          within(
+            screen.getByText('Cyber Range 101').closest('tr') as HTMLElement,
+          ).getByRole('button', { name: 'Edit event' }),
+        );
+        editComplete.next({ action: 'end', event, immediate });
+        await flush();
+
+        expect(eventService.endEvent).toHaveBeenCalledExactlyOnceWith(
+          'event-1',
+          sent,
+        );
+        expect(eventService.getEvents).toHaveBeenCalledTimes(loads + 1);
+        expect(closeDialog).toHaveBeenCalledTimes(1);
+      },
+    );
   });
 
   describe('failed requests', () => {
@@ -482,8 +573,8 @@ describe('AdminEventListComponent', () => {
 
     /**
      * Verifies: each request the list subscribes to with no error callback lets a failure escape as an unhandled RxJS error, and the list is not refreshed (current behavior).
-     * Interacts with: EventService.createEvent / endEvent / updateEvent / deleteEvent (error), the Edit button (user-event), the edit dialog's editComplete output (MatDialog stub), getEvents (refresh count), captureUnhandledRxErrors.
-     * Data: one Active event; system ViewEvents and EditEvents; per row one failing request.
+     * Interacts with: EventService.endEvent / recoverEvent / updateEvent / deleteEvent (error), the Edit button (user-event), the edit dialog's editComplete output (MatDialog stub), getEvents (refresh count), captureUnhandledRxErrors.
+     * Data: one Active event; system ViewEvents and EditEvents; per row one failing request (recover refused with 409 once the grace period is over).
      */
     it.each<{
       method: string;
@@ -491,14 +582,6 @@ describe('AdminEventListComponent', () => {
       act: (rendered: Rendered) => Promise<void>;
       failure: { status: number };
     }>([
-      {
-        method: 'addNewEvent()',
-        fail: (api, failure) =>
-          api.createEvent.mockReturnValue(throwError(() => failure)),
-        // No template or caller invokes addNewEvent today.
-        act: async ({ fixture }) => fixture.componentInstance.addNewEvent(),
-        failure: { status: 400 },
-      },
       {
         method: "editEvent() 'end'",
         fail: (api, failure) =>
@@ -528,6 +611,19 @@ describe('AdminEventListComponent', () => {
           rendered.editComplete.next({ action: 'delete', event: makeEvent() });
         },
         failure: { status: 500 },
+      },
+      {
+        method: "editEvent() 'recover'",
+        fail: (api, failure) =>
+          api.recoverEvent.mockReturnValue(throwError(() => failure)),
+        act: async (rendered) => {
+          await openEditFor(rendered);
+          rendered.editComplete.next({
+            action: 'recover',
+            event: makeEvent({ status: 'Suspended' }),
+          });
+        },
+        failure: { status: 409 },
       },
     ])(
       '$method lets a failed request escape unhandled',

@@ -37,6 +37,8 @@ export * from './questionView';
 export * from './scenarioTemplate';
 export * from './systemPermission';
 export * from './systemRole';
+export * from './updateEventMembershipRequest';
+export * from './updateEventRequest';
 export * from './user';
 export * from './view';
 export * from './viewStatus';

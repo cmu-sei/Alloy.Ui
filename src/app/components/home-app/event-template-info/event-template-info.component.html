@@ -308,6 +308,36 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
                     </div>
                   </div>
                 }
+                <!-- ENDED, INSIDE THE GRACE PERIOD -->
+                @case (ALLOY_CURRENT_EVENT_STATUS.SUSPENDED) {
+                  <div class="cssLayoutColumnSpaceCenter">
+                    <h2>This event has ended</h2>
+                    <p>
+                      Nothing has been deleted yet. It can be recovered until
+                      {{ currentEvent.recoverableUntil | date: 'medium' }};
+                      after that its resources are destroyed.
+                    </p>
+                    @if (currentEvent.errorMessage) {
+                      <p class="failure-detail-text" role="alert">
+                        {{ currentEvent.errorMessage }}
+                      </p>
+                    }
+                    @if (isOwner) {
+                      <button
+                        class="event-button-end"
+                        matButton="filled"
+                        (click)="recoverEvent(currentEvent)"
+                        [disabled]="recovering"
+                      >
+                        @if (recovering) {
+                          Recovering...
+                        } @else {
+                          Recover Event
+                        }
+                      </button>
+                    }
+                  </div>
+                }
                 <!-- LAUNCHING -->
                 @case (ALLOY_CURRENT_EVENT_STATUS.LAUNCHING) {
                   <div class="cssLayoutColumnSpaceCenter">

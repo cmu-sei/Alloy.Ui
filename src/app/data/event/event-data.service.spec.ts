@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom, NEVER, of, throwError } from 'rxjs';
+import { defer, firstValueFrom, NEVER, Observable, of, throwError } from 'rxjs';
 import {
   Event as AlloyEvent,
   EventService,
@@ -45,6 +45,7 @@ function eventServiceStub() {
     createEventFromEventTemplate: vi.fn(() => of(makeEvent())),
     endEvent: vi.fn(() => of(makeEvent({ status: 'Ending' }))),
     redeployEvent: vi.fn(() => of(makeEvent())),
+    recoverEvent: vi.fn(() => of(null)),
     getEvent: vi.fn(() => of(makeEvent())),
     invite: vi.fn(() => of(makeEvent({ shareCode: 'abc' }))),
     enlist: vi.fn(() => of(makeEvent())),
@@ -428,6 +429,77 @@ describe('EventDataService', () => {
       await flush();
 
       expect(eventQuery.getEntity('a').status).toBe('Active');
+      expect(error).toHaveBeenCalledWith(failure);
+      expect(unhandled).toEqual([]);
+    });
+  });
+
+  describe('recoverEvent()', () => {
+    /**
+     * Verifies: recoverEvent builds the recover request for the caller to subscribe to, sends nothing until then, and leaves the store for SignalR to update.
+     * Interacts with: EventService.recoverEvent (a cold request counted with defer, as HttpClient sends on subscribe), real EventStore/EventQuery.
+     * Data: one Suspended event 'a'; the API answers 204 (null body).
+     * Why: the home card subscribes itself so it can clear its Recovering... state when the request settles.
+     */
+    it('requests the recovery only when the caller subscribes', async () => {
+      const { service, eventQuery, eventService } = setup();
+      service.stateCreate(makeEvent({ id: 'a', status: 'Suspended' }));
+      let sent = 0;
+      eventService.recoverEvent.mockReturnValueOnce(
+        defer(() => {
+          sent++;
+          return of(null);
+        }),
+      );
+
+      const request = service.recoverEvent('a');
+      expect(eventService.recoverEvent).toHaveBeenCalledWith('a');
+      expect(sent).toBe(0);
+      const complete = vi.fn();
+      request.subscribe({ complete });
+      await flush();
+
+      expect(sent).toBe(1);
+      expect(complete).toHaveBeenCalledTimes(1);
+      expect(eventQuery.getEntity('a').status).toBe('Suspended');
+    });
+
+    /**
+     * Verifies: recoverEvent takes only the first response, so the caller's subscription completes even if the API observable stays open.
+     * Interacts with: EventService.recoverEvent.
+     * Data: the API emits once and never completes.
+     */
+    it('completes after the first response', async () => {
+      const { service, eventService } = setup();
+      eventService.recoverEvent.mockReturnValueOnce(
+        new Observable<null>((subscriber) => subscriber.next(null)),
+      );
+      const complete = vi.fn();
+
+      service.recoverEvent('a').subscribe({ complete });
+      await flush();
+
+      expect(complete).toHaveBeenCalledTimes(1);
+    });
+
+    /**
+     * Verifies: a rejected recovery (the grace period is over) leaves the event as it was and its error reaches the caller.
+     * Interacts with: EventService.recoverEvent (error), real EventStore/EventQuery, captureUnhandledRxErrors.
+     * Data: one Suspended event 'a'; recoverEvent fails with 409.
+     * Why: the caller re-enables its Recover button on failure, so the service must not swallow the error.
+     */
+    it('passes a failed recovery to the caller', async () => {
+      const unhandled = captureUnhandledRxErrors();
+      const { service, eventQuery, eventService } = setup();
+      service.stateCreate(makeEvent({ id: 'a', status: 'Suspended' }));
+      const failure = { status: 409 };
+      eventService.recoverEvent.mockReturnValueOnce(throwError(() => failure));
+      const error = vi.fn();
+
+      service.recoverEvent('a').subscribe({ error });
+      await flush();
+
+      expect(eventQuery.getEntity('a').status).toBe('Suspended');
       expect(error).toHaveBeenCalledWith(failure);
       expect(unhandled).toEqual([]);
     });

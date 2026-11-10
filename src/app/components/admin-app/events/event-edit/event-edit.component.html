@@ -380,11 +380,27 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       </button>
     </div>
     <span class="spacer"></span>
+    @if (data.event.status === 'Suspended') {
+      <div class="delete-button">
+        <button
+          matButton="outlined"
+          (click)="recoverEvent()"
+          [disabled]="!data.canManage"
+          [matTooltip]="
+            'Recoverable until ' + (data.event.recoverableUntil | date: 'medium')
+          "
+        >
+          Recover Event
+        </button>
+      </div>
+    }
     <div class="delete-button">
       <!--
         Mirrors the terminal statuses in EventService.EndAsync: only Ended and Expired are done.
         A Failed Event stays endable on purpose - it can still hold a Caster Workspace, Player View
         or Steamfitter Scenario, and ending it is the only supported way to retry that teardown.
+        canEndNow (system ManageEvents) skips the grace period, which also cuts short a Suspended
+        Event's. Without it, a Suspended Event has already been ended and ending it again changes nothing.
       -->
       <button
         matButton="outlined"
@@ -392,10 +408,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         [disabled]="
           !data.canManage ||
           data.event.status === 'Ended' ||
-          data.event.status === 'Expired'
+          data.event.status === 'Expired' ||
+          (data.event.status === 'Suspended' && !data.canEndNow)
         "
       >
-        End Event Now
+        {{ data.canEndNow ? 'End Event Now' : 'End Event' }}
       </button>
     </div>
     <div class="delete-button">

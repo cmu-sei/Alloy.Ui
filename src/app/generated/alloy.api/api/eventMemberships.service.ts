@@ -27,6 +27,8 @@ import { Observable }                                        from 'rxjs';
 import { EventMembership } from '../model/eventMembership';
 // @ts-ignore
 import { ProblemDetails } from '../model/problemDetails';
+// @ts-ignore
+import { UpdateEventMembershipRequest } from '../model/updateEventMembershipRequest';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -381,14 +383,14 @@ export class EventMembershipsService {
      * Updates a EventMembership
      * Updates a EventMembership with the attributes specified
      * @param id The Id of the Exericse to update
-     * @param eventMembership The updated EventMembership values
+     * @param updateEventMembershipRequest The updated EventMembership values
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public updateEventMembership(id: string, eventMembership?: EventMembership, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<EventMembership>;
-    public updateEventMembership(id: string, eventMembership?: EventMembership, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<EventMembership>>;
-    public updateEventMembership(id: string, eventMembership?: EventMembership, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<EventMembership>>;
-    public updateEventMembership(id: string, eventMembership?: EventMembership, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
+    public updateEventMembership(id: string, updateEventMembershipRequest?: UpdateEventMembershipRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<EventMembership>;
+    public updateEventMembership(id: string, updateEventMembershipRequest?: UpdateEventMembershipRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpResponse<EventMembership>>;
+    public updateEventMembership(id: string, updateEventMembershipRequest?: UpdateEventMembershipRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<HttpEvent<EventMembership>>;
+    public updateEventMembership(id: string, updateEventMembershipRequest?: UpdateEventMembershipRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling updateEventMembership.');
         }
@@ -448,7 +450,7 @@ export class EventMembershipsService {
         return this.httpClient.request<EventMembership>('put', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: eventMembership,
+                body: updateEventMembershipRequest,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

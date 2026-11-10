@@ -16,7 +16,7 @@ Copyright 2021 Carnegie Mellon University. All Rights Reserved.
  */
 
 
-export type EventStatus = 'Creating' | 'Active' | 'Paused' | 'Ended' | 'Expired' | 'Planning' | 'Applying' | 'Failed' | 'Ending';
+export type EventStatus = 'Creating' | 'Active' | 'Paused' | 'Ended' | 'Expired' | 'Planning' | 'Applying' | 'Failed' | 'Ending' | 'Suspended' | 'Recovering';
 
 export const EventStatus = {
     Creating: 'Creating' as EventStatus,
@@ -27,6 +27,8 @@ export const EventStatus = {
     Planning: 'Planning' as EventStatus,
     Applying: 'Applying' as EventStatus,
     Failed: 'Failed' as EventStatus,
-    Ending: 'Ending' as EventStatus
+    Ending: 'Ending' as EventStatus,
+    Suspended: 'Suspended' as EventStatus,
+    Recovering: 'Recovering' as EventStatus
 };
 

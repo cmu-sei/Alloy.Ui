@@ -46,6 +46,9 @@ model/groupMembershipRole.ts
 model/groupPermission.ts
 model/groupPermissionsClaim.ts
 model/healthStatus.ts
+model/importEventTemplateFailure.ts
+model/importEventTemplateWarning.ts
+model/importEventTemplatesResult.ts
 model/internalEventStatus.ts
 model/modelFile.ts
 model/models.ts
@@ -55,6 +58,8 @@ model/questionView.ts
 model/scenarioTemplate.ts
 model/systemPermission.ts
 model/systemRole.ts
+model/updateEventMembershipRequest.ts
+model/updateEventRequest.ts
 model/user.ts
 model/view.ts
 model/viewStatus.ts

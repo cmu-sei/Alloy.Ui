@@ -188,6 +188,7 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
   public remainingTime: string;
   public timeRunningLow: boolean;
   public redeploying: boolean;
+  public recovering: boolean;
   public theme$: Observable<Theme>;
   public inviteShown: boolean = false;
   public isOwner: boolean = false;
@@ -482,6 +483,16 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       return active;
     }
 
+    // An ended event inside its grace period is not active - its Player view is hidden and the
+    // /view route leaves it - but its owner still needs the card that offers to recover it.
+    const suspended = candidates.find(
+      (e) => e.status === EventStatus.Suspended,
+    );
+
+    if (suspended) {
+      return suspended;
+    }
+
     const newest = [...candidates].sort(
       (a, b) => this.attemptedAt(b) - this.attemptedAt(a),
     )[0];
@@ -505,7 +516,8 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
       case EventStatus.Paused:
       case EventStatus.Planning:
       case EventStatus.Applying:
-      case EventStatus.Ending: {
+      case EventStatus.Ending:
+      case EventStatus.Recovering: {
         return true;
       }
       default: {
@@ -522,9 +534,12 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         case EventStatus.Creating:
         case EventStatus.Planning:
         case EventStatus.Applying:
+        case EventStatus.Recovering:
           return ALLOY_CURRENT_EVENT_STATUS.LAUNCHING;
         case EventStatus.Ending:
           return ALLOY_CURRENT_EVENT_STATUS.ENDING;
+        case EventStatus.Suspended:
+          return ALLOY_CURRENT_EVENT_STATUS.SUSPENDED;
         case EventStatus.Ended:
           return ALLOY_CURRENT_EVENT_STATUS.ENDED;
         case EventStatus.Failed:
@@ -604,6 +619,17 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
               .subscribe();
           }
         });
+    }
+  }
+
+  recoverEvent(event: AlloyEvent) {
+    if (event) {
+      this.recovering = true;
+      this.eventDataService
+        .recoverEvent(event.id)
+        // re-enable the button whether it worked or not; the error handler shows why it failed
+        .pipe(finalize(() => (this.recovering = false)))
+        .subscribe();
     }
   }
 

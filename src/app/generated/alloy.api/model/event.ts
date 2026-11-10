@@ -47,7 +47,18 @@ export interface Event {
     errorMessage?: string | null;
     statusDate?: Date;
     launchDate?: Date | null;
+    /**
+     * When cleanup completed successfully. Historical values are preserved.
+     */
     endDate?: Date | null;
+    /**
+     * When ending was requested. EndDate records successful cleanup.
+     */
+    endRequestedAt?: Date | null;
+    /**
+     * While the Event is Suspended (ended, inside the grace period), when the grace period ends. Until then POST /api/events/{id}/recover gives it back; after it, its resources are destroyed.
+     */
+    recoverableUntil?: Date | null;
     expirationDate?: Date | null;
     eventPermissions?: Array<string> | null;
 }

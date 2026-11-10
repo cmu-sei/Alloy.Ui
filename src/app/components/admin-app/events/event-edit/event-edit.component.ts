@@ -29,6 +29,8 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton, MatButton } from '@angular/material/button';
 import { ClipboardModule } from 'ngx-clipboard';
+import { MatTooltip } from '@angular/material/tooltip';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-event-edit',
@@ -49,6 +51,8 @@ import { ClipboardModule } from 'ngx-clipboard';
     ClipboardModule,
     CrucibleDialogActionsDirective,
     MatButton,
+    MatTooltip,
+    DatePipe,
   ],
 })
 export class EventEditComponent implements OnInit {
@@ -205,16 +209,21 @@ export class EventEditComponent implements OnInit {
   }
 
   /**
-   * End an event
+   * End an event. An administrator who can manage all events ends it now, skipping the grace
+   * period in which it could otherwise be recovered.
    */
   endEvent(): void {
+    const immediate = !!this.data.canEndNow;
     this.crucibleDialog
       .confirm({
-        title: 'End Event Now',
-        message:
-          'Are you sure that you want to end event ' +
-          this.data.event.name +
-          '?',
+        title: immediate ? 'End Event Now' : 'End Event',
+        message: immediate
+          ? 'Are you sure that you want to end event ' +
+            this.data.event.name +
+            ' now? Its resources are destroyed right away, and it cannot be recovered.'
+          : 'Are you sure that you want to end event ' +
+            this.data.event.name +
+            '?',
       })
       .afterClosed()
       .subscribe((confirmed) => {
@@ -222,9 +231,21 @@ export class EventEditComponent implements OnInit {
           this.editComplete.emit({
             action: 'end',
             event: this.data.event,
+            immediate,
           });
         }
       });
+  }
+
+  /**
+   * Recover an ended event inside its grace period. Nothing has been destroyed yet, so there is
+   * nothing to confirm.
+   */
+  recoverEvent(): void {
+    this.editComplete.emit({
+      action: 'recover',
+      event: this.data.event,
+    });
   }
 
   /**

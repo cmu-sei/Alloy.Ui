@@ -151,7 +151,7 @@ export class AdminGroupsComponent implements OnInit, AfterViewInit {
   }
 
   updateGroup(group: Group) {
-    this.nameDialog('Edit Group', '', {
+    this.nameDialog('Rename Group', '', {
       nameValue: group.name,
     }).subscribe((result) => {
       if (result) {

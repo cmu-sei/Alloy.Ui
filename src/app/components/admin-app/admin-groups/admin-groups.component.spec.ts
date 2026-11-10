@@ -254,7 +254,7 @@ describe('AdminGroupsComponent', () => {
       NameDialogComponent,
       expect.objectContaining({ data: { nameValue: 'Blue Team' } }),
     );
-    expect(nameDialog.dialogRef.componentInstance.title).toBe('Edit Group');
+    expect(nameDialog.dialogRef.componentInstance.title).toBe('Rename Group');
     expect(groupService.updateGroup).toHaveBeenCalledWith('g1', {
       id: 'g1',
       name: 'Navy Team',

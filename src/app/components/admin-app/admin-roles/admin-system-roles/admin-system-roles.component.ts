@@ -148,7 +148,7 @@ export class AdminSystemRolesComponent implements OnInit {
   }
 
   renameRole(role: SystemRole) {
-    this.nameDialog('Edit Role', '', { nameValue: role.name })
+    this.nameDialog('Rename Role', '', { nameValue: role.name })
       .pipe(take(1))
       .subscribe((result) => {
         if (result) {

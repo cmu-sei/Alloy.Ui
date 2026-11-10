@@ -213,6 +213,32 @@ describe('AdminSystemRolesComponent', () => {
   });
 
   /**
+   * Verifies: Rename Role opens the name dialog titled "Rename Role" with the current name and saves the entered name.
+   * Interacts with: the Rename Role button (user-event click), MatDialog.open stub (closes with a name), SystemRolesService.updateSystemRole.
+   * Data: system ManageRoles; Observer renamed to 'Auditor'.
+   */
+  it('renames a role from the name dialog', async () => {
+    const { user, rolesApi, dialog, nameDialog } = await renderSystemRoles(
+      { system: ['ManageRoles'] },
+      { nameResult: { nameValue: 'Auditor' } },
+    );
+
+    await user.click(
+      within(table()).getByRole('button', { name: 'Rename Role' }),
+    );
+
+    expect(dialog.open).toHaveBeenCalledWith(
+      NameDialogComponent,
+      expect.objectContaining({ data: { nameValue: 'Observer' } }),
+    );
+    expect(nameDialog.dialogRef.componentInstance.title).toBe('Rename Role');
+    expect(rolesApi.updateSystemRole).toHaveBeenCalledWith(
+      'r2',
+      expect.objectContaining({ name: 'Auditor' }),
+    );
+  });
+
+  /**
    * Verifies: Delete asks for confirmation and deletes the role only when confirmed, and its column leaves the table only then.
    * Interacts with: the Delete Role button (user-event click), CrucibleDialogService.confirm (answers per row), SystemRolesService.deleteSystemRole, real RoleDataService.
    * Data: system ManageRoles; Observer; confirm answers true, then false.

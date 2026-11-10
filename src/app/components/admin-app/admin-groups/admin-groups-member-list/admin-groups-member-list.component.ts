@@ -163,10 +163,9 @@ export class AdminGroupsMemberListComponent
     if (isCurrentUser) {
       this.confirmService
         .confirm({
-          title: 'Remove yourself from this group?',
+          title: 'Remove Group Member',
           message:
-            'You are about to remove yourself from this group and may lose access to manage it.',
-          confirmText: 'Remove',
+            'Are you sure that you want to remove yourself from this group? You may lose access to manage it.',
         })
         .afterClosed()
         .pipe(
@@ -196,10 +195,9 @@ export class AdminGroupsMemberListComponent
     if (isCurrentUser && role !== GroupMembershipRole.Manager) {
       this.confirmService
         .confirm({
-          title: 'Change your own role?',
+          title: 'Change Group Role',
           message:
-            'Changing your role from Manager means you may no longer be able to manage this group.',
-          confirmText: 'Change Role',
+            'Are you sure that you want to change your own role? Changing your role from Manager means you may no longer be able to manage this group.',
         })
         .afterClosed()
         .pipe(

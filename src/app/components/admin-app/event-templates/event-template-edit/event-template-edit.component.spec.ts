@@ -199,7 +199,7 @@ describe('EventTemplateEditComponent', () => {
     await renderEdit({ eventTemplate: {}, ...allowed, isNew: true });
 
     expect(
-      screen.getByRole('heading', { name: 'Create New Event Template' }),
+      screen.getByRole('heading', { name: 'Add Event Template' }),
     ).toBeInTheDocument();
     expect(
       within(actionsEl()).queryByRole('button', { name: 'Clone' }),
@@ -285,7 +285,11 @@ describe('EventTemplateEditComponent', () => {
       await user.click(button('Delete'));
 
       expect(confirm).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Delete Event Template' }),
+        expect.objectContaining({
+          title: 'Delete Event Template',
+          message: 'Are you sure that you want to delete Range Template?',
+          confirmText: 'Delete',
+        }),
       );
       expect(emitted.map((e) => e.action)).toEqual(actions);
     },

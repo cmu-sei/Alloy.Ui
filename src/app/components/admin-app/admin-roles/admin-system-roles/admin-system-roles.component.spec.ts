@@ -88,6 +88,7 @@ async function renderSystemRoles(
     rolesApi,
     signalR,
     dialog,
+    nameDialog,
     confirm,
   };
 }
@@ -191,10 +192,11 @@ describe('AdminSystemRolesComponent', () => {
    * Data: system ManageRoles; name 'Auditor'.
    */
   it('creates a role from the name dialog', async () => {
-    const { user, rolesApi, dialog, fixture } = await renderSystemRoles(
-      { system: ['ManageRoles'] },
-      { nameResult: { nameValue: 'Auditor' } },
-    );
+    const { user, rolesApi, dialog, nameDialog, fixture } =
+      await renderSystemRoles(
+        { system: ['ManageRoles'] },
+        { nameResult: { nameValue: 'Auditor' } },
+      );
 
     await user.click(addButton());
     fixture.detectChanges();
@@ -203,10 +205,37 @@ describe('AdminSystemRolesComponent', () => {
       NameDialogComponent,
       expect.objectContaining({ data: { nameValue: '' } }),
     );
+    expect(nameDialog.dialogRef.componentInstance.title).toBe('Add Role');
     expect(rolesApi.createSystemRole).toHaveBeenCalledWith({ name: 'Auditor' });
     expect(
       within(table()).getByRole('columnheader', { name: /Auditor/ }),
     ).toBeInTheDocument();
+  });
+
+  /**
+   * Verifies: Rename Role opens the name dialog titled "Rename Role" with the current name and saves the entered name.
+   * Interacts with: the Rename Role button (user-event click), MatDialog.open stub (closes with a name), SystemRolesService.updateSystemRole.
+   * Data: system ManageRoles; Observer renamed to 'Auditor'.
+   */
+  it('renames a role from the name dialog', async () => {
+    const { user, rolesApi, dialog, nameDialog } = await renderSystemRoles(
+      { system: ['ManageRoles'] },
+      { nameResult: { nameValue: 'Auditor' } },
+    );
+
+    await user.click(
+      within(table()).getByRole('button', { name: 'Rename Role' }),
+    );
+
+    expect(dialog.open).toHaveBeenCalledWith(
+      NameDialogComponent,
+      expect.objectContaining({ data: { nameValue: 'Observer' } }),
+    );
+    expect(nameDialog.dialogRef.componentInstance.title).toBe('Rename Role');
+    expect(rolesApi.updateSystemRole).toHaveBeenCalledWith(
+      'r2',
+      expect.objectContaining({ name: 'Auditor' }),
+    );
   });
 
   /**
@@ -239,7 +268,9 @@ describe('AdminSystemRolesComponent', () => {
 
       expect(confirm).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Are you sure you want to delete Observer?',
+          title: 'Delete Role',
+          message: 'Are you sure that you want to delete Observer?',
+          confirmText: 'Delete',
         }),
       );
       expect(rolesApi.deleteSystemRole.mock.calls).toEqual(calls);

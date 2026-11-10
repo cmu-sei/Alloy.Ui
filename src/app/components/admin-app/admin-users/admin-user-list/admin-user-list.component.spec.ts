@@ -199,7 +199,11 @@ describe('AdminUserListComponent', () => {
       );
 
       expect(confirm).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Delete Blair Roe?', message: 'u2' }),
+        expect.objectContaining({
+          title: 'Delete User',
+          message: 'Are you sure that you want to delete Blair Roe?',
+          confirmText: 'Delete',
+        }),
       );
       expect(deleted).toEqual(expected);
     },

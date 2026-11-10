@@ -166,8 +166,6 @@ export class AdminGroupsMemberListComponent
           title: 'Remove Group Member',
           message:
             'Are you sure that you want to remove yourself from this group? You may lose access to manage it.',
-          confirmText: 'Remove',
-          cancelText: 'Cancel',
         })
         .afterClosed()
         .pipe(
@@ -200,8 +198,6 @@ export class AdminGroupsMemberListComponent
           title: 'Change Group Role',
           message:
             'Are you sure that you want to change your own role? Changing your role from Manager means you may no longer be able to manage this group.',
-          confirmText: 'Change Role',
-          cancelText: 'Cancel',
         })
         .afterClosed()
         .pipe(

@@ -188,7 +188,6 @@ describe('EventEditComponent', () => {
       wording: {
         title: 'End Event',
         message: 'Are you sure that you want to end Cyber Range 101?',
-        confirmText: 'End',
       },
       answer: true,
       actions: ['end'],

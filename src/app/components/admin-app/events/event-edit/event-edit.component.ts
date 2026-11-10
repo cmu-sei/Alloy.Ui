@@ -209,8 +209,6 @@ export class EventEditComponent implements OnInit {
       .confirm({
         title: 'End Event',
         message: `Are you sure that you want to end ${this.data.event.name}?`,
-        confirmText: 'End',
-        cancelText: 'Cancel',
       })
       .afterClosed()
       .subscribe((confirmed) => {

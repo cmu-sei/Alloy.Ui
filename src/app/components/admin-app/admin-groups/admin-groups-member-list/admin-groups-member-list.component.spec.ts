@@ -127,7 +127,6 @@ describe('AdminGroupsMemberListComponent', () => {
           title: 'Remove Group Member',
           message:
             'Are you sure that you want to remove yourself from this group? You may lose access to manage it.',
-          confirmText: 'Remove',
         }),
       );
       expect(deleted).toEqual(expected);

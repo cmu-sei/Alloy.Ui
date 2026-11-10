@@ -574,8 +574,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .confirm({
           title: 'End Event',
           message: `Are you sure that you want to end ${event.name}?`,
-          confirmText: 'End',
-          cancelText: 'Cancel',
         })
         .afterClosed()
         .pipe(take(1))
@@ -593,8 +591,6 @@ export class EventTemplateInfoComponent implements OnInit, OnDestroy {
         .confirm({
           title: 'Redeploy Event',
           message: `Are you sure that you want to redeploy ${event.name}?`,
-          confirmText: 'Redeploy',
-          cancelText: 'Cancel',
         })
         .afterClosed()
         .pipe(take(1))

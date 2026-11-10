@@ -448,7 +448,7 @@ describe('EventTemplateInfoComponent', () => {
 
   describe('confirm wording', () => {
     /**
-     * Verifies: End Event and Redeploy Event confirm with "<Verb> Event", name the event in the question, and label the buttons with the verb and Cancel.
+     * Verifies: End Event and Redeploy Event confirm with "<Verb> Event", name the event in the question, and pass no button labels, so the dialog shows its default Yes / No.
      * Interacts with: endEvent/redeployEvent, CrucibleDialogService.confirm (declines), EventService (not called).
      * Data: an Active event named 'Cyber Range 101 - Alex Doe'.
      */
@@ -459,8 +459,6 @@ describe('EventTemplateInfoComponent', () => {
           title: 'End Event',
           message:
             'Are you sure that you want to end Cyber Range 101 - Alex Doe?',
-          confirmText: 'End',
-          cancelText: 'Cancel',
         },
       },
       {
@@ -469,8 +467,6 @@ describe('EventTemplateInfoComponent', () => {
           title: 'Redeploy Event',
           message:
             'Are you sure that you want to redeploy Cyber Range 101 - Alex Doe?',
-          confirmText: 'Redeploy',
-          cancelText: 'Cancel',
         },
       },
     ])(

@@ -35,7 +35,7 @@
     "@datorama/akita-ngdevtools": "^7.0.0",
     "@fortawesome/fontawesome-free": "^7.3.1",
     "@mdi/font": "7.4.47",
-    "@microsoft/signalr": "^8.0.17",
+    "@microsoft/signalr": "^10.0.11",
     "bootstrap": "^5.3.3",
     "bootstrap-scss": "^5.2.2",
     "core-js": "^3.51.0",

@@ -70,7 +70,7 @@
     "@typescript-eslint/utils": "^8.72.1",
     "@vitest/coverage-v8": "^4.1.12",
     "cross-env": "^10.1.0",
-    "eslint": "^9.39.2",
+    "eslint": "^10.11.0",
     "eslint-plugin-import": "^2.32.0",
     "jasmine-spec-reporter": "^7.0.0",
     "jsdom": "^28.1.0",

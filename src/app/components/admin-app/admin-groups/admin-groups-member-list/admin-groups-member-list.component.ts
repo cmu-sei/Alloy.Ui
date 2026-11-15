@@ -117,7 +117,7 @@ export class AdminGroupsMemberListComponent
   filterString = '';
   private readonly currentUserQuery = inject(CurrentUserQuery);
   private readonly confirmService = inject(CrucibleDialogService);
-  private currentUserId = toSignal(
+  private readonly currentUserId = toSignal(
     this.currentUserQuery.select((state) => state.id),
     { initialValue: '' },
   );

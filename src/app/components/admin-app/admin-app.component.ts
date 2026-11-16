@@ -1,6 +1,6 @@
 // Copyright 2021 Carnegie Mellon University. All Rights Reserved.
 // Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -25,7 +25,7 @@ import {
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIcon } from '@angular/material/icon';
 import { MatList, MatListItem, MatListItemIcon } from '@angular/material/list';
-import { NgClass, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { MatIconButton } from '@angular/material/button';
 import { TopbarComponent } from '../shared/top-bar/topbar.component';
 import { EventTemplatesComponent } from './event-templates/event-templates.component';
@@ -45,7 +45,6 @@ import { AdminUsersComponent } from './admin-users/admin-users.component';
     MatIcon,
     MatList,
     MatListItem,
-    NgClass,
     MatListItemIcon,
     MatIconButton,
     MatSidenavContent,
@@ -58,7 +57,7 @@ import { AdminUsersComponent } from './admin-users/admin-users.component';
     AsyncPipe,
   ],
 })
-export class AdminAppComponent implements OnInit {
+export class AdminAppComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(ComnAuthService);

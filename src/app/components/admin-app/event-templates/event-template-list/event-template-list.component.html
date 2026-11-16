@@ -36,7 +36,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
         aria-label="Import Event Templates"
         matTooltip="Import Event Templates"
       >
-        <mat-icon class="mdi-24px" fontIcon="mdi-file-import"></mat-icon>
+        <mat-icon class="mdi-24px" fontIcon="mdi-file-import" />
       </button>
     }
     <button
@@ -49,7 +49,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
       "
       [matBadgeHidden]="!selection.hasValue()"
     >
-      <mat-icon class="mdi-24px" fontIcon="mdi-file-export"></mat-icon>
+      <mat-icon class="mdi-24px" fontIcon="mdi-file-export" />
     </button>
   </div>
   <div class="nator-div">
@@ -77,8 +77,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           [checked]="isAllSelected()"
           [indeterminate]="isSomeSelected()"
           aria-label="Select all Event Templates"
-        >
-        </mat-checkbox>
+        />
       </th>
       <td mat-cell *matCellDef="let element">
         <mat-checkbox
@@ -86,8 +85,7 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
           (change)="$event ? selection.toggle(element.id) : null"
           [checked]="selection.isSelected(element.id)"
           [aria-label]="'Select ' + element.name"
-        >
-        </mat-checkbox>
+        />
       </td>
     </ng-container>
 
@@ -229,11 +227,11 @@ Released under a MIT (SEI)-style license. See LICENSE.md in the project root for
     [filtered]="exportFiltered()"
     [skipped]="exportSkipped()"
     (complete)="closeDialog()"
-  ></app-event-template-export>
+  />
 </ng-template>
 
 <ng-template #importDialog>
   <app-event-template-import
     (complete)="closeDialog()"
-  ></app-event-template-import>
+  />
 </ng-template>

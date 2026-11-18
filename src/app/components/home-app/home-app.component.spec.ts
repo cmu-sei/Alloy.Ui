@@ -270,7 +270,9 @@ describe('HomeAppComponent', () => {
     const page = container.querySelector(
       '.app-events-container',
     ) as HTMLElement;
-    expect(page.style.getPropertyValue('--crucible-landing-background')).toBe('');
+    expect(page.style.getPropertyValue('--crucible-landing-background')).toBe(
+      '',
+    );
     expect(page.classList.contains('crucible-landing-background')).toBe(false);
   });
 

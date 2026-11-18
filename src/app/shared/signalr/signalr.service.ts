@@ -82,7 +82,7 @@ export class SignalRService {
         this.connectionPromise = null;
         this.reportUnreachable(err);
         throw err;
-      }
+      },
     );
 
     // Nobody is waiting on these, so their failure is logged rather than thrown: joinEvent()
@@ -91,7 +91,7 @@ export class SignalRService {
       () => this.joinGroups().catch((err) => this.warnJoinFailed(err)),
       () => {
         // reported above
-      }
+      },
     );
 
     return this.connectionPromise;
@@ -113,7 +113,7 @@ export class SignalRService {
     console.warn('Alloy hub unreachable: ' + (err?.message ?? err));
     this.systemMessageService.displayMessage(
       'Live Updates Unavailable',
-      'Alloy could not connect to the Alloy API for live updates. Event status changes will not appear until the connection is restored. Refresh the page to try again.'
+      'Alloy could not connect to the Alloy API for live updates. Event status changes will not appear until the connection is restored. Refresh the page to try again.',
     );
   }
 

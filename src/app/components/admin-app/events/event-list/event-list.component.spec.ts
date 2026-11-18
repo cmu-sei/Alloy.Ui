@@ -443,32 +443,38 @@ describe('AdminEventListComponent', () => {
         canEdit: false,
         canManage: true,
       },
-    ])('opens the edit dialog with exactly $label', async ({ grants, canEdit, canManage }) => {
-      const event = makeEvent();
-      const { user, dialog } = await renderAdminEventList({
-        events: [event],
-        grants,
-      });
+    ])(
+      'opens the edit dialog with exactly $label',
+      async ({ grants, canEdit, canManage }) => {
+        const event = makeEvent();
+        const { user, dialog } = await renderAdminEventList({
+          events: [event],
+          grants,
+        });
 
-      await user.click(editButtonFor(event.name));
+        await user.click(editButtonFor(event.name));
 
-      expect(dialog.open).toHaveBeenCalledExactlyOnceWith(EventEditComponent, {
-        minWidth: '400px',
-        maxWidth: '90vw',
-        width: '640px',
-        data: {
-          event: {
-            ...event,
-            launchDate: null,
-            endDate: null,
-            expirationDate: null,
-            statusDate: null,
+        expect(dialog.open).toHaveBeenCalledExactlyOnceWith(
+          EventEditComponent,
+          {
+            minWidth: '400px',
+            maxWidth: '90vw',
+            width: '640px',
+            data: {
+              event: {
+                ...event,
+                launchDate: null,
+                endDate: null,
+                expirationDate: null,
+                statusDate: null,
+              },
+              canEdit,
+              canManage,
+            },
           },
-          canEdit,
-          canManage,
-        },
-      });
-    });
+        );
+      },
+    );
   });
 
   describe('failed requests', () => {

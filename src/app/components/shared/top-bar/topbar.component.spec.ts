@@ -263,7 +263,9 @@ describe('TopbarComponent', () => {
 
     await openUserMenu();
     await user.click(
-      within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Logout' }),
+      within(screen.getByRole('menu')).getByRole('menuitem', {
+        name: 'Logout',
+      }),
     );
     await waitFor(() => expect(errors).toEqual([failure]));
 

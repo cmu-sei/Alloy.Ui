@@ -123,7 +123,9 @@ export class CasterDataService {
           this.updateDirectories([]);
           // ProblemDetails.title names the service and why; never .detail, which for a 500
           // outside development holds the raw exception message
-          this.loadError.next(error?.error?.title ?? 'Could not load the Caster directories.');
+          this.loadError.next(
+            error?.error?.title ?? 'Could not load the Caster directories.',
+          );
         },
       );
   }

@@ -96,7 +96,9 @@ export class PlayerDataService {
           this.updateViews([]);
           // ProblemDetails.title names the service and why; never .detail, which for a 500
           // outside development holds the raw exception message
-          this.loadError.next(error?.error?.title ?? 'Could not load your Player views.');
+          this.loadError.next(
+            error?.error?.title ?? 'Could not load your Player views.',
+          );
         },
       );
   }

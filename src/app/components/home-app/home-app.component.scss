@@ -20,7 +20,9 @@
 // While the landing background (crucibleLandingBackground) shows, the event
 // list header has no background of its own; give the panel one so its title
 // and search box stay readable over the image.
-.app-events-container.crucible-landing-background ::ng-deep .events-list-container {
+.app-events-container.crucible-landing-background
+  ::ng-deep
+  .events-list-container {
   background-color: var(--mat-sys-surface);
 }
 

@@ -37,7 +37,11 @@ html {
       typography: '"Open Sans", sans-serif',
     )
   );
-  @include mat.icon-button-overrides((icon-color: var(--mat-sys-primary),));
+  @include mat.icon-button-overrides(
+    (
+      icon-color: var(--mat-sys-primary),
+    )
+  );
 }
 
 body {
@@ -170,7 +174,9 @@ mat-paginator {
 }
 
 .mat-select-panel:not([class*='mat-elevation-z']) {
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+  box-shadow:
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 4px 5px 0 rgba(0, 0, 0, 0.14),
     0 1px 10px 0 rgba(0, 0, 0, 0.12);
 }
 

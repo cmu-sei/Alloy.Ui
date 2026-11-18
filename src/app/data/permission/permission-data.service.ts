@@ -25,7 +25,7 @@ export class PermissionDataService {
   private readonly permissionsService = inject(SystemPermissionsService);
   private readonly eventPermissionsService = inject(EventPermissionsService);
   private readonly eventTemplatePermissionsService = inject(
-    EventTemplatePermissionsService
+    EventTemplatePermissionsService,
   );
   private readonly groupPermissionsService = inject(GroupPermissionsService);
 
@@ -59,7 +59,7 @@ export class PermissionDataService {
   load(): Observable<SystemPermission[]> {
     return this.permissionsService.getMySystemPermissions().pipe(
       take(1),
-      tap((x) => (this._permissions = x))
+      tap((x) => (this._permissions = x)),
     );
   }
 
@@ -100,23 +100,23 @@ export class PermissionDataService {
   loadEventPermissions(eventId?: string): Observable<EventPermissionClaim[]> {
     return this.eventPermissionsService.getMyEventPermissions(eventId).pipe(
       take(1),
-      tap((x) => (this._eventPermissions = x))
+      tap((x) => (this._eventPermissions = x)),
     );
   }
 
   loadEventTemplatePermissions(
-    eventTemplateId?: string
+    eventTemplateId?: string,
   ): Observable<EventTemplatePermissionClaim[]> {
     return this.eventTemplatePermissionsService
       .getMyEventTemplatePermissions(eventTemplateId)
       .pipe(
         take(1),
-        tap((x) => (this._eventTemplatePermissions = x))
+        tap((x) => (this._eventTemplatePermissions = x)),
       );
   }
 
   loadGroupPermissions(
-    forceReload = false
+    forceReload = false,
   ): Observable<GroupPermissionsClaim[]> {
     if (this.groupPermissionsCache && !forceReload) {
       return this.groupPermissionsCache;
@@ -134,7 +134,7 @@ export class PermissionDataService {
           this.groupPermissionsCache = null;
           return throwError(() => err);
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
 
     return this.groupPermissionsCache;
@@ -144,7 +144,7 @@ export class PermissionDataService {
     return this.canEvent(
       SystemPermission.EditEvents,
       eventId,
-      EventPermission.EditEvent
+      EventPermission.EditEvent,
     );
   }
 
@@ -152,7 +152,7 @@ export class PermissionDataService {
     return this.canEventTemplate(
       SystemPermission.EditEventTemplates,
       eventTemplateId,
-      EventTemplatePermission.EditEventTemplate
+      EventTemplatePermission.EditEventTemplate,
     );
   }
 
@@ -160,7 +160,7 @@ export class PermissionDataService {
     return this.canEvent(
       SystemPermission.ManageEvents,
       eventId,
-      EventPermission.ManageEvent
+      EventPermission.ManageEvent,
     );
   }
 
@@ -168,7 +168,7 @@ export class PermissionDataService {
     return this.canEventTemplate(
       SystemPermission.ManageEventTemplates,
       eventTemplateId,
-      EventTemplatePermission.ManageEventTemplate
+      EventTemplatePermission.ManageEventTemplate,
     );
   }
 
@@ -176,7 +176,7 @@ export class PermissionDataService {
     return this.canEvent(
       SystemPermission.ExecuteEvents,
       eventId,
-      EventPermission.ExecuteEvent
+      EventPermission.ExecuteEvent,
     );
   }
 
@@ -184,7 +184,7 @@ export class PermissionDataService {
     return this.canGroup(
       SystemPermission.ManageGroups,
       groupId,
-      GroupPermission.ManageMembership
+      GroupPermission.ManageMembership,
     );
   }
 
@@ -192,22 +192,22 @@ export class PermissionDataService {
     return this.canGroup(
       SystemPermission.ManageGroups,
       groupId,
-      GroupPermission.EditGroup
+      GroupPermission.EditGroup,
     );
   }
 
   private hasManageMembershipClaim(
-    groupPermissionClaims: GroupPermissionsClaim[]
+    groupPermissionClaims: GroupPermissionsClaim[],
   ): boolean {
     return groupPermissionClaims.some((x) =>
-      x.permissions?.includes(GroupPermission.ManageMembership)
+      x.permissions?.includes(GroupPermission.ManageMembership),
     );
   }
 
   private canEvent(
     permission: SystemPermission,
     eventId?: string,
-    eventPermission?: EventPermission
+    eventPermission?: EventPermission,
   ) {
     const permissions = this._permissions;
     const eventPermissionClaims = this._eventPermissions;
@@ -215,7 +215,7 @@ export class PermissionDataService {
       return true;
     } else if (eventId !== null && eventPermission !== null) {
       const eventPermissionClaim = eventPermissionClaims.find(
-        (x) => x.eventId === eventId
+        (x) => x.eventId === eventId,
       );
 
       if (
@@ -232,7 +232,7 @@ export class PermissionDataService {
   private canEventTemplate(
     permission: SystemPermission,
     eventTemplateId?: string,
-    eventTemplatePermission?: EventTemplatePermission
+    eventTemplatePermission?: EventTemplatePermission,
   ) {
     const permissions = this._permissions;
     const eventTemplatePermissionClaims = this._eventTemplatePermissions;
@@ -240,13 +240,13 @@ export class PermissionDataService {
       return true;
     } else if (eventTemplateId !== null && eventTemplatePermission !== null) {
       const eventTemplatePermissionClaim = eventTemplatePermissionClaims.find(
-        (x) => x.eventTemplateId === eventTemplateId
+        (x) => x.eventTemplateId === eventTemplateId,
       );
 
       if (
         eventTemplatePermissionClaim &&
         eventTemplatePermissionClaim.permissions.includes(
-          eventTemplatePermission
+          eventTemplatePermission,
         )
       ) {
         return true;
@@ -259,7 +259,7 @@ export class PermissionDataService {
   private canGroup(
     permission: SystemPermission,
     groupId?: string,
-    groupPermission?: GroupPermission
+    groupPermission?: GroupPermission,
   ) {
     const permissions = this._permissions;
     const groupPermissionClaims = this._groupPermissions;
@@ -267,7 +267,7 @@ export class PermissionDataService {
       return true;
     } else if (groupId != null && groupPermission != null) {
       const groupPermissionClaim = groupPermissionClaims.find(
-        (x) => x.groupId === groupId
+        (x) => x.groupId === groupId,
       );
 
       if (

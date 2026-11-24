@@ -60,7 +60,7 @@
     "@testing-library/angular": "^19.6.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/user-event": "^14.6.10",
+    "@testing-library/user-event": "^14.6.13",
     "@types/jasminewd2": "^2.0.10",
     "@types/node": "^24.19.2",
     "@vitest/coverage-v8": "^4.1.12",

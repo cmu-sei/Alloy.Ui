@@ -154,21 +154,62 @@ describe('UserDataService', () => {
   });
 
   /**
-   * Verifies: update sends the change to the API but leaves the stored user unchanged (current behavior).
-   * Interacts with: UserService.updateUser, real UserStore (EntityStore.add skips existing ids).
-   * Data: loaded user 'a' named Alice; update renames it to Alicia.
+   * Verifies: update merges the API's answer into the stored user, so a new role shows.
+   * Interacts with: UserService.updateUser, real UserStore and UserQuery.
+   * Data: loaded user 'a' named Alice with 'old-role'; update renames it to Alicia with 'new-role'.
    */
-  it('update does not change the stored user', () => {
+  it('update merges the API answer into the stored user', () => {
     const { service, userStore, userQuery, api } = setup();
-    userStore.set([{ id: 'a', name: 'Alice' }]);
+    userStore.set([{ id: 'a', name: 'Alice', roleId: 'old-role' }]);
 
-    service.update({ id: 'a', name: 'Alicia' });
+    service.update({ id: 'a', name: 'Alicia', roleId: 'new-role' });
 
     expect(api.updateUser).toHaveBeenCalledWith('a', {
       id: 'a',
       name: 'Alicia',
+      roleId: 'new-role',
     });
-    expect(userQuery.getEntity('a').name).toBe('Alice');
+    expect(userQuery.getEntity('a')).toMatchObject({
+      name: 'Alicia',
+      roleId: 'new-role',
+    });
+  });
+
+  /**
+   * Verifies: update leaves the stored user with no role when the answer's role is null, as when an admin removes it.
+   * Interacts with: UserService.updateUser, real UserStore and UserQuery.
+   * Data: loaded user 'a' with 'old-role'; the answer has roleId null.
+   */
+  it('update leaves no role when the API answer has a null role', () => {
+    const { service, userStore, userQuery, api } = setup();
+    userStore.set([{ id: 'a', name: 'Alice', roleId: 'old-role' }]);
+    api.updateUser.mockReturnValueOnce(
+      of<User>({ id: 'a', name: 'Alice', roleId: null }),
+    );
+
+    service.update({ id: 'a', name: 'Alice', roleId: null });
+
+    expect(userQuery.getEntity('a').roleId).toBeNull();
+  });
+
+  /**
+   * Verifies: update adds a user that is not in the store yet, with the initial UI state.
+   * Interacts with: UserService.updateUser, real UserStore and UserQuery.
+   * Data: the store is empty; the API answers for 'z'.
+   */
+  it('update adds a user that is not stored yet', () => {
+    const { service, userQuery } = setup();
+
+    service.update({ id: 'z', name: 'Zed', roleId: 'r1' });
+
+    expect(userQuery.getEntity('z')).toMatchObject({
+      name: 'Zed',
+      roleId: 'r1',
+    });
+    expect(userQuery.ui.getEntity('z')).toEqual({
+      id: 'z',
+      ...initialUserUiState,
+    });
   });
 
   /**
